@@ -12,7 +12,7 @@ interface FoundationLayoutProps {
 export function FoundationLayout({ children, user }: FoundationLayoutProps) {
     return (
         <div className="min-vh-100 d-flex flex-column" style={{ 
-            background: 'var(--gray-50)',
+            background: 'var(--background)',
             position: 'relative'
         }}>
             {/* Background Pattern */}
@@ -33,8 +33,8 @@ export function FoundationLayout({ children, user }: FoundationLayoutProps) {
             </main>
             
             <footer className="mt-5" style={{ 
-                background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-                color: 'white'
+                background: 'linear-gradient(135deg, var(--sidebar) 0%, var(--card) 100%)',
+                color: 'var(--foreground)'
             }}>
                 <Container>
                     <div className="py-5">
@@ -46,7 +46,7 @@ export function FoundationLayout({ children, user }: FoundationLayoutProps) {
                                         style={{
                                             width: '40px',
                                             height: '40px',
-                                            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)'
                                         }}
                                     >
                                         <i className="bi bi-heart-fill text-white"></i>
@@ -97,30 +97,10 @@ export function FoundationLayout({ children, user }: FoundationLayoutProps) {
                                 </div>
                             </Col>
                             
-                            <Col lg={2} md={6} className="mb-4">
-                                <h6 className="text-white fw-semibold mb-3">Nos Actions</h6>
-                                <ul className="list-unstyled">
-                                    <li className="mb-2">
-                                        <a href="/contests" className="text-white opacity-75 text-decoration-none small">Concours</a>
-                                    </li>
-                                    <li className="mb-2">
-                                        <a href="/events" className="text-white opacity-75 text-decoration-none small">Événements</a>
-                                    </li>
-                                    <li className="mb-2">
-                                        <a href="/programs" className="text-white opacity-75 text-decoration-none small">Programmes</a>
-                                    </li>
-                                    <li className="mb-2">
-                                        <a href="/partners" className="text-white opacity-75 text-decoration-none small">Partenaires</a>
-                                    </li>
-                                </ul>
-                            </Col>
                             
                             <Col lg={2} md={6} className="mb-4">
                                 <h6 className="text-white fw-semibold mb-3">Communauté</h6>
                                 <ul className="list-unstyled">
-                                    <li className="mb-2">
-                                        <a href="/members" className="text-white opacity-75 text-decoration-none small">Devenir membre</a>
-                                    </li>
                                     <li className="mb-2">
                                         <a href="#" className="text-white opacity-75 text-decoration-none small">Ambassadeurs</a>
                                     </li>

@@ -62,55 +62,6 @@ export function FoundationNavbar({ user }: FoundationNavbarProps) {
                 
                 <Navbar.Collapse id="foundation-navbar">
                     <Nav className="me-auto">
-                        <Nav.Link 
-                            as={Link} 
-                            href="/dashboard" 
-                            className="fw-medium px-3 py-2 mx-1 rounded-pill position-relative overflow-hidden hover-reveal"
-                            style={{ color: '#4a5568', transition: 'all 0.3s ease' }}
-                        >
-                            <i className="bi bi-house me-2 icon-bounce"></i>
-                            Accueil
-                        </Nav.Link>
-                        
-                        <Nav.Link 
-                            as={Link} 
-                            href="/contests" 
-                            className="fw-medium px-3 py-2 mx-1 rounded-pill position-relative overflow-hidden hover-reveal"
-                            style={{ color: '#4a5568', transition: 'all 0.3s ease' }}
-                        >
-                            <i className="bi bi-trophy me-2 icon-bounce"></i>
-                            {t('contests')}
-                        </Nav.Link>
-                        
-                        <Nav.Link 
-                            as={Link} 
-                            href="/events" 
-                            className="fw-medium px-3 py-2 mx-1 rounded-pill position-relative overflow-hidden hover-reveal"
-                            style={{ color: '#4a5568', transition: 'all 0.3s ease' }}
-                        >
-                            <i className="bi bi-calendar-event me-2 icon-bounce"></i>
-                            {t('events')}
-                        </Nav.Link>
-                        
-                        <Nav.Link 
-                            as={Link} 
-                            href="/programs" 
-                            className="fw-medium px-3 py-2 mx-1 rounded-pill position-relative overflow-hidden hover-reveal"
-                            style={{ color: '#4a5568', transition: 'all 0.3s ease' }}
-                        >
-                            <i className="bi bi-journal-bookmark me-2 icon-bounce"></i>
-                            {t('programs')}
-                        </Nav.Link>
-                        
-                        <Nav.Link 
-                            as={Link} 
-                            href="/partners" 
-                            className="fw-medium px-3 py-2 mx-1 rounded-pill position-relative overflow-hidden hover-reveal"
-                            style={{ color: '#4a5568', transition: 'all 0.3s ease' }}
-                        >
-                            <i className="bi bi-building me-2 icon-bounce"></i>
-                            {t('partners')}
-                        </Nav.Link>
                     </Nav>
                     
                     <Nav className="align-items-center">
@@ -127,7 +78,7 @@ export function FoundationNavbar({ user }: FoundationNavbarProps) {
                                 id="user-dropdown"
                                 className="ms-2"
                             >
-                                <NavDropdown.Item as={Link} href="/members/profile">
+                                <NavDropdown.Item as={Link} href="/settings/profile">
                                     <i className="bi bi-person me-2"></i>
                                     Profil
                                 </NavDropdown.Item>

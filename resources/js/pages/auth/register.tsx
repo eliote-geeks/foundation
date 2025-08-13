@@ -1,15 +1,8 @@
 import { Head, useForm } from '@inertiajs/react';
-import { motion } from 'framer-motion';
-import { LoaderCircle, User, Mail, Lock, ArrowRight } from 'lucide-react';
 import { FormEventHandler } from 'react';
-
-import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import ModernPageLayout, { FloatingCard } from '@/components/modern-page-layout';
+import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
+import { ModernHeader } from '../../components/home/modern-header';
+import { ModernFooter } from '../../components/home/modern-footer';
 
 type RegisterForm = {
     name: string;
@@ -34,195 +27,287 @@ export default function Register() {
     };
 
     return (
-        <ModernPageLayout
-            title="Créer votre compte"
-            description="Rejoignez notre communauté et commencez votre parcours d'engagement social"
-            icon={<User className="w-8 h-8 text-white" />}
-            className="flex items-center justify-center"
-            showFooter={false}
-        >
-            <Head title="Inscription" />
-
-            <div className="w-full max-w-md mx-auto">
-                <FloatingCard>
-                    <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
-                        <CardHeader className="text-center pb-6">
-                            <motion.div
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: 0.2 }}
-                                className="w-20 h-20 mx-auto bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-4"
-                            >
-                                <User className="w-10 h-10 text-white" />
-                            </motion.div>
-                            
-                            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                                Bienvenue !
-                            </CardTitle>
-                            
-                            <CardDescription className="text-base text-slate-600">
-                                Créez votre compte pour rejoindre notre communauté
-                            </CardDescription>
-                        </CardHeader>
-
-                        <CardContent className="space-y-6">
-                            <form onSubmit={submit} className="space-y-5">
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="space-y-2"
-                                >
-                                    <Label htmlFor="name" className="text-sm font-medium text-slate-700">
-                                        Nom complet
-                                    </Label>
-                                    <div className="relative">
-                                        <User className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                        <Input
-                                            id="name"
-                                            type="text"
-                                            required
-                                            autoFocus
-                                            tabIndex={1}
-                                            autoComplete="name"
-                                            value={data.name}
-                                            onChange={(e) => setData('name', e.target.value)}
-                                            disabled={processing}
-                                            placeholder="Votre nom complet"
-                                            className="pl-10 h-12 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
-                                        />
-                                    </div>
-                                    <InputError message={errors.name} />
-                                </motion.div>
-
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="space-y-2"
-                                >
-                                    <Label htmlFor="email" className="text-sm font-medium text-slate-700">
-                                        Adresse email
-                                    </Label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            required
-                                            tabIndex={2}
-                                            autoComplete="email"
-                                            value={data.email}
-                                            onChange={(e) => setData('email', e.target.value)}
-                                            disabled={processing}
-                                            placeholder="votre@email.com"
-                                            className="pl-10 h-12 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
-                                        />
-                                    </div>
-                                    <InputError message={errors.email} />
-                                </motion.div>
-
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.5 }}
-                                    className="space-y-2"
-                                >
-                                    <Label htmlFor="password" className="text-sm font-medium text-slate-700">
-                                        Mot de passe
-                                    </Label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                        <Input
-                                            id="password"
-                                            type="password"
-                                            required
-                                            tabIndex={3}
-                                            autoComplete="new-password"
-                                            value={data.password}
-                                            onChange={(e) => setData('password', e.target.value)}
-                                            disabled={processing}
-                                            placeholder="••••••••"
-                                            className="pl-10 h-12 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
-                                        />
-                                    </div>
-                                    <InputError message={errors.password} />
-                                </motion.div>
-
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.6 }}
-                                    className="space-y-2"
-                                >
-                                    <Label htmlFor="password_confirmation" className="text-sm font-medium text-slate-700">
-                                        Confirmer le mot de passe
-                                    </Label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                        <Input
-                                            id="password_confirmation"
-                                            type="password"
-                                            required
-                                            tabIndex={4}
-                                            autoComplete="new-password"
-                                            value={data.password_confirmation}
-                                            onChange={(e) => setData('password_confirmation', e.target.value)}
-                                            disabled={processing}
-                                            placeholder="••••••••"
-                                            className="pl-10 h-12 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
-                                        />
-                                    </div>
-                                    <InputError message={errors.password_confirmation} />
-                                </motion.div>
-
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.7 }}
-                                >
-                                    <Button 
-                                        type="submit" 
-                                        className="w-full h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium group"
-                                        tabIndex={5} 
-                                        disabled={processing}
+        <>
+            <Head title="Inscription - Fondation TITI" />
+            
+            <div className="register-page">
+                <ModernHeader />
+                
+                {/* Section Hero avec formulaire */}
+                <section 
+                    className="min-vh-100 d-flex align-items-center py-5"
+                    style={{
+                        background: 'linear-gradient(135deg, #334E15 0%, #4D8A3C 50%, #5FA145 100%)',
+                        marginTop: '70px'
+                    }}
+                >
+                    <Container>
+                        <Row className="justify-content-center">
+                            <Col lg={6} md={8} sm={10}>
+                                {/* Logo et branding */}
+                                <div className="text-center mb-4">
+                                    <div 
+                                        className="logo-container mx-auto rounded-circle d-flex align-items-center justify-content-center mb-4"
+                                        style={{
+                                            width: '80px',
+                                            height: '80px',
+                                            background: 'rgba(255,255,255,0.2)',
+                                            backdropFilter: 'blur(10px)'
+                                        }}
                                     >
-                                        {processing ? (
-                                            <>
-                                                <LoaderCircle className="h-5 w-5 animate-spin mr-2" />
-                                                Création...
-                                            </>
-                                        ) : (
-                                            <>
-                                                Créer mon compte
-                                                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                                            </>
-                                        )}
-                                    </Button>
-                                </motion.div>
-                            </form>
+                                        <img 
+                                            src="/logo foundation.jpg"
+                                            alt="Logo Fondation TITI"
+                                            className="rounded-circle"
+                                            style={{
+                                                width: '60px',
+                                                height: '60px',
+                                                objectFit: 'cover'
+                                            }}
+                                        />
+                                    </div>
+                                    <h1 className="h2 fw-bold text-white mb-2">Bienvenue !</h1>
+                                    <p className="text-white" style={{ opacity: 0.9 }}>
+                                        Créez votre compte pour rejoindre notre communauté d'impact social.
+                                    </p>
+                                </div>
 
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.8 }}
-                                className="text-center pt-6 border-t border-slate-200"
-                            >
-                                <p className="text-sm text-slate-600">
-                                    Déjà membre ?{' '}
-                                    <TextLink 
-                                        href={route('login')} 
-                                        className="font-medium text-emerald-600 hover:text-emerald-700"
-                                        tabIndex={6}
-                                    >
-                                        Se connecter
-                                    </TextLink>
-                                </p>
-                            </motion.div>
-                        </CardContent>
-                    </Card>
-                </FloatingCard>
+                                {/* Formulaire d'inscription */}
+                                <Card 
+                                    className="border-0 shadow-lg"
+                                    style={{
+                                        borderRadius: '20px',
+                                        background: 'rgba(255,255,255,0.95)',
+                                        backdropFilter: 'blur(10px)'
+                                    }}
+                                >
+                                    <Card.Body className="p-5">
+                                        <Form onSubmit={submit}>
+                                            <Row>
+                                                {/* Nom complet */}
+                                                <Col md={6}>
+                                                    <Form.Group className="mb-4">
+                                                        <Form.Label className="fw-semibold mb-2" style={{ color: '#374151' }}>
+                                                            Nom complet
+                                                        </Form.Label>
+                                                        <div className="position-relative">
+                                                            <i 
+                                                                className="bi bi-person position-absolute text-muted"
+                                                                style={{
+                                                                    left: '12px',
+                                                                    top: '50%',
+                                                                    transform: 'translateY(-50%)'
+                                                                }}
+                                                            ></i>
+                                                            <Form.Control
+                                                                type="text"
+                                                                name="name"
+                                                                value={data.name}
+                                                                onChange={(e) => setData('name', e.target.value)}
+                                                                required
+                                                                autoFocus
+                                                                placeholder="Votre nom complet"
+                                                                className="ps-5"
+                                                                style={{
+                                                                    borderRadius: '12px',
+                                                                    padding: '12px 20px 12px 40px',
+                                                                    borderColor: errors.name ? '#dc3545' : '#D1D5DB',
+                                                                    fontSize: '1rem'
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        {errors.name && (
+                                                            <div className="text-danger small mt-1">
+                                                                {errors.name}
+                                                            </div>
+                                                        )}
+                                                    </Form.Group>
+                                                </Col>
+
+                                                {/* Email */}
+                                                <Col md={6}>
+                                                    <Form.Group className="mb-4">
+                                                        <Form.Label className="fw-semibold mb-2" style={{ color: '#374151' }}>
+                                                            Adresse email
+                                                        </Form.Label>
+                                                        <div className="position-relative">
+                                                            <i 
+                                                                className="bi bi-envelope position-absolute text-muted"
+                                                                style={{
+                                                                    left: '12px',
+                                                                    top: '50%',
+                                                                    transform: 'translateY(-50%)'
+                                                                }}
+                                                            ></i>
+                                                            <Form.Control
+                                                                type="email"
+                                                                name="email"
+                                                                value={data.email}
+                                                                onChange={(e) => setData('email', e.target.value)}
+                                                                required
+                                                                placeholder="votre@email.com"
+                                                                className="ps-5"
+                                                                style={{
+                                                                    borderRadius: '12px',
+                                                                    padding: '12px 20px 12px 40px',
+                                                                    borderColor: errors.email ? '#dc3545' : '#D1D5DB',
+                                                                    fontSize: '1rem'
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        {errors.email && (
+                                                            <div className="text-danger small mt-1">
+                                                                {errors.email}
+                                                            </div>
+                                                        )}
+                                                    </Form.Group>
+                                                </Col>
+
+                                                {/* Mot de passe */}
+                                                <Col md={6}>
+                                                    <Form.Group className="mb-4">
+                                                        <Form.Label className="fw-semibold mb-2" style={{ color: '#374151' }}>
+                                                            Mot de passe
+                                                        </Form.Label>
+                                                        <div className="position-relative">
+                                                            <i 
+                                                                className="bi bi-lock position-absolute text-muted"
+                                                                style={{
+                                                                    left: '12px',
+                                                                    top: '50%',
+                                                                    transform: 'translateY(-50%)'
+                                                                }}
+                                                            ></i>
+                                                            <Form.Control
+                                                                type="password"
+                                                                name="password"
+                                                                value={data.password}
+                                                                onChange={(e) => setData('password', e.target.value)}
+                                                                required
+                                                                placeholder="••••••••"
+                                                                className="ps-5"
+                                                                style={{
+                                                                    borderRadius: '12px',
+                                                                    padding: '12px 20px 12px 40px',
+                                                                    borderColor: errors.password ? '#dc3545' : '#D1D5DB',
+                                                                    fontSize: '1rem'
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        {errors.password && (
+                                                            <div className="text-danger small mt-1">
+                                                                {errors.password}
+                                                            </div>
+                                                        )}
+                                                    </Form.Group>
+                                                </Col>
+
+                                                {/* Confirmation mot de passe */}
+                                                <Col md={6}>
+                                                    <Form.Group className="mb-4">
+                                                        <Form.Label className="fw-semibold mb-2" style={{ color: '#374151' }}>
+                                                            Confirmer le mot de passe
+                                                        </Form.Label>
+                                                        <div className="position-relative">
+                                                            <i 
+                                                                className="bi bi-lock position-absolute text-muted"
+                                                                style={{
+                                                                    left: '12px',
+                                                                    top: '50%',
+                                                                    transform: 'translateY(-50%)'
+                                                                }}
+                                                            ></i>
+                                                            <Form.Control
+                                                                type="password"
+                                                                name="password_confirmation"
+                                                                value={data.password_confirmation}
+                                                                onChange={(e) => setData('password_confirmation', e.target.value)}
+                                                                required
+                                                                placeholder="••••••••"
+                                                                className="ps-5"
+                                                                style={{
+                                                                    borderRadius: '12px',
+                                                                    padding: '12px 20px 12px 40px',
+                                                                    borderColor: errors.password_confirmation ? '#dc3545' : '#D1D5DB',
+                                                                    fontSize: '1rem'
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        {errors.password_confirmation && (
+                                                            <div className="text-danger small mt-1">
+                                                                {errors.password_confirmation}
+                                                            </div>
+                                                        )}
+                                                    </Form.Group>
+                                                </Col>
+                                            </Row>
+
+                                            {/* Bouton d'inscription */}
+                                            <Button
+                                                type="submit"
+                                                disabled={processing}
+                                                className="w-100 fw-bold py-3 mb-4"
+                                                size="lg"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
+                                                    border: 'none',
+                                                    borderRadius: '12px',
+                                                    fontSize: '1.1rem',
+                                                    boxShadow: '0 4px 15px rgba(95, 161, 69, 0.3)',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    if (!processing) {
+                                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                                        e.currentTarget.style.boxShadow = '0 8px 25px rgba(95, 161, 69, 0.4)';
+                                                    }
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    if (!processing) {
+                                                        e.currentTarget.style.transform = 'translateY(0)';
+                                                        e.currentTarget.style.boxShadow = '0 4px 15px rgba(95, 161, 69, 0.3)';
+                                                    }
+                                                }}
+                                            >
+                                                {processing ? (
+                                                    <>
+                                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                        Création du compte...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <i className="bi bi-person-plus me-2"></i>
+                                                        Créer mon compte
+                                                    </>
+                                                )}
+                                            </Button>
+
+                                            {/* Lien vers connexion */}
+                                            <div className="text-center">
+                                                <p className="mb-2" style={{ color: '#6B7280' }}>
+                                                    Déjà membre ?{' '}
+                                                    <a 
+                                                        href={route('login')} 
+                                                        className="text-decoration-none fw-semibold"
+                                                        style={{ color: '#5FA145' }}
+                                                    >
+                                                        Se connecter
+                                                    </a>
+                                                </p>
+                                                <small className="text-muted">
+                                                    En créant votre compte, vous acceptez nos conditions d'utilisation
+                                                </small>
+                                            </div>
+                                        </Form>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Container>
+                </section>
+                
+                <ModernFooter />
             </div>
-        </ModernPageLayout>
+        </>
     );
 }
