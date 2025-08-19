@@ -1,5 +1,5 @@
 import { Nav, Navbar, Container, NavDropdown } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../hooks/useTranslation';
 import { LanguageSwitcher } from './language-switcher';
 import { Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
@@ -65,22 +65,32 @@ export function FoundationNavbar({ user }: FoundationNavbarProps) {
                     </Nav>
                     
                     <Nav className="align-items-center">
-                        <LanguageSwitcher />
+                        <LanguageSwitcher variant="compact" />
                         
                         {user ? (
                             <NavDropdown 
                                 title={
                                     <>
                                         <i className="bi bi-person-circle me-1"></i>
-                                        {user.name}
+                                        {user?.name || 'Utilisateur'}
                                     </>
                                 } 
                                 id="user-dropdown"
-                                className="ms-2"
+                                className="ms-3"
                             >
+                                <NavDropdown.Item as={Link} href="/dashboard">
+                                    <i className="bi bi-speedometer2 me-2"></i>
+                                    {t('dashboard', 'Dashboard')}
+                                </NavDropdown.Item>
+                                
                                 <NavDropdown.Item as={Link} href="/settings/profile">
                                     <i className="bi bi-person me-2"></i>
-                                    Profil
+                                    {t('profile', 'Profil')}
+                                </NavDropdown.Item>
+                                
+                                <NavDropdown.Item as={Link} href="/settings/language">
+                                    <i className="bi bi-translate me-2"></i>
+                                    {t('languageSettings', 'Paramètres de langue')}
                                 </NavDropdown.Item>
                                 
                                 <NavDropdown.Item as={Link} href="/settings">
@@ -97,9 +107,9 @@ export function FoundationNavbar({ user }: FoundationNavbarProps) {
                             </NavDropdown>
                         ) : (
                             <>
-                                <Nav.Link as={Link} href="/member-register" className="ms-2">
+                                <Nav.Link as={Link} href="/member-register" className="ms-3">
                                     <i className="bi bi-person-plus me-1"></i>
-                                    Rejoindre
+                                    {t('join', 'Rejoindre')}
                                 </Nav.Link>
                                 <Nav.Link as={Link} href="/login" className="ms-2">
                                     <i className="bi bi-box-arrow-in-right me-1"></i>

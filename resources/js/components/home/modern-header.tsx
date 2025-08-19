@@ -1,5 +1,8 @@
 import { Container, Nav, Navbar, Button } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
+import { Link } from '@inertiajs/react';
+import { LanguageSwitcher } from '../foundation/language-switcher';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface ModernHeaderProps {
     user?: {
@@ -9,6 +12,7 @@ interface ModernHeaderProps {
 }
 
 export function ModernHeader({ user }: ModernHeaderProps) {
+    const { t } = useTranslation();
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -36,7 +40,8 @@ export function ModernHeader({ user }: ModernHeaderProps) {
             <Container>
                 {/* Logo et nom */}
                 <Navbar.Brand 
-                    href="#" 
+                    as={Link} 
+                    href="/" 
                     className="d-flex align-items-center"
                 >
                     <img 
@@ -87,6 +92,7 @@ export function ModernHeader({ user }: ModernHeaderProps) {
                     {/* Menu principal */}
                     <Nav className="mx-auto">
                         <Nav.Link 
+                            as={Link}
                             href="/"
                             style={{
                                 color: '#374151',
@@ -98,9 +104,10 @@ export function ModernHeader({ user }: ModernHeaderProps) {
                             onMouseEnter={(e) => e.currentTarget.style.color = '#059669'}
                             onMouseLeave={(e) => e.currentTarget.style.color = '#374151'}
                         >
-                            Accueil
+                            {t('home', 'Accueil')}
                         </Nav.Link>
                         <Nav.Link 
+                            as={Link}
                             href="/contests"
                             style={{
                                 color: '#374151',
@@ -112,9 +119,10 @@ export function ModernHeader({ user }: ModernHeaderProps) {
                             onMouseEnter={(e) => e.currentTarget.style.color = '#059669'}
                             onMouseLeave={(e) => e.currentTarget.style.color = '#374151'}
                         >
-                            Concours
+                            {t('contests', 'Concours')}
                         </Nav.Link>
                         <Nav.Link 
+                            as={Link}
                             href="/tickets"
                             style={{
                                 color: '#374151',
@@ -126,9 +134,10 @@ export function ModernHeader({ user }: ModernHeaderProps) {
                             onMouseEnter={(e) => e.currentTarget.style.color = '#059669'}
                             onMouseLeave={(e) => e.currentTarget.style.color = '#374151'}
                         >
-                            Billetterie
+                            {t('tickets', 'Billetterie')}
                         </Nav.Link>
                         <Nav.Link 
+                            as={Link}
                             href="/partners"
                             style={{
                                 color: '#374151',
@@ -140,15 +149,53 @@ export function ModernHeader({ user }: ModernHeaderProps) {
                             onMouseEnter={(e) => e.currentTarget.style.color = '#059669'}
                             onMouseLeave={(e) => e.currentTarget.style.color = '#374151'}
                         >
-                            Partenaires
+                            {t('partners', 'Partenaires')}
                         </Nav.Link>
+                        <Nav.Link 
+                            as={Link}
+                            href={user ? "/profile" : "/profiles"}
+                            style={{
+                                color: '#374151',
+                                fontSize: '0.95rem',
+                                fontWeight: '500',
+                                padding: '8px 16px',
+                                transition: 'color 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = '#059669'}
+                            onMouseLeave={(e) => e.currentTarget.style.color = '#374151'}
+                        >
+                            <i className="bi bi-person-circle me-2"></i>
+                            {t('profile', user ? 'Profil' : 'Profils')}
+                        </Nav.Link>
+                        {user && (
+                            <Nav.Link 
+                                as={Link}
+                                href="/dashboard"
+                                style={{
+                                    color: '#374151',
+                                    fontSize: '0.95rem',
+                                    fontWeight: '500',
+                                    padding: '8px 16px',
+                                    transition: 'color 0.2s ease'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.color = '#059669'}
+                                onMouseLeave={(e) => e.currentTarget.style.color = '#374151'}
+                            >
+                                <i className="bi bi-speedometer2 me-2"></i>
+                                {t('dashboard', 'Dashboard')}
+                            </Nav.Link>
+                        )}
                     </Nav>
 
-                    {/* Boutons utilisateur */}
-                    <div className="d-flex gap-2 align-items-center">
+                    {/* Sélecteur de langue et boutons utilisateur */}
+                    <div className="d-flex gap-3 align-items-center">
+                        <LanguageSwitcher variant="icon-only" />
+                        
                         {user ? (
                             <div className="d-flex align-items-center gap-2">
                                 <Button
+                                    as={Link}
+                                    href="/dashboard"
                                     variant="outline-primary"
                                     size="sm"
                                     className="px-3 py-2 rounded fw-medium"
@@ -167,38 +214,35 @@ export function ModernHeader({ user }: ModernHeaderProps) {
                                     }}
                                 >
                                     <i className="bi bi-person me-1"></i>
-                                    {user.name}
+                                    {user?.name || 'Profil'}
                                 </Button>
                                 
-                                <form method="POST" action="/logout" style={{ display: 'inline' }}>
-                                    <input type="hidden" name="_token" value={document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''} />
-                                    <Button
-                                        type="submit"
-                                        variant="outline-secondary"
-                                        size="sm"
-                                        className="px-2 py-2 rounded"
-                                        style={{
-                                            borderColor: '#6B7280',
-                                            color: '#6B7280',
-                                            fontSize: '0.875rem'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.backgroundColor = '#6B7280';
-                                            e.currentTarget.style.color = '#FFFFFF';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.backgroundColor = 'transparent';
-                                            e.currentTarget.style.color = '#6B7280';
-                                        }}
-                                        title="Déconnexion"
-                                    >
-                                        <i className="bi bi-box-arrow-right"></i>
-                                    </Button>
-                                </form>
+                                <Link
+                                    href="/logout"
+                                    method="post"
+                                    as="button"
+                                    className="btn btn-outline-secondary btn-sm px-2 py-2 rounded"
+                                    style={{
+                                        borderColor: '#6B7280',
+                                        color: '#6B7280',
+                                        fontSize: '0.875rem'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#6B7280';
+                                        e.currentTarget.style.color = '#FFFFFF';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'transparent';
+                                        e.currentTarget.style.color = '#6B7280';
+                                    }}
+                                    title={t('logout', 'Déconnexion')}
+                                >
+                                    <i className="bi bi-box-arrow-right"></i>
+                                </Link>
                             </div>
                         ) : (
                             <>
-                                <a href="/login" className="text-decoration-none">
+                                <Link href="/login" className="text-decoration-none">
                                     <Button
                                         variant="outline-secondary"
                                         size="sm"
@@ -218,11 +262,11 @@ export function ModernHeader({ user }: ModernHeaderProps) {
                                         }}
                                     >
                                         <i className="bi bi-box-arrow-in-right me-1"></i>
-                                        Connexion
+                                        {t('login', 'Connexion')}
                                     </Button>
-                                </a>
+                                </Link>
                                 
-                                <a href="/register" className="text-decoration-none">
+                                <Link href="/simple-register" className="text-decoration-none">
                                     <Button
                                         size="sm"
                                         className="px-3 py-2 rounded fw-medium"
@@ -242,9 +286,9 @@ export function ModernHeader({ user }: ModernHeaderProps) {
                                         }}
                                     >
                                         <i className="bi bi-person-plus me-1"></i>
-                                        Rejoindre
+                                        {t('join', 'Rejoindre')}
                                     </Button>
-                                </a>
+                                </Link>
                             </>
                         )}
                     </div>

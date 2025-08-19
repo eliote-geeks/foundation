@@ -15,11 +15,16 @@ Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
-    Route::get('member-register', function () {
-        return Inertia::render('auth/member-register');
-    })->name('member-register');
+    Route::get('simple-register', [RegisteredUserController::class, 'createSimple'])
+        ->name('simple-register');
+
+    Route::get('member-register', [RegisteredUserController::class, 'createMember'])
+        ->name('member-register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
+    
+    Route::post('member-register', [RegisteredUserController::class, 'storeMember'])
+        ->name('member-register.store');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');

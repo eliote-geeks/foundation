@@ -42,10 +42,10 @@ export default function Partners({ user }: PartnersProps) {
     const partners: Partner[] = [
         {
             id: 1,
-            name: "Orange Sénégal",
+            name: "Orange Cameroun",
             logo: "📱",
-            description: "Leader des télécommunications au Sénégal, Orange soutient nos initiatives de transformation digitale et d'inclusion numérique.",
-            website: "orange.sn",
+            description: "Leader des télécommunications au Cameroun, Orange soutient nos initiatives de transformation digitale et d'inclusion numérique.",
+            website: "orange.cm",
             category: "Technologie",
             partnership: "Partenaire Principal",
             since: 2019
@@ -62,37 +62,37 @@ export default function Partners({ user }: PartnersProps) {
         },
         {
             id: 3,
-            name: "Université Cheikh Anta Diop",
+            name: "Université de Yaoundé I",
             logo: "🎓",
-            description: "Partenariat académique pour la recherche, l'innovation et la formation des jeunes talents sénégalais.",
-            website: "ucad.edu.sn",
+            description: "Partenariat académique pour la recherche, l'innovation et la formation des jeunes talents camerounais.",
+            website: "uy1.uninet.cm",
             category: "Éducation",
             partnership: "Partenaire Académique",
             since: 2018
         },
         {
             id: 4,
-            name: "Sonatel",
+            name: "Camtel",
             logo: "📡",
             description: "Opérateur télécom national qui facilite la connectivité de nos programmes dans les zones rurales.",
-            website: "sonatel.sn",
+            website: "camtel.cm",
             category: "Télécommunications",
             partnership: "Partenaire Technique",
             since: 2021
         },
         {
             id: 5,
-            name: "CBAO Groupe Attijariwafa Bank",
+            name: "Afriland First Bank",
             logo: "💳",
             description: "Partenaire bancaire stratégique pour le financement de nos projets d'impact social et environnemental.",
-            website: "cbao.sn",
+            website: "afrilandfirstbank.com",
             category: "Finance",
             partnership: "Partenaire Financier",
             since: 2020
         },
         {
             id: 6,
-            name: "Ecobank Sénégal",
+            name: "Ecobank Cameroun",
             logo: "🌍",
             description: "Banque panafricaine qui soutient notre expansion régionale et nos initiatives entrepreneuriales.",
             website: "ecobank.com",
@@ -102,20 +102,20 @@ export default function Partners({ user }: PartnersProps) {
         },
         {
             id: 7,
-            name: "Total Énergies Sénégal",
+            name: "Total Énergies Cameroun",
             logo: "⚡",
             description: "Partenaire énergétique pour nos projets d'électrification rurale et d'énergies renouvelables.",
-            website: "totalenergies.sn",
+            website: "totalenergies.cm",
             category: "Énergie",
             partnership: "Partenaire Environnemental",
             since: 2022
         },
         {
             id: 8,
-            name: "Nestlé Sénégal",
+            name: "Nestlé Cameroun",
             logo: "🥛",
             description: "Collaboration sur les programmes de nutrition communautaire et de sécurité alimentaire.",
-            website: "nestle.sn",
+            website: "nestle.cm",
             category: "Agroalimentaire",
             partnership: "Partenaire Social",
             since: 2021
@@ -132,30 +132,30 @@ export default function Partners({ user }: PartnersProps) {
         },
         {
             id: 10,
-            name: "Senelec",
+            name: "Eneo Cameroun",
             logo: "💡",
             description: "Compagnie nationale d'électricité partenaire de nos projets d'accès à l'énergie pour tous.",
-            website: "senelec.sn",
+            website: "eneocameroon.cm",
             category: "Énergie",
             partnership: "Partenaire Public",
             since: 2020
         },
         {
             id: 11,
-            name: "Air Sénégal",
+            name: "Camair-Co",
             logo: "✈️",
             description: "Compagnie aérienne nationale qui facilite la mobilité de nos équipes et partenaires internationaux.",
-            website: "airsenegal.sl",
+            website: "camair-co.cm",
             category: "Transport",
             partnership: "Partenaire Logistique",
             since: 2022
         },
         {
             id: 12,
-            name: "Groupe Kirène",
+            name: "Source du Pays",
             logo: "💧",
-            description: "Leader de l'eau minérale au Sénégal, partenaire de nos initiatives d'accès à l'eau potable.",
-            website: "kirene.sn",
+            description: "Leader de l'eau minérale au Cameroun, partenaire de nos initiatives d'accès à l'eau potable.",
+            website: "sourcedupays.cm",
             category: "Agroalimentaire",
             partnership: "Partenaire Santé",
             since: 2019
@@ -454,7 +454,7 @@ export default function Partners({ user }: PartnersProps) {
                                         {
                                             icon: '🌍',
                                             title: 'Visibilité Régionale',
-                                            description: 'Bénéficiez d\'une exposition dans tout l\'écosystème sénégalais et ouest-africain.'
+                                            description: 'Bénéficiez d\'une exposition dans tout l\'écosystème camerounais et central-africain.'
                                         },
                                         {
                                             icon: '🤝',
