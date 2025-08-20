@@ -368,26 +368,31 @@ export function SocialFeedSection() {
                         {/* Load More Button */}
                         <div className="text-center mt-4">
                             <Button
-                                size="lg"
-                                className="px-5 py-3 rounded-pill fw-semibold"
+                                size="sm"
+                                className="px-4 py-2 rounded-pill fw-medium"
                                 style={{
                                     background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
                                     border: 'none',
                                     color: '#FFF',
-                                    boxShadow: '0 4px 15px rgba(95, 161, 69, 0.3)',
+                                    fontSize: '0.875rem',
+                                    boxShadow: '0 2px 8px rgba(95, 161, 69, 0.3)',
                                     transition: 'all 0.3s ease'
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-2px)';
-                                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(95, 161, 69, 0.4)';
+                                    e.currentTarget.style.background = 'linear-gradient(135deg, #4D8A3C 0%, #334E15 100%)';
+                                    e.currentTarget.style.color = '#FFF';
+                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(95, 161, 69, 0.4)';
                                 }}
                                 onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)';
+                                    e.currentTarget.style.color = '#FFF';
                                     e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(95, 161, 69, 0.3)';
+                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(95, 161, 69, 0.3)';
                                 }}
                             >
-                                <i className="bi bi-arrow-clockwise me-2"></i>
-                                Charger plus d'actualités
+                                <i className="bi bi-arrow-clockwise me-1"></i>
+                                Voir plus
                             </Button>
                         </div>
                     </Col>

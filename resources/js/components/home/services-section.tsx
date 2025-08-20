@@ -69,7 +69,7 @@ export function ServicesSection() {
             id="services"
             className="py-5"
             style={{
-                background: 'linear-gradient(180deg, #334E15 0%, rgba(51, 78, 21, 0.95) 100%)',
+                background: 'linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%)',
                 minHeight: '100vh',
                 position: 'relative'
             }}
@@ -113,7 +113,7 @@ export function ServicesSection() {
                         }}
                     >
                         <i className="bi bi-stars me-2" style={{ color: '#5FA145' }}></i>
-                        <span style={{ color: '#E8F5E8', fontSize: '0.95rem', fontWeight: '500' }}>
+                        <span style={{ color: '#5FA145', fontSize: '0.95rem', fontWeight: '500' }}>
                             Nos Services
                         </span>
                     </div>
@@ -121,8 +121,8 @@ export function ServicesSection() {
                     <h2 
                         className="display-4 fw-bold mb-4"
                         style={{ 
-                            color: '#E8F5E8',
-                            textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                            color: '#334E15',
+                            textShadow: 'none'
                         }}
                     >
                         Des solutions complètes
@@ -133,7 +133,7 @@ export function ServicesSection() {
                     <p 
                         className="lead mx-auto"
                         style={{ 
-                            color: 'rgba(232, 245, 232, 0.8)',
+                            color: '#6B7280',
                             maxWidth: '600px',
                             fontSize: '1.2rem'
                         }}
@@ -197,7 +197,7 @@ export function ServicesSection() {
                                             style={{ 
                                                 color: hoveredService === index 
                                                     ? 'rgba(255, 255, 255, 0.9)' 
-                                                    : 'rgba(232, 245, 232, 0.8)',
+                                                    : '#6B7280',
                                                 lineHeight: '1.6'
                                             }}
                                         >
@@ -231,7 +231,7 @@ export function ServicesSection() {
                                                     style={{ 
                                                         color: hoveredService === index 
                                                             ? 'rgba(255, 255, 255, 0.9)' 
-                                                            : 'rgba(232, 245, 232, 0.8)',
+                                                            : '#6B7280',
                                                         fontSize: '0.9rem'
                                                     }}
                                                 >
@@ -278,39 +278,63 @@ export function ServicesSection() {
                             border: '1px solid rgba(232, 245, 232, 0.2)'
                         }}
                     >
-                        <h3 className="fw-bold mb-3" style={{ color: '#E8F5E8' }}>
+                        <h3 className="fw-bold mb-3" style={{ color: '#334E15' }}>
                             Prêt à commencer votre parcours d'engagement ?
                         </h3>
-                        <p className="mb-4" style={{ color: 'rgba(232, 245, 232, 0.8)' }}>
+                        <p className="mb-4" style={{ color: '#6B7280' }}>
                             Rejoignez des milliers de membres qui transforment déjà leurs communautés.
                         </p>
-                        <div className="d-flex flex-column flex-sm-row justify-content-center gap-3">
-                            <div 
-                                className="btn btn-primary btn-lg px-5 py-3"
+                        <div className="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                            <button 
+                                className="btn btn-sm px-4 py-2"
                                 style={{
                                     background: 'linear-gradient(135deg, #5FA145 0%, #C69438 100%)',
                                     border: 'none',
                                     color: '#334E15',
-                                    borderRadius: '50px',
-                                    fontWeight: '600'
-                                }}
-                            >
-                                <i className="bi bi-person-plus me-2"></i>
-                                Devenir membre
-                            </div>
-                            <div 
-                                className="btn btn-outline-light btn-lg px-5 py-3"
-                                style={{
-                                    borderColor: '#F5B4C6',
-                                    color: '#E8F5E8',
-                                    borderRadius: '50px',
+                                    borderRadius: '8px',
                                     fontWeight: '500',
-                                    borderWidth: '2px'
+                                    fontSize: '0.875rem',
+                                    transition: 'all 0.3s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = 'linear-gradient(135deg, #4D8A3C 0%, #A67C2A 100%)';
+                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'linear-gradient(135deg, #5FA145 0%, #C69438 100%)';
+                                    e.currentTarget.style.transform = 'translateY(0)';
                                 }}
                             >
-                                <i className="bi bi-calendar-check me-2"></i>
-                                Explorer les événements
-                            </div>
+                                <i className="bi bi-person-plus me-1"></i>
+                                Devenir membre
+                            </button>
+                            <button 
+                                className="btn btn-sm px-4 py-2"
+                                style={{
+                                    background: 'transparent',
+                                    border: '1px solid #F5B4C6',
+                                    color: '#E4518C',
+                                    borderRadius: '8px',
+                                    fontWeight: '400',
+                                    fontSize: '0.875rem',
+                                    transition: 'all 0.3s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = 'rgba(245, 180, 198, 0.2)';
+                                    e.currentTarget.style.color = '#FFFFFF';
+                                    e.currentTarget.style.borderColor = '#FFFFFF';
+                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'transparent';
+                                    e.currentTarget.style.color = '#E4518C';
+                                    e.currentTarget.style.borderColor = '#F5B4C6';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                }}
+                            >
+                                <i className="bi bi-calendar-check me-1"></i>
+                                Explorer
+                            </button>
                         </div>
                     </div>
                 </div>

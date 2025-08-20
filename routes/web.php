@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -21,20 +22,60 @@ Route::get('/tickets', function () {
     ]);
 })->name('tickets');
 
-Route::get('/partners', function () {
-    return Inertia::render('partners', [
-        'user' => auth()->user()
-    ]);
-})->name('partners');
+// Routes partenaires
+Route::controller(App\Http\Controllers\PartnerController::class)->group(function () {
+    Route::get('/partners', 'index')->name('partners');
+    Route::post('/partners/request', 'submitRequest')->name('partners.request');
+    Route::get('/api/partners', 'apiIndex')->name('api.partners.index');
+    Route::get('/api/partners/stats', 'stats')->name('api.partners.stats');
+    Route::get('/api/partners/{partner}', 'show')->name('api.partners.show');
+});
 
 // Dashboard routes
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
 
-    Route::get('/members', function () {
-        return Inertia::render('dashboard/members', [
-            'user' => auth()->user()
-        ]);
-    })->name('members');
+    // Routes dashboard membres
+    Route::controller(App\Http\Controllers\Dashboard\MemberController::class)->prefix('members')->name('members.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        
+        // Routes statiques AVANT les routes dynamiques
+        Route::get('/export', 'export')->name('export');
+        Route::get('/analytics', 'analytics')->name('analytics');
+        Route::get('/adherent', function (Request $request) {
+            return app(App\Http\Controllers\Dashboard\MemberController::class)->index(
+                $request->merge(['filter' => 'adherent'])
+            );
+        })->name('adherent');
+        Route::get('/ambassador', function (Request $request) {
+            return app(App\Http\Controllers\Dashboard\MemberController::class)->index(
+                $request->merge(['filter' => 'ambassador'])
+            );
+        })->name('ambassador');
+        Route::get('/volunteer', function (Request $request) {
+            return app(App\Http\Controllers\Dashboard\MemberController::class)->index(
+                $request->merge(['filter' => 'volunteer'])
+            );
+        })->name('volunteer');
+        Route::get('/former_challenger', function (Request $request) {
+            return app(App\Http\Controllers\Dashboard\MemberController::class)->index(
+                $request->merge(['filter' => 'former_challenger'])
+            );
+        })->name('former_challenger');
+        Route::get('/beneficiary', function (Request $request) {
+            return app(App\Http\Controllers\Dashboard\MemberController::class)->index(
+                $request->merge(['filter' => 'beneficiary'])
+            );
+        })->name('beneficiary');
+        Route::get('/{memberType}/stats', 'typeStats')->name('type-stats');
+        
+        // Routes dynamiques APRÈS les routes statiques
+        Route::get('/{member}', 'show')->name('show')->where('member', '[0-9]+');
+        Route::put('/{member}', 'update')->name('update')->where('member', '[0-9]+');
+        Route::delete('/{member}', 'destroy')->name('destroy')->where('member', '[0-9]+');
+        Route::post('/{member}/toggle-active', 'toggleActive')->name('toggle-active')->where('member', '[0-9]+');
+        Route::post('/{member}/engagement-points', 'addEngagementPoints')->name('engagement-points')->where('member', '[0-9]+');
+    });
 
     Route::get('/events', function () {
         return Inertia::render('dashboard/events', [
@@ -66,11 +107,18 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
         ]);
     })->name('finances');
 
-    Route::get('/partners', function () {
-        return Inertia::render('dashboard/partners', [
-            'user' => auth()->user()
-        ]);
-    })->name('partners');
+    // Routes dashboard partenaires
+    Route::controller(App\Http\Controllers\Dashboard\PartnerController::class)->prefix('partners')->name('partners.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{partner}', 'update')->name('update');
+        Route::delete('/{partner}', 'destroy')->name('destroy');
+        Route::post('/{partner}/activate', 'activate')->name('activate');
+        Route::post('/{partner}/suspend', 'suspend')->name('suspend');
+        Route::post('/{partner}/contact', 'updateContact')->name('contact.update');
+        Route::post('/requests/{partnerRequest}/process', 'processRequest')->name('requests.process');
+        Route::get('/export', 'export')->name('export');
+    });
 
     Route::get('/content', function () {
         return Inertia::render('dashboard/content', [
@@ -90,26 +138,17 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
         ]);
     })->name('settings');
 
-    // Member submenu routes
+    // Routes des sous-menus membres (redirections vers le contrôleur principal)
     Route::get('/members/adherents', function () {
-        return Inertia::render('dashboard/members', [
-            'user' => auth()->user(),
-            'filter' => 'adherents'
-        ]);
+        return redirect('/dashboard/members?filter=adherent');
     })->name('members.adherents');
 
     Route::get('/members/ambassadors', function () {
-        return Inertia::render('dashboard/members', [
-            'user' => auth()->user(),
-            'filter' => 'ambassadors'
-        ]);
+        return redirect('/dashboard/members?filter=ambassador');
     })->name('members.ambassadors');
 
     Route::get('/members/volunteers', function () {
-        return Inertia::render('dashboard/members', [
-            'user' => auth()->user(),
-            'filter' => 'volunteers'
-        ]);
+        return redirect('/dashboard/members?filter=volunteer');
     })->name('members.volunteers');
 
     // Donations submenu routes

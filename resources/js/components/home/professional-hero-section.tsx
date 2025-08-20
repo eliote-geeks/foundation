@@ -14,6 +14,7 @@ interface ProfessionalHeroProps {
 export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
     const { t } = useTranslation();
     const [currentMetric, setCurrentMetric] = useState(0);
+    const [currentMilestoneIndex, setCurrentMilestoneIndex] = useState(0);
     
     const keyMetrics = [
         {
@@ -71,6 +72,27 @@ export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
             time: '2 semaines',
             type: 'funding',
             importance: 'high'
+        },
+        {
+            title: 'Formation Certifiante',
+            description: 'Lancement du programme Leadership Avancé',
+            time: '3 semaines',
+            type: 'program',
+            importance: 'medium'
+        },
+        {
+            title: 'Partenariat International',
+            description: 'Collaboration avec l\'ONG Global Impact',
+            time: '1 mois',
+            type: 'partnership',
+            importance: 'high'
+        },
+        {
+            title: 'Subvention Européenne',
+            description: '100M FCFA pour le développement rural',
+            time: '6 semaines',
+            type: 'funding',
+            importance: 'high'
         }
     ];
 
@@ -81,24 +103,32 @@ export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
         return () => clearInterval(interval);
     }, [keyMetrics.length]);
 
+    // Animation pour les milestones
+    useEffect(() => {
+        const milestoneInterval = setInterval(() => {
+            setCurrentMilestoneIndex((prev) => (prev + 1) % recentMilestones.length);
+        }, 4000);
+        return () => clearInterval(milestoneInterval);
+    }, [recentMilestones.length]);
+
     return (
         <section 
             className="professional-hero position-relative overflow-hidden"
             style={{
                 minHeight: '75vh',
-                background: 'linear-gradient(135deg, #334E15 0%, #4D8A3C 40%, #5FA145 100%)',
+                background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%)',
                 paddingTop: '120px',
                 paddingBottom: '80px'
             }}
         >
             {/* Subtle Background Pattern */}
-            <div className="position-absolute w-100 h-100" style={{ zIndex: 1, opacity: 0.05 }}>
+            <div className="position-absolute w-100 h-100" style={{ zIndex: 1, opacity: 0.08 }}>
                 <div 
                     className="position-absolute"
                     style={{
                         width: '300px',
                         height: '300px',
-                        background: 'radial-gradient(circle, #E8F5E8 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, #5FA145 0%, transparent 70%)',
                         top: '15%',
                         right: '10%',
                         borderRadius: '50%'
@@ -109,7 +139,7 @@ export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
                     style={{
                         width: '200px',
                         height: '200px',
-                        background: 'radial-gradient(circle, #C69438 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, #E4518C 0%, transparent 70%)',
                         bottom: '20%',
                         left: '5%',
                         borderRadius: '50%'
@@ -141,7 +171,7 @@ export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
                                 >
                                     <i className="bi bi-shield-check" style={{ color: '#FFF', fontSize: '0.7rem' }}></i>
                                 </div>
-                                <span style={{ color: '#E8F5E8', fontSize: '0.9rem', fontWeight: '500' }}>
+                                <span style={{ color: '#5FA145', fontSize: '0.9rem', fontWeight: '500' }}>
                                     Plateforme Certifiée ISO 26000 - Impact Social
                                 </span>
                             </div>
@@ -150,9 +180,9 @@ export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
                             <h1 
                                 className="display-3 fw-bold mb-4"
                                 style={{ 
-                                    color: '#E8F5E8',
+                                    color: '#334E15',
                                     lineHeight: '1.1',
-                                    textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+                                    textShadow: 'none',
                                     fontFamily: '"Inter", system-ui, -apple-system, sans-serif'
                                 }}
                             >
@@ -172,7 +202,7 @@ export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
                             <p 
                                 className="lead mb-5"
                                 style={{ 
-                                    color: 'rgba(232, 245, 232, 0.9)',
+                                    color: '#6B7280',
                                     fontSize: '1.2rem',
                                     maxWidth: '550px',
                                     lineHeight: '1.6',
@@ -222,7 +252,7 @@ export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
                                             className="px-5 py-3"
                                             style={{
                                                 borderColor: 'rgba(232, 245, 232, 0.4)',
-                                                color: '#E8F5E8',
+                                                color: '#5FA145',
                                                 fontSize: '1rem',
                                                 fontWeight: '500',
                                                 borderRadius: '12px',
@@ -279,7 +309,7 @@ export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
                                             className="px-5 py-3"
                                             style={{
                                                 borderColor: 'rgba(232, 245, 232, 0.4)',
-                                                color: '#E8F5E8',
+                                                color: '#5FA145',
                                                 fontSize: '1rem',
                                                 fontWeight: '500',
                                                 borderRadius: '12px',
@@ -307,19 +337,19 @@ export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
                             <div className="d-flex align-items-center gap-4 flex-wrap">
                                 <div className="d-flex align-items-center gap-2">
                                     <i className="bi bi-shield-check" style={{ color: '#5FA145', fontSize: '1.1rem' }}></i>
-                                    <span style={{ color: 'rgba(232, 245, 232, 0.8)', fontSize: '0.9rem' }}>
+                                    <span style={{ color: '#6B7280', fontSize: '0.9rem' }}>
                                         Certifié B-Corp
                                     </span>
                                 </div>
                                 <div className="d-flex align-items-center gap-2">
                                     <i className="bi bi-award" style={{ color: '#C69438', fontSize: '1.1rem' }}></i>
-                                    <span style={{ color: 'rgba(232, 245, 232, 0.8)', fontSize: '0.9rem' }}>
+                                    <span style={{ color: '#6B7280', fontSize: '0.9rem' }}>
                                         Prix Impact 2024
                                     </span>
                                 </div>
                                 <div className="d-flex align-items-center gap-2">
                                     <i className="bi bi-people" style={{ color: '#E4518C', fontSize: '1.1rem' }}></i>
-                                    <span style={{ color: 'rgba(232, 245, 232, 0.8)', fontSize: '0.9rem' }}>
+                                    <span style={{ color: '#6B7280', fontSize: '0.9rem' }}>
                                         +2850 Membres
                                     </span>
                                 </div>
@@ -439,55 +469,92 @@ export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
                                             <i className="bi bi-clock-history me-2" style={{ color: '#5FA145' }}></i>
                                             Actualités Récentes
                                         </h6>
-                                        <div className="milestone-list">
-                                            {recentMilestones.map((milestone, index) => (
-                                                <div key={index} className="d-flex align-items-start mb-3">
+                                        <div 
+                                            className="milestone-list"
+                                            style={{
+                                                height: '220px',
+                                                overflow: 'hidden',
+                                                position: 'relative'
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    transform: `translateY(-${currentMilestoneIndex * 73}px)`,
+                                                    transition: 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                    willChange: 'transform'
+                                                }}
+                                            >
+                                                {[...recentMilestones, ...recentMilestones.slice(0, 3)].map((milestone, index) => (
                                                     <div 
-                                                        className="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                                                        key={`milestone-${index}`} 
+                                                        className="d-flex align-items-start mb-3"
                                                         style={{
-                                                            width: '32px',
-                                                            height: '32px',
-                                                            background: milestone.importance === 'high' 
-                                                                ? 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)'
-                                                                : 'linear-gradient(135deg, #E4518C 0%, #C69438 100%)'
+                                                            height: '73px',
+                                                            opacity: Math.abs(index - currentMilestoneIndex) <= 2 ? 1 : 0.4,
+                                                            transition: 'opacity 1s ease',
+                                                            paddingRight: '8px'
                                                         }}
                                                     >
-                                                        {milestone.type === 'partnership' && <i className="bi bi-handshake text-white" style={{ fontSize: '0.8rem' }}></i>}
-                                                        {milestone.type === 'program' && <i className="bi bi-rocket text-white" style={{ fontSize: '0.8rem' }}></i>}
-                                                        {milestone.type === 'funding' && <i className="bi bi-currency-euro text-white" style={{ fontSize: '0.8rem' }}></i>}
-                                                    </div>
-                                                    <div className="flex-grow-1">
                                                         <div 
-                                                            className="fw-semibold mb-1"
-                                                            style={{ color: '#334E15', fontSize: '0.9rem' }}
+                                                            className="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                                                            style={{
+                                                                width: '32px',
+                                                                height: '32px',
+                                                                background: milestone.importance === 'high' 
+                                                                    ? 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)'
+                                                                    : 'linear-gradient(135deg, #E4518C 0%, #C69438 100%)'
+                                                            }}
                                                         >
-                                                            {milestone.title}
+                                                            {milestone.type === 'partnership' && <i className="bi bi-handshake text-white" style={{ fontSize: '0.8rem' }}></i>}
+                                                            {milestone.type === 'program' && <i className="bi bi-rocket text-white" style={{ fontSize: '0.8rem' }}></i>}
+                                                            {milestone.type === 'funding' && <i className="bi bi-currency-euro text-white" style={{ fontSize: '0.8rem' }}></i>}
                                                         </div>
-                                                        <div 
-                                                            className="mb-1"
-                                                            style={{ color: '#6B7280', fontSize: '0.8rem', lineHeight: '1.3' }}
-                                                        >
-                                                            {milestone.description}
-                                                        </div>
-                                                        <div style={{ color: '#9CA3AF', fontSize: '0.7rem' }}>
-                                                            Il y a {milestone.time}
+                                                        <div className="flex-grow-1">
+                                                            <div 
+                                                                className="fw-semibold mb-1"
+                                                                style={{ color: '#334E15', fontSize: '0.9rem' }}
+                                                            >
+                                                                {milestone.title}
+                                                            </div>
+                                                            <div 
+                                                                className="mb-1"
+                                                                style={{ color: '#6B7280', fontSize: '0.8rem', lineHeight: '1.3' }}
+                                                            >
+                                                                {milestone.description}
+                                                            </div>
+                                                            <div style={{ color: '#9CA3AF', fontSize: '0.7rem' }}>
+                                                                Il y a {milestone.time}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                ))}
+                                            </div>
                                         </div>
                                         <div className="text-center mt-3">
                                             <Button
-                                                variant="outline-primary"
                                                 size="sm"
                                                 className="rounded-pill px-3"
                                                 style={{
-                                                    borderColor: '#5FA145',
+                                                    background: 'transparent',
+                                                    border: '1px solid #5FA145',
                                                     color: '#5FA145',
-                                                    fontSize: '0.8rem'
+                                                    fontSize: '0.8rem',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.background = 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)';
+                                                    e.currentTarget.style.color = '#FFFFFF';
+                                                    e.currentTarget.style.borderColor = '#5FA145';
+                                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.background = 'transparent';
+                                                    e.currentTarget.style.color = '#5FA145';
+                                                    e.currentTarget.style.borderColor = '#5FA145';
+                                                    e.currentTarget.style.transform = 'translateY(0)';
                                                 }}
                                             >
-                                                Voir toutes les actualités
+                                                Voir plus
                                             </Button>
                                         </div>
                                     </Card.Body>

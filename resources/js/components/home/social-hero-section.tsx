@@ -14,6 +14,7 @@ interface SocialHeroProps {
 export function SocialHeroSection({ user }: SocialHeroProps) {
     const { t } = useTranslation();
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [currentActivityIndex, setCurrentActivityIndex] = useState(0);
     
     const highlights = [
         {
@@ -70,6 +71,30 @@ export function SocialHeroSection({ user }: SocialHeroProps) {
             avatar: 'AT',
             type: 'join',
             role: 'Bénéficiaire'
+        },
+        {
+            user: 'Paul Mengue',
+            action: 'a finalisé sa formation en leadership',
+            time: '8h',
+            avatar: 'PM',
+            type: 'success',
+            role: 'Membre'
+        },
+        {
+            user: 'Sarah Nkomo',
+            action: 'a lancé son projet environnemental',
+            time: '10h',
+            avatar: 'SN',
+            type: 'post',
+            role: 'Ambassadrice'
+        },
+        {
+            user: 'David Fomo',
+            action: 'a rejoint l\'équipe des mentors',
+            time: '12h',
+            avatar: 'DF',
+            type: 'join',
+            role: 'Mentor'
         }
     ];
 
@@ -79,6 +104,14 @@ export function SocialHeroSection({ user }: SocialHeroProps) {
         }, 4000);
         return () => clearInterval(interval);
     }, [highlights.length]);
+
+    // Animation pour les activités récentes
+    useEffect(() => {
+        const activityInterval = setInterval(() => {
+            setCurrentActivityIndex((prev) => (prev + 1) % recentActivities.length);
+        }, 3000);
+        return () => clearInterval(activityInterval);
+    }, [recentActivities.length]);
 
     return (
         <section 
@@ -436,49 +469,83 @@ export function SocialHeroSection({ user }: SocialHeroProps) {
                                         <h6 className="fw-bold mb-3\" style={{ color: '#E8F5E8' }}>
                                             🔥 Activité Récente
                                         </h6>
-                                        <div className="activity-list">
-                                            {recentActivities.map((activity, index) => (
-                                                <div key={index} className="d-flex align-items-center mb-3 last-child-no-margin">
+                                        <div 
+                                            className="activity-list"
+                                            style={{
+                                                height: '200px',
+                                                overflow: 'hidden',
+                                                position: 'relative'
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    transform: `translateY(-${currentActivityIndex * 66}px)`,
+                                                    transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                    willChange: 'transform'
+                                                }}
+                                            >
+                                                {[...recentActivities, ...recentActivities.slice(0, 3)].map((activity, index) => (
                                                     <div 
-                                                        className="rounded-circle d-flex align-items-center justify-content-center me-3\"
+                                                        key={`activity-${index}`} 
+                                                        className="d-flex align-items-center mb-3"
                                                         style={{
-                                                            width: '35px',
-                                                            height: '35px',
-                                                            background: 'rgba(232, 245, 232, 0.1)',
-                                                            fontSize: '0.9rem'
+                                                            height: '66px',
+                                                            opacity: Math.abs(index - currentActivityIndex) <= 2 ? 1 : 0.3,
+                                                            transition: 'opacity 0.8s ease'
                                                         }}
                                                     >
-                                                        {activity.avatar}
-                                                    </div>
-                                                    <div className="flex-grow-1">
-                                                        <div style={{ color: '#E8F5E8', fontSize: '0.85rem' }}>
-                                                            <span className="fw-semibold">{activity.user}</span>
-                                                            <span> {activity.action}</span>
+                                                        <div 
+                                                            className="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                            style={{
+                                                                width: '35px',
+                                                                height: '35px',
+                                                                background: 'rgba(232, 245, 232, 0.1)',
+                                                                fontSize: '0.9rem'
+                                                            }}
+                                                        >
+                                                            {activity.avatar}
                                                         </div>
-                                                        <div style={{ color: 'rgba(232, 245, 232, 0.6)', fontSize: '0.75rem' }}>
-                                                            Il y a {activity.time}
+                                                        <div className="flex-grow-1">
+                                                            <div style={{ color: '#E8F5E8', fontSize: '0.85rem' }}>
+                                                                <span className="fw-semibold">{activity.user}</span>
+                                                                <span> {activity.action}</span>
+                                                            </div>
+                                                            <div style={{ color: 'rgba(232, 245, 232, 0.6)', fontSize: '0.75rem' }}>
+                                                                Il y a {activity.time} • {activity.role}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            {activity.type === 'success' && <span style={{ color: '#5FA145' }}>🎉</span>}
+                                                            {activity.type === 'post' && <span style={{ color: '#C69438' }}>📝</span>}
+                                                            {activity.type === 'join' && <span style={{ color: '#E4518C' }}>👋</span>}
                                                         </div>
                                                     </div>
-                                                    <div>
-                                                        {activity.type === 'success' && <span style={{ color: '#5FA145' }}>🎉</span>}
-                                                        {activity.type === 'post' && <span style={{ color: '#C69438' }}>📝</span>}
-                                                        {activity.type === 'join' && <span style={{ color: '#E4518C' }}>👋</span>}
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                ))}
+                                            </div>
                                         </div>
                                         <div className="text-center mt-3">
                                             <Button
-                                                variant="outline-light"
-                                                size="sm\"
-                                                className="rounded-pill px-3\"
+                                                size="sm"
+                                                className="rounded-pill px-3"
                                                 style={{
-                                                    borderColor: 'rgba(232, 245, 232, 0.3)',
+                                                    background: 'transparent',
+                                                    border: '1px solid rgba(232, 245, 232, 0.3)',
                                                     color: 'rgba(232, 245, 232, 0.8)',
-                                                    fontSize: '0.8rem'
+                                                    fontSize: '0.8rem',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.background = 'rgba(232, 245, 232, 0.1)';
+                                                    e.currentTarget.style.color = '#FFF';
+                                                    e.currentTarget.style.borderColor = 'rgba(232, 245, 232, 0.5)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.background = 'transparent';
+                                                    e.currentTarget.style.color = 'rgba(232, 245, 232, 0.8)';
+                                                    e.currentTarget.style.borderColor = 'rgba(232, 245, 232, 0.3)';
                                                 }}
                                             >
-                                                Voir toute l'activité
+                                                Voir plus
                                             </Button>
                                         </div>
                                     </Card.Body>

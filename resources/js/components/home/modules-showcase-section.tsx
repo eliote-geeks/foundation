@@ -11,10 +11,6 @@ interface Module {
     gradient: string;
     features: string[];
     status: 'active' | 'coming-soon' | 'beta';
-    stats?: {
-        label: string;
-        value: string;
-    };
     ctaText: string;
     ctaHref: string;
 }
@@ -39,10 +35,6 @@ export function ModulesShowcaseSection() {
                 'Export des résultats'
             ],
             status: 'active',
-            stats: {
-                label: 'Concours actifs',
-                value: '3'
-            },
             ctaText: 'Voir les concours',
             ctaHref: '/contests'
         },
@@ -61,10 +53,6 @@ export function ModulesShowcaseSection() {
                 'Contrôle d\'accès'
             ],
             status: 'active',
-            stats: {
-                label: 'Événements à venir',
-                value: '8'
-            },
             ctaText: 'Explorer les événements',
             ctaHref: '/events'
         },
@@ -83,10 +71,6 @@ export function ModulesShowcaseSection() {
                 'Réseau alumni'
             ],
             status: 'active',
-            stats: {
-                label: 'Membres actifs',
-                value: '2,850+'
-            },
             ctaText: 'Rejoindre la communauté',
             ctaHref: '/simple-register'
         },
@@ -105,10 +89,6 @@ export function ModulesShowcaseSection() {
                 'Suivi personnalisé'
             ],
             status: 'beta',
-            stats: {
-                label: 'Programmes disponibles',
-                value: '12'
-            },
             ctaText: 'Découvrir les programmes',
             ctaHref: '/programs'
         },
@@ -127,10 +107,6 @@ export function ModulesShowcaseSection() {
                 'Ressources marketing'
             ],
             status: 'coming-soon',
-            stats: {
-                label: 'Partenaires actifs',
-                value: '45'
-            },
             ctaText: 'Devenir partenaire',
             ctaHref: '/partners'
         },
@@ -290,17 +266,6 @@ export function ModulesShowcaseSection() {
                                                     </h3>
                                                     <div className="d-flex align-items-center gap-2">
                                                         {getStatusBadge(module.status)}
-                                                        {module.stats && (
-                                                            <Badge 
-                                                                style={{ 
-                                                                    background: 'rgba(95, 161, 69, 0.1)',
-                                                                    color: '#5FA145',
-                                                                    fontSize: '0.7rem'
-                                                                }}
-                                                            >
-                                                                {module.stats.value} {module.stats.label}
-                                                            </Badge>
-                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -356,29 +321,30 @@ export function ModulesShowcaseSection() {
                                                 </Row>
                                             </div>
 
-                                            <div className="d-flex gap-3">
+                                            <div className="d-flex gap-2">
                                                 <Button
                                                     href={module.ctaHref}
-                                                    size="lg"
-                                                    className="px-4 py-3"
+                                                    size="sm"
+                                                    className="px-3 py-2"
                                                     style={{
                                                         background: module.gradient,
                                                         border: 'none',
-                                                        borderRadius: '12px',
-                                                        fontWeight: '600',
-                                                        boxShadow: `0 4px 15px ${module.color}30`
+                                                        borderRadius: '8px',
+                                                        fontWeight: '500',
+                                                        fontSize: '0.875rem',
+                                                        boxShadow: `0 2px 8px ${module.color}30`
                                                     }}
                                                     disabled={module.status === 'coming-soon'}
                                                 >
                                                     {module.status === 'coming-soon' ? (
                                                         <>
-                                                            <i className="bi bi-clock me-2"></i>
-                                                            Bientôt disponible
+                                                            <i className="bi bi-clock me-1"></i>
+                                                            Bientôt
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <i className="bi bi-arrow-right-circle me-2"></i>
-                                                            {module.ctaText}
+                                                            <i className="bi bi-arrow-right me-1"></i>
+                                                            {module.ctaText.split(' ')[0]}
                                                         </>
                                                     )}
                                                 </Button>
@@ -386,17 +352,18 @@ export function ModulesShowcaseSection() {
                                                 {module.status !== 'coming-soon' && (
                                                     <Button
                                                         variant="outline-secondary"
-                                                        size="lg"
-                                                        className="px-4 py-3"
+                                                        size="sm"
+                                                        className="px-3 py-2"
                                                         style={{
                                                             borderColor: '#D1D5DB',
                                                             color: '#6B7280',
-                                                            borderRadius: '12px',
-                                                            fontWeight: '500'
+                                                            borderRadius: '8px',
+                                                            fontWeight: '400',
+                                                            fontSize: '0.875rem'
                                                         }}
                                                     >
-                                                        <i className="bi bi-info-circle me-2"></i>
-                                                        En savoir plus
+                                                        <i className="bi bi-info-circle me-1"></i>
+                                                        Détails
                                                     </Button>
                                                 )}
                                             </div>
@@ -448,45 +415,62 @@ export function ModulesShowcaseSection() {
                         <div 
                             className="p-5 rounded-4"
                             style={{
-                                background: 'linear-gradient(135deg, #334E15 0%, #4D8A3C 100%)',
-                                color: '#E8F5E8'
+                                background: 'linear-gradient(135deg, rgba(95, 161, 69, 0.1) 0%, rgba(228, 81, 140, 0.1) 100%)',
+                                border: '1px solid rgba(95, 161, 69, 0.2)',
+                                color: '#334E15'
                             }}
                         >
                             <h3 className="fw-bold mb-3">
                                 Prêt à explorer notre plateforme complète ?
                             </h3>
-                            <p className="mb-4" style={{ opacity: 0.9 }}>
+                            <p className="mb-4" style={{ color: '#6B7280' }}>
                                 Rejoignez notre communauté et accédez à tous les modules dès maintenant.
                             </p>
-                            <div className="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                            <div className="d-flex flex-column flex-sm-row justify-content-center gap-2">
                                 <Button
                                     href="/simple-register"
-                                    size="lg"
-                                    className="px-5 py-3"
+                                    size="sm"
+                                    className="px-4 py-2"
                                     style={{
                                         background: 'linear-gradient(135deg, #5FA145 0%, #C69438 100%)',
                                         border: 'none',
-                                        borderRadius: '50px',
-                                        fontWeight: '600',
-                                        color: '#334E15'
+                                        borderRadius: '8px',
+                                        fontWeight: '500',
+                                        color: '#334E15',
+                                        fontSize: '0.875rem'
                                     }}
                                 >
-                                    <i className="bi bi-person-plus me-2"></i>
-                                    Créer mon compte
+                                    <i className="bi bi-person-plus me-1"></i>
+                                    Créer compte
                                 </Button>
                                 <Button
                                     href="/login"
-                                    variant="outline-light"
-                                    size="lg"
-                                    className="px-5 py-3"
+                                    size="sm"
+                                    className="px-4 py-2"
                                     style={{
-                                        borderRadius: '50px',
-                                        fontWeight: '500',
-                                        borderWidth: '2px'
+                                        background: 'transparent',
+                                        border: '1px solid rgba(232, 245, 232, 0.5)',
+                                        color: '#5FA145',
+                                        borderRadius: '8px',
+                                        fontWeight: '400',
+                                        fontSize: '0.875rem',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'rgba(232, 245, 232, 0.15)';
+                                        e.currentTarget.style.color = '#FFFFFF';
+                                        e.currentTarget.style.borderColor = '#FFFFFF';
+                                        e.currentTarget.style.transform = 'translateY(-1px)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'transparent';
+                                        e.currentTarget.style.color = '#5FA145';
+                                        e.currentTarget.style.borderColor = 'rgba(232, 245, 232, 0.5)';
+                                        e.currentTarget.style.transform = 'translateY(0)';
                                     }}
                                 >
-                                    <i className="bi bi-box-arrow-in-right me-2"></i>
-                                    Se connecter
+                                    <i className="bi bi-box-arrow-in-right me-1"></i>
+                                    Connexion
                                 </Button>
                             </div>
                         </div>

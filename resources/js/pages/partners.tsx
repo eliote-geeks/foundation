@@ -198,24 +198,43 @@ export default function Partners({ user }: PartnersProps) {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Ici vous ajouteriez l'appel API pour envoyer le formulaire
-        setShowAlert(true);
-        setFormData({
-            companyName: '',
-            contactName: '',
-            email: '',
-            phone: '',
-            website: '',
-            category: '',
-            partnershipType: '',
-            description: '',
-            budget: ''
-        });
         
-        // Masquer l'alert après 5 secondes
-        setTimeout(() => setShowAlert(false), 5000);
+        try {
+            const response = await fetch('/partners/request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                setShowAlert(true);
+                setFormData({
+                    companyName: '',
+                    contactName: '',
+                    email: '',
+                    phone: '',
+                    website: '',
+                    category: '',
+                    partnershipType: '',
+                    description: '',
+                    budget: ''
+                });
+                
+                // Masquer l'alert après 5 secondes
+                setTimeout(() => setShowAlert(false), 5000);
+            } else {
+                console.error('Erreur lors de l\'envoi:', result);
+            }
+        } catch (error) {
+            console.error('Erreur réseau:', error);
+        }
     };
 
     const getCategoryColor = (category: string) => {

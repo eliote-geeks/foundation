@@ -156,9 +156,9 @@ export default function Dashboard({ user }: DashboardProps) {
                 secondary: '6 Catégories'
             },
             quickActions: [
-                { label: 'Ajouter Membre', href: '/members/add', icon: 'bi-person-plus' },
-                { label: 'Segmentation', href: '/members/segments', icon: 'bi-diagram-3' },
-                { label: 'Notifications', href: '/members/notifications', icon: 'bi-bell' }
+                { label: 'Ajouter Membre', href: '/dashboard/members', icon: 'bi-person-plus' },
+                { label: 'Adhérents', href: '/dashboard/members/adherents', icon: 'bi-person-check' },
+                { label: 'Ambassadeurs', href: '/dashboard/members/ambassadors', icon: 'bi-star' }
             ]
         },
         {
@@ -192,9 +192,9 @@ export default function Dashboard({ user }: DashboardProps) {
                 secondary: '7 Secteurs'
             },
             quickActions: [
-                { label: 'Nouveau Partenaire', href: '/partners/add', icon: 'bi-building-plus' },
-                { label: 'Demandes', href: '/partners/requests', icon: 'bi-inbox' },
-                { label: 'Rapports', href: '/partners/reports', icon: 'bi-file-earmark-bar-graph' }
+                { label: 'Nouveau Partenaire', href: '/dashboard/partners', icon: 'bi-building-plus' },
+                { label: 'Demandes', href: '/dashboard/partners', icon: 'bi-inbox' },
+                { label: 'Rapports', href: '/dashboard/partners', icon: 'bi-file-earmark-bar-graph' }
             ]
         },
         {
@@ -660,11 +660,9 @@ export default function Dashboard({ user }: DashboardProps) {
                                                 <Row className="g-2">
                                                     {module.quickActions.map((action, index) => (
                                                         <Col xs={12} key={index}>
-                                                            <Button
+                                                            <a
                                                                 href={action.href}
-                                                                variant="outline-secondary"
-                                                                size="sm"
-                                                                className="w-100 d-flex align-items-center justify-content-start"
+                                                                className="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-start text-decoration-none"
                                                                 style={{
                                                                     borderColor: `${module.color}30`,
                                                                     color: module.color,
@@ -682,7 +680,7 @@ export default function Dashboard({ user }: DashboardProps) {
                                                             >
                                                                 <i className={`${action.icon} me-2`}></i>
                                                                 {action.label}
-                                                            </Button>
+                                                            </a>
                                                         </Col>
                                                     ))}
                                                 </Row>

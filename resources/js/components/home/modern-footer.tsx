@@ -72,24 +72,18 @@ export function ModernFooter() {
         }
     ];
 
-    const impactStats = [
-        { value: '2,850+', label: 'Membres actifs' },
-        { value: '600M FCFA', label: 'Fonds collectés' },
-        { value: '45', label: 'Projets soutenus' },
-        { value: '15', label: 'Pays d\'intervention' }
-    ];
 
     return (
         <footer 
             className="modern-footer mt-5"
             style={{ 
-                background: 'linear-gradient(135deg, #334E15 0%, #4D8A3C 50%, #334E15 100%)',
-                color: '#F5B4C6',
+                background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 50%, #f8f9fa 100%)',
+                color: '#334E15',
                 position: 'relative'
             }}
         >
             {/* Background decorations */}
-            <div className="position-absolute w-100 h-100" style={{ zIndex: 1, opacity: 0.05 }}>
+            <div className="position-absolute w-100 h-100" style={{ zIndex: 1, opacity: 0.08 }}>
                 <div 
                     className="position-absolute"
                     style={{
@@ -134,12 +128,12 @@ export function ModernFooter() {
                                     }}
                                 />
                                 <div>
-                                    <h4 className="text-white mb-0 fw-bold">Fondation TITI</h4>
-                                    <div style={{ fontSize: '1rem', opacity: 0.8 }}>Événements & Impact</div>
+                                    <h4 className="mb-0 fw-bold" style={{ color: '#334E15' }}>Fondation TITI</h4>
+                                    <div style={{ fontSize: '1rem', color: '#5FA145' }}>Événements & Impact</div>
                                 </div>
                             </div>
                             
-                            <p className="mb-4" style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#FFFFFF', opacity: 0.9 }}>
+                            <p className="mb-4" style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#6B7280' }}>
                                 Nous construisons un monde plus juste et durable à travers 
                                 l'engagement citoyen, l'innovation sociale et des événements 
                                 qui rassemblent et transforment nos communautés.
@@ -154,8 +148,8 @@ export function ModernFooter() {
                                         style={{
                                             width: '45px',
                                             height: '45px',
-                                            background: 'rgba(232, 245, 232, 0.1)',
-                                            border: '1px solid rgba(232, 245, 232, 0.2)',
+                                            background: 'rgba(95, 161, 69, 0.1)',
+                                            border: '1px solid rgba(95, 161, 69, 0.2)',
                                             cursor: 'pointer',
                                             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                                         }}
@@ -165,13 +159,13 @@ export function ModernFooter() {
                                             e.currentTarget.style.boxShadow = `0 8px 25px ${social.color}40`;
                                         }}
                                         onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = 'rgba(232, 245, 232, 0.1)';
+                                            e.currentTarget.style.background = 'rgba(95, 161, 69, 0.1)';
                                             e.currentTarget.style.transform = 'translateY(0)';
                                             e.currentTarget.style.boxShadow = 'none';
                                         }}
                                         title={social.name}
                                     >
-                                        <i className={`${social.icon} text-white`}></i>
+                                        <i className={social.icon} style={{ color: '#5FA145' }}></i>
                                     </div>
                                 ))}
                             </div>
@@ -180,13 +174,13 @@ export function ModernFooter() {
                             <div 
                                 className="newsletter-signup p-4 rounded-3"
                                 style={{
-                                    background: 'rgba(232, 245, 232, 0.1)',
+                                    background: 'rgba(95, 161, 69, 0.05)',
                                     backdropFilter: 'blur(10px)',
-                                    border: '1px solid rgba(232, 245, 232, 0.2)'
+                                    border: '1px solid rgba(95, 161, 69, 0.15)'
                                 }}
                             >
-                                <h6 className="fw-semibold mb-3" style={{ color: '#FFFFFF', fontSize: '1.1rem' }}>📧 Restez informé</h6>
-                                <p style={{ fontSize: '1rem', opacity: 0.9, color: '#FFFFFF' }} className="mb-3">
+                                <h6 className="fw-semibold mb-3" style={{ color: '#334E15', fontSize: '1.1rem' }}>📧 Restez informé</h6>
+                                <p style={{ fontSize: '1rem', color: '#6B7280' }} className="mb-3">
                                     Recevez nos dernières actualités et opportunités d'engagement.
                                 </p>
                                 <div className="d-flex">
@@ -195,9 +189,9 @@ export function ModernFooter() {
                                         placeholder="votre@email.com"
                                         className="form-control me-2"
                                         style={{
-                                            background: 'rgba(255, 255, 255, 0.1)',
-                                            border: '1px solid rgba(255, 255, 255, 0.3)',
-                                            color: '#FFFFFF',
+                                            background: '#ffffff',
+                                            border: '1px solid rgba(95, 161, 69, 0.3)',
+                                            color: '#334E15',
                                             fontSize: '1rem'
                                         }}
                                     />
@@ -219,7 +213,7 @@ export function ModernFooter() {
                         {/* Links Sections */}
                         {footerSections.map((section, index) => (
                             <Col lg={2} md={6} key={index} className="mb-4">
-                                <h6 className="text-white fw-semibold mb-3 d-flex align-items-center">
+                                <h6 className="fw-semibold mb-3 d-flex align-items-center" style={{ color: '#334E15' }}>
                                     <div 
                                         className="me-2 rounded-circle d-flex align-items-center justify-content-center"
                                         style={{
@@ -237,7 +231,7 @@ export function ModernFooter() {
                                                 href={link.url} 
                                                 className="text-decoration-none footer-link"
                                                 style={{ 
-                                                    color: '#FFFFFF', opacity: 0.85,
+                                                    color: '#6B7280',
                                                     fontSize: '1rem',
                                                     transition: 'all 0.3s ease'
                                                 }}
@@ -246,7 +240,7 @@ export function ModernFooter() {
                                                     e.currentTarget.style.paddingLeft = '5px';
                                                 }}
                                                 onMouseLeave={(e) => {
-                                                    e.currentTarget.style.color = 'rgba(232, 245, 232, 0.7)';
+                                                    e.currentTarget.style.color = '#6B7280';
                                                     e.currentTarget.style.paddingLeft = '0';
                                                 }}
                                             >
@@ -259,66 +253,28 @@ export function ModernFooter() {
                         ))}
                     </Row>
 
-                    {/* Impact Stats */}
-                    <div 
-                        className="impact-stats py-4 my-4 rounded-4"
-                        style={{
-                            background: 'rgba(95, 161, 69, 0.1)',
-                            backdropFilter: 'blur(15px)',
-                            border: '1px solid rgba(95, 161, 69, 0.2)'
-                        }}
-                    >
-                        <h5 className="text-center fw-bold mb-4" style={{ color: '#FFFFFF', fontSize: '1.5rem' }}>Notre Impact Global</h5>
-                        <Row className="text-center">
-                            {impactStats.map((stat, index) => (
-                                <Col key={index} xs={6} lg={3} className="mb-3 mb-lg-0">
-                                    <div 
-                                        className="fw-bold mb-1"
-                                        style={{ 
-                                            color: '#C69438', 
-                                            fontSize: '2rem',
-                                            textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
-                                        }}
-                                    >
-                                        {stat.value}
-                                    </div>
-                                    <div 
-                                        style={{ 
-                                            fontSize: '1rem',
-                                            color: '#FFFFFF',
-                                            opacity: 0.9,
-                                            fontWeight: '500'
-                                        }}
-                                    >
-                                        {stat.label}
-                                    </div>
-                                </Col>
-                            ))}
-                        </Row>
-                    </div>
                 </div>
                 
                 {/* Bottom Section */}
                 <div 
                     className="py-4 border-top d-flex flex-column flex-md-row justify-content-between align-items-center"
-                    style={{ borderColor: 'rgba(232, 245, 232, 0.2)' }}
+                    style={{ borderColor: 'rgba(95, 161, 69, 0.2)' }}
                 >
                     <div className="mb-3 mb-md-0">
-                        <div style={{ fontSize: '1.1rem', color: '#FFFFFF', fontWeight: '500' }}>
+                        <div style={{ fontSize: '1.1rem', color: '#334E15', fontWeight: '500' }}>
                             © {currentYear} Fondation TITI. Tous droits réservés.
                         </div>
                         <div className="d-flex flex-wrap align-items-center mt-2" style={{ fontSize: '1rem' }}>
-                            <div className="me-4 mb-1" style={{ color: '#FFFFFF', opacity: 0.9 }}>🏛️ ONG certifiée</div>
-                            <div className="me-4 mb-1" style={{ color: '#FFFFFF', opacity: 0.9 }}>🔒 Transparence financière</div>
-                            <div className="mb-1" style={{ color: '#FFFFFF', opacity: 0.9 }}>🌍 Impact social mesuré</div>
+                            <div className="me-4 mb-1" style={{ color: '#6B7280' }}>🏛️ ONG certifiée</div>
+                            <div className="me-4 mb-1" style={{ color: '#6B7280' }}>🔒 Transparence financière</div>
+                            <div className="mb-1" style={{ color: '#6B7280' }}>🌍 Impact social mesuré</div>
                         </div>
                     </div>
                     
                     <div className="d-flex justify-content-center justify-content-md-end">
                         <div style={{ 
                             fontSize: '1.1rem', 
-                            color: '#FFFFFF',
-                            opacity: 0.9,
+                            color: '#6B7280',
                             fontWeight: '400',
                             textAlign: 'center'
                         }}>

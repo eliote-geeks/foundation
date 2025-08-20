@@ -122,7 +122,7 @@ export function TestimonialsSection() {
         <section 
             className="py-5"
             style={{
-                background: 'linear-gradient(180deg, rgba(51, 78, 21, 0.95) 0%, #4D8A3C 50%, rgba(51, 78, 21, 0.95) 100%)',
+                background: 'linear-gradient(180deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%)',
                 minHeight: '100vh',
                 position: 'relative'
             }}
@@ -133,13 +133,13 @@ export function TestimonialsSection() {
                     <div className="text-center mb-5">
                         <h2 
                             className="display-4 fw-bold mb-4"
-                            style={{ color: '#FFFFFF' }}
+                            style={{ color: '#334E15' }}
                         >
                             Notre impact en chiffres
                         </h2>
                         <p 
                             className="lead"
-                            style={{ color: '#FFFFFF', opacity: 0.9, maxWidth: '600px', margin: '0 auto', fontSize: '1.2rem' }}
+                            style={{ color: '#6B7280', maxWidth: '600px', margin: '0 auto', fontSize: '1.2rem' }}
                         >
                             Des résultats concrets qui témoignent de notre engagement 
                             pour un changement positif et durable.
@@ -152,12 +152,11 @@ export function TestimonialsSection() {
                                 <div 
                                     className="stat-card text-center p-4 h-100"
                                     style={{
-                                        background: 'linear-gradient(135deg, rgba(51, 78, 21, 0.9) 0%, rgba(77, 138, 60, 0.8) 100%)',
-                                        backdropFilter: 'blur(15px)',
-                                        border: '2px solid rgba(198, 148, 56, 0.4)',
+                                        background: '#ffffff',
+                                        border: `2px solid ${stat.color}20`,
                                         borderRadius: '20px',
                                         transition: 'all 0.3s ease',
-                                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)'
+                                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)'
                                     }}
                                     onMouseEnter={(e) => {
                                         e.currentTarget.style.transform = 'translateY(-5px)';
@@ -169,7 +168,7 @@ export function TestimonialsSection() {
                                     }}
                                     onMouseLeave={(e) => {
                                         e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = 'none';
+                                        e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
                                     }}
                                 >
                                     <div 
@@ -177,8 +176,8 @@ export function TestimonialsSection() {
                                         style={{
                                             width: '80px',
                                             height: '80px',
-                                            background: `linear-gradient(135deg, ${stat.color} 0%, rgba(255,255,255,0.1) 100%)`,
-                                            color: '#FFF'
+                                            background: `${stat.color}15`,
+                                            color: stat.color
                                         }}
                                     >
                                         <i className={`${stat.icon} display-6`}></i>
@@ -195,7 +194,7 @@ export function TestimonialsSection() {
                                     
                                     <div 
                                         className="stat-label fw-semibold"
-                                        style={{ color: '#FFFFFF', fontSize: '1.1rem' }}
+                                        style={{ color: '#334E15', fontSize: '1.1rem' }}
                                     >
                                         {stat.label}
                                     </div>
@@ -217,14 +216,14 @@ export function TestimonialsSection() {
                             }}
                         >
                             <i className="bi bi-chat-heart me-2" style={{ color: '#E4518C' }}></i>
-                            <span style={{ color: '#FFFFFF', fontSize: '1.1rem', fontWeight: '600' }}>
+                            <span style={{ color: '#E4518C', fontSize: '1.1rem', fontWeight: '600' }}>
                                 Témoignages
                             </span>
                         </div>
                         
                         <h2 
                             className="display-4 fw-bold mb-4"
-                            style={{ color: '#FFFFFF' }}
+                            style={{ color: '#334E15' }}
                         >
                             Ils nous font confiance
                         </h2>
@@ -269,7 +268,7 @@ export function TestimonialsSection() {
                                     style={{
                                         fontSize: '1.3rem',
                                         lineHeight: '1.7',
-                                        color: '#E8F5E8',
+                                        color: '#334E15',
                                         fontStyle: 'italic',
                                         position: 'relative'
                                     }}
@@ -295,8 +294,7 @@ export function TestimonialsSection() {
                                     </div>
                                     <div 
                                         style={{ 
-                                            color: '#FFFFFF', 
-                                            opacity: 0.8,
+                                            color: '#6B7280',
                                             fontSize: '1.1rem',
                                             fontWeight: '400'
                                         }}
@@ -317,7 +315,7 @@ export function TestimonialsSection() {
                                             height: '4px',
                                             background: currentTestimonial === index 
                                                 ? 'linear-gradient(135deg, #5FA145 0%, #E4518C 100%)' 
-                                                : 'rgba(232, 245, 232, 0.3)',
+                                                : '#E9ECEF',
                                             borderRadius: '2px',
                                             transition: 'all 0.3s ease',
                                             cursor: 'pointer'
