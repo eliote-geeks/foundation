@@ -78,9 +78,7 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
     });
 
     Route::get('/events', function () {
-        return Inertia::render('dashboard/events', [
-            'user' => auth()->user()
-        ]);
+        return app(App\Http\Controllers\Dashboard\EventController::class)->index();
     })->name('events');
 
     Route::get('/donations', function () {
@@ -119,6 +117,35 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
         Route::post('/requests/{partnerRequest}/process', 'processRequest')->name('requests.process');
         Route::get('/export', 'export')->name('export');
     });
+
+    // Routes dashboard événements
+    Route::controller(App\Http\Controllers\Dashboard\EventController::class)->prefix('events')->name('events.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/tickets', 'tickets')->name('tickets');
+        Route::post('/', 'store')->name('store');
+        Route::get('/export', 'export')->name('export');
+        Route::get('/{event}', 'show')->name('show');
+        Route::put('/{event}', 'update')->name('update');
+        Route::delete('/{event}', 'destroy')->name('destroy');
+        Route::post('/{event}/toggle-status', 'toggleStatus')->name('toggle-status');
+        Route::post('/{event}/checkin', 'checkinTicket')->name('checkin');
+    });
+
+    // Routes dashboard concours
+    Route::controller(App\Http\Controllers\Dashboard\ContestController::class)->prefix('contests')->name('contests.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{contest}', 'show')->name('show');
+        Route::put('/{contest}', 'update')->name('update');
+        Route::delete('/{contest}', 'destroy')->name('destroy');
+        Route::post('/{contest}/status', 'updateStatus')->name('update-status');
+        Route::post('/{contest}/vote', 'processVote')->name('vote');
+        Route::get('/{contest}/votes-analytics', 'votesAnalytics')->name('votes-analytics');
+        Route::get('/export', 'export')->name('export');
+    });
+
+    // Route principale pour les concours
+    Route::get('/contests', [App\Http\Controllers\Dashboard\ContestController::class, 'index'])->name('contests');
 
     Route::get('/content', function () {
         return Inertia::render('dashboard/content', [

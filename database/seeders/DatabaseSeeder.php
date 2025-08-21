@@ -20,9 +20,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        // Seeder pour les partenaires
+        // Seeder pour les partenaires, événements et concours
         $this->call([
             PartnerSeeder::class,
+            EventSeeder::class,
+            ContestSeeder::class,
         ]);
     }
 }

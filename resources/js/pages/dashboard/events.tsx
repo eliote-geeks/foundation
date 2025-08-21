@@ -1,7 +1,34 @@
 import DashboardLayout from '../../layouts/dashboard-layout';
-import { Card, Row, Col, Badge, Button, Form, InputGroup, Modal, Calendar } from 'react-bootstrap';
+import { Card, Row, Col, Badge, Button, Form, InputGroup, Modal, Table } from 'react-bootstrap';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useState } from 'react';
+import { router } from '@inertiajs/react';
+
+interface Event {
+    id: number;
+    title: string;
+    description: string;
+    location: string;
+    start_date: string;
+    end_date: string;
+    category: string;
+    category_display: string;
+    status: string;
+    status_display: string;
+    image?: string;
+    price: number;
+    formatted_price: string;
+    is_free: boolean;
+    capacity?: number;
+    tickets_sold: number;
+    available_tickets: number;
+    total_revenue: number;
+    created_at: string;
+    creator_name: string;
+    is_active: boolean;
+    is_ongoing: boolean;
+    is_completed: boolean;
+}
 
 interface EventsProps {
     user?: {
@@ -9,130 +36,122 @@ interface EventsProps {
         email: string;
         avatar?: string;
     };
+    events: {
+        data: Event[];
+        current_page: number;
+        last_page: number;
+        total: number;
+    };
+    stats: Array<{
+        title: string;
+        value: string | number;
+        change: string;
+        positive: boolean;
+        color: string;
+        icon: string;
+    }>;
+    recentEvents: any[];
+    eventsByCategory: any;
+    status: string;
+    filters: any;
 }
 
-export default function Events({ user }: EventsProps) {
+export default function Events({ user, events, stats, recentEvents, eventsByCategory, status, filters }: EventsProps) {
     const { t } = useTranslation();
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingEvent, setEditingEvent] = useState<Event | null>(null);
     const [viewMode, setViewMode] = useState('grid'); // 'grid' ou 'calendar'
 
-    const stats = [
-        {
-            title: 'Événements actifs',
-            value: '24',
-            change: '+8%',
-            positive: true,
-            color: '#5FA145',
-            icon: 'bi-calendar-check'
-        },
-        {
-            title: 'Participants inscrits',
-            value: '1,847',
-            change: '+25%',
-            positive: true,
-            color: '#667eea',
-            icon: 'bi-people'
-        },
-        {
-            title: 'Revenus générés',
-            value: '5.530.000 FCFA',
-            change: '+12%',
-            positive: true,
-            color: '#E4518C',
-            icon: 'bi-currency-euro'
-        },
-        {
-            title: 'Événements ce mois',
-            value: '8',
-            change: '+3',
-            positive: true,
-            color: '#C69438',
-            icon: 'bi-calendar-event'
-        }
-    ];
+    // Utiliser les événements passés en props
+    const eventsData = events?.data || [];
 
-    const events = [
-        {
-            id: 1,
-            title: 'Collecte Alimentaire',
-            description: 'Grande collecte pour les familles dans le besoin',
-            date: '2024-08-25',
-            time: '14:00',
-            location: 'Centre-ville',
-            category: 'Solidarité',
-            status: 'Actif',
-            participants: 127,
-            capacity: 200,
-            price: 'Gratuit',
-            organizer: 'Marie Dubois'
-        },
-        {
-            id: 2,
-            title: 'Gala de Charité',
-            description: 'Soirée de levée de fonds pour nos projets',
-            date: '2024-08-30',
-            time: '19:00',
-            location: 'Hôtel de ville',
-            category: 'Levée de fonds',
-            status: 'Actif',
-            participants: 85,
-            capacity: 150,
-            price: '32.500 FCFA',
-            organizer: 'Jean Mbong'
-        },
-        {
-            id: 3,
-            title: 'Formation Bénévoles',
-            description: 'Session de formation pour nouveaux bénévoles',
-            date: '2024-09-05',
-            time: '10:00',
-            location: 'Siège social',
-            category: 'Formation',
-            status: 'Programmé',
-            participants: 23,
-            capacity: 30,
-            price: 'Gratuit',
-            organizer: 'Sophie Martin'
-        },
-        {
-            id: 4,
-            title: 'Conférence Impact Social',
-            description: 'Conférence sur l\'impact social des associations',
-            date: '2024-09-12',
-            time: '09:00',
-            location: 'Université locale',
-            category: 'Éducation',
-            status: 'Brouillon',
-            participants: 0,
-            capacity: 300,
-            price: '16.350 FCFA',
-            organizer: 'Paul Nguyen'
-        }
-    ];
-
-    const getStatusBadge = (status: string) => {
+    const getStatusBadge = (status: string, statusDisplay: string) => {
         const variants: any = {
-            'Actif': 'success',
-            'Programmé': 'warning',
-            'Brouillon': 'secondary',
-            'Terminé': 'info',
-            'Annulé': 'danger'
+            'published': 'success',
+            'draft': 'secondary',
+            'completed': 'info',
+            'cancelled': 'danger'
         };
-        return <Badge bg={variants[status] || 'secondary'}>{status}</Badge>;
+        return <Badge bg={variants[status] || 'secondary'}>{statusDisplay}</Badge>;
     };
 
-    const getCategoryBadge = (category: string) => {
+    const getCategoryBadge = (category: string, categoryDisplay: string) => {
         const colors: any = {
-            'Solidarité': 'primary',
-            'Levée de fonds': 'success',
-            'Formation': 'info',
-            'Éducation': 'warning'
+            'conference': 'primary',
+            'workshop': 'success',
+            'seminar': 'info',
+            'networking': 'warning',
+            'training': 'secondary',
+            'webinar': 'dark',
+            'meetup': 'light'
         };
-        return <Badge bg={colors[category] || 'secondary'}>{category}</Badge>;
+        return <Badge bg={colors[category] || 'secondary'}>{categoryDisplay}</Badge>;
     };
 
-    const getOccupancyPercentage = (participants: number, capacity: number) => {
-        return Math.round((participants / capacity) * 100);
+    const getOccupancyPercentage = (ticketsSold: number, capacity: number) => {
+        if (!capacity) return 0;
+        return Math.round((ticketsSold / capacity) * 100);
+    };
+
+    // Le contrôleur fournit déjà les dates formatées
+    const parseFormattedDate = (formattedDate: string) => {
+        // Format: "25/08/2024 14:00"
+        const [datePart, timePart] = formattedDate.split(' ');
+        return { date: datePart, time: timePart };
+    };
+
+    const handleCreateEvent = () => {
+        setShowCreateModal(true);
+    };
+
+    const handleEditEvent = (event: Event) => {
+        setEditingEvent(event);
+        setShowEditModal(true);
+    };
+
+    const handleViewEvent = (eventId: number) => {
+        router.get(`/dashboard/events/${eventId}`);
+    };
+
+    const handleDeleteEvent = (eventId: number) => {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
+            router.delete(`/dashboard/events/${eventId}`);
+        }
+    };
+
+    const handleCreateSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const formData = new FormData(e.target as HTMLFormElement);
+        const data = Object.fromEntries(formData);
+        
+        // Conversion des données
+        data.is_free = data.is_free === 'on';
+        data.requires_approval = data.requires_approval === 'on';
+        
+        router.post('/dashboard/events', data, {
+            onSuccess: () => {
+                setShowCreateModal(false);
+            }
+        });
+    };
+
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const formData = new FormData(e.target as HTMLFormElement);
+        const data = Object.fromEntries(formData);
+        
+        // Conversion des données
+        data.is_free = data.is_free === 'on';
+        data.requires_approval = data.requires_approval === 'on';
+        data._method = 'PUT';
+        
+        router.post(`/dashboard/events/${editingEvent?.id}`, data, {
+            onSuccess: () => {
+                setShowEditModal(false);
+                setEditingEvent(null);
+            }
+        });
     };
 
     return (
@@ -171,7 +190,7 @@ export default function Events({ user }: EventsProps) {
                                     backgroundColor: '#5FA145',
                                     borderColor: '#5FA145'
                                 }}
-                                onClick={() => setShowCreateModal(true)}
+                                onClick={handleCreateEvent}
                             >
                                 <i className="bi bi-calendar-plus me-2"></i>
                                 Créer un événement
@@ -267,7 +286,7 @@ export default function Events({ user }: EventsProps) {
                 {/* Events Grid/Calendar */}
                 {viewMode === 'grid' ? (
                     <Row className="g-4">
-                        {events.map((event) => (
+                        {eventsData.map((event) => (
                             <Col lg={6} key={event.id}>
                                 <Card className="h-100 border-0" style={{ boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
                                     <Card.Body className="p-4">
@@ -281,8 +300,8 @@ export default function Events({ user }: EventsProps) {
                                                 </p>
                                             </div>
                                             <div className="d-flex gap-2">
-                                                {getStatusBadge(event.status)}
-                                                {getCategoryBadge(event.category)}
+                                                {getStatusBadge(event.status, event.status_display)}
+                                                {getCategoryBadge(event.category, event.category_display)}
                                             </div>
                                         </div>
 
@@ -290,7 +309,13 @@ export default function Events({ user }: EventsProps) {
                                             <div className="d-flex align-items-center mb-2">
                                                 <i className="bi bi-calendar3 me-2 text-muted"></i>
                                                 <span className="small">
-                                                    {new Date(event.date).toLocaleDateString('fr-FR')} à {event.time}
+                                                    Début: {event.start_date}
+                                                </span>
+                                            </div>
+                                            <div className="d-flex align-items-center mb-2">
+                                                <i className="bi bi-calendar-x me-2 text-muted"></i>
+                                                <span className="small">
+                                                    Fin: {event.end_date}
                                                 </span>
                                             </div>
                                             <div className="d-flex align-items-center mb-2">
@@ -299,43 +324,66 @@ export default function Events({ user }: EventsProps) {
                                             </div>
                                             <div className="d-flex align-items-center mb-2">
                                                 <i className="bi bi-person me-2 text-muted"></i>
-                                                <span className="small">Organisé par {event.organizer}</span>
+                                                <span className="small">Créé par {event.creator_name}</span>
                                             </div>
                                             <div className="d-flex align-items-center">
                                                 <i className="bi bi-currency-euro me-2 text-muted"></i>
-                                                <span className="small">{event.price}</span>
+                                                <span className="small">{event.formatted_price}</span>
                                             </div>
                                         </div>
 
                                         <div className="mb-3">
                                             <div className="d-flex justify-content-between align-items-center mb-2">
-                                                <span className="small text-muted">Participation</span>
+                                                <span className="small text-muted">Billets vendus</span>
                                                 <span className="small fw-medium">
-                                                    {event.participants}/{event.capacity} places
+                                                    {event.tickets_sold}/{event.capacity || 'Illimité'} places
                                                 </span>
                                             </div>
-                                            <div className="progress" style={{ height: '6px' }}>
-                                                <div 
-                                                    className="progress-bar bg-success"
-                                                    style={{ width: `${getOccupancyPercentage(event.participants, event.capacity)}%` }}
-                                                ></div>
-                                            </div>
-                                            <div className="small text-muted mt-1">
-                                                {getOccupancyPercentage(event.participants, event.capacity)}% de taux d'occupation
-                                            </div>
+                                            {event.capacity && (
+                                                <div className="progress" style={{ height: '6px' }}>
+                                                    <div 
+                                                        className="progress-bar bg-success"
+                                                        style={{ width: `${getOccupancyPercentage(event.tickets_sold, event.capacity)}%` }}
+                                                    ></div>
+                                                </div>
+                                            )}
+                                            {event.capacity && (
+                                                <div className="small text-muted mt-1">
+                                                    {getOccupancyPercentage(event.tickets_sold, event.capacity)}% de taux d'occupation
+                                                </div>
+                                            )}
+                                            {event.total_revenue > 0 && (
+                                                <div className="small fw-medium text-success mt-2">
+                                                    Revenus: {event.total_revenue.toLocaleString()} XAF
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="d-flex gap-2">
-                                            <Button variant="outline-primary" size="sm" className="flex-fill">
+                                            <Button 
+                                                variant="outline-primary" 
+                                                size="sm" 
+                                                className="flex-fill"
+                                                onClick={() => handleViewEvent(event.id)}
+                                            >
                                                 <i className="bi bi-eye me-2"></i>
                                                 Voir détails
                                             </Button>
-                                            <Button variant="outline-secondary" size="sm" className="flex-fill">
+                                            <Button 
+                                                variant="outline-secondary" 
+                                                size="sm" 
+                                                className="flex-fill"
+                                                onClick={() => handleEditEvent(event)}
+                                            >
                                                 <i className="bi bi-pencil me-2"></i>
                                                 Modifier
                                             </Button>
-                                            <Button variant="outline-secondary" size="sm">
-                                                <i className="bi bi-three-dots-vertical"></i>
+                                            <Button 
+                                                variant="outline-danger" 
+                                                size="sm"
+                                                onClick={() => handleDeleteEvent(event.id)}
+                                            >
+                                                <i className="bi bi-trash"></i>
                                             </Button>
                                         </div>
                                     </Card.Body>
@@ -365,74 +413,263 @@ export default function Events({ user }: EventsProps) {
                     <Modal.Header closeButton>
                         <Modal.Title>Créer un nouvel événement</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body>
-                        <Form>
+                    <Form onSubmit={handleCreateSubmit}>
+                        <Modal.Body>
                             <Row>
                                 <Col md={6}>
                                     <Form.Group className="mb-3">
-                                        <Form.Label>Titre de l'événement</Form.Label>
-                                        <Form.Control type="text" placeholder="Ex: Collecte alimentaire" />
+                                        <Form.Label>Titre de l'événement *</Form.Label>
+                                        <Form.Control 
+                                            name="title"
+                                            type="text" 
+                                            placeholder="Ex: Conférence Innovation Tech" 
+                                            required
+                                        />
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group className="mb-3">
-                                        <Form.Label>Catégorie</Form.Label>
-                                        <Form.Select>
+                                        <Form.Label>Catégorie *</Form.Label>
+                                        <Form.Select name="category" required>
                                             <option value="">Choisir une catégorie</option>
-                                            <option value="solidarite">Solidarité</option>
-                                            <option value="levee-fonds">Levée de fonds</option>
-                                            <option value="formation">Formation</option>
-                                            <option value="education">Éducation</option>
+                                            <option value="conference">Conférence</option>
+                                            <option value="workshop">Atelier</option>
+                                            <option value="seminar">Séminaire</option>
+                                            <option value="networking">Networking</option>
+                                            <option value="training">Formation</option>
+                                            <option value="webinar">Webinaire</option>
+                                            <option value="meetup">Meetup</option>
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
                             </Row>
                             <Form.Group className="mb-3">
-                                <Form.Label>Description</Form.Label>
-                                <Form.Control as="textarea" rows={3} placeholder="Description de l'événement..." />
+                                <Form.Label>Description *</Form.Label>
+                                <Form.Control 
+                                    name="description"
+                                    as="textarea" 
+                                    rows={3} 
+                                    placeholder="Description complète de l'événement..."
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Description courte</Form.Label>
+                                <Form.Control 
+                                    name="short_description"
+                                    type="text" 
+                                    placeholder="Résumé court pour les cartes..."
+                                />
                             </Form.Group>
                             <Row>
                                 <Col md={6}>
                                     <Form.Group className="mb-3">
-                                        <Form.Label>Date</Form.Label>
-                                        <Form.Control type="date" />
+                                        <Form.Label>Date de début *</Form.Label>
+                                        <Form.Control 
+                                            name="start_date"
+                                            type="datetime-local" 
+                                            required
+                                        />
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group className="mb-3">
-                                        <Form.Label>Heure</Form.Label>
-                                        <Form.Control type="time" />
+                                        <Form.Label>Date de fin *</Form.Label>
+                                        <Form.Control 
+                                            name="end_date"
+                                            type="datetime-local" 
+                                            required
+                                        />
                                     </Form.Group>
                                 </Col>
                             </Row>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Lieu</Form.Label>
-                                <Form.Control type="text" placeholder="Lieu de l'événement" />
-                            </Form.Group>
                             <Row>
                                 <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Lieu *</Form.Label>
+                                        <Form.Control 
+                                            name="location"
+                                            type="text" 
+                                            placeholder="Nom du lieu"
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Adresse complète</Form.Label>
+                                        <Form.Control 
+                                            name="address"
+                                            type="text" 
+                                            placeholder="Adresse complète du lieu"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col md={4}>
                                     <Form.Group className="mb-3">
                                         <Form.Label>Capacité</Form.Label>
-                                        <Form.Control type="number" placeholder="Nombre de places" />
+                                        <Form.Control 
+                                            name="capacity"
+                                            type="number" 
+                                            placeholder="Nombre de places"
+                                            min="1"
+                                        />
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={4}>
                                     <Form.Group className="mb-3">
-                                        <Form.Label>Prix</Form.Label>
-                                        <Form.Control type="text" placeholder="Ex: Gratuit, 16.350 FCFA" />
+                                        <Form.Label>Prix (XAF) *</Form.Label>
+                                        <Form.Control 
+                                            name="price"
+                                            type="number" 
+                                            placeholder="0"
+                                            min="0"
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group className="mb-3">
+                                        <div className="mt-4">
+                                            <Form.Check 
+                                                name="is_free"
+                                                type="checkbox" 
+                                                label="Événement gratuit"
+                                            />
+                                            <Form.Check 
+                                                name="requires_approval"
+                                                type="checkbox" 
+                                                label="Approbation requise"
+                                            />
+                                        </div>
                                     </Form.Group>
                                 </Col>
                             </Row>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="outline-secondary" onClick={() => setShowCreateModal(false)}>
+                                Annuler
+                            </Button>
+                            <Button 
+                                type="submit"
+                                style={{ backgroundColor: '#5FA145', borderColor: '#5FA145' }}
+                            >
+                                Créer l'événement
+                            </Button>
+                        </Modal.Footer>
+                    </Form>
+                </Modal>
+
+                {/* Edit Event Modal */}
+                <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Modifier l'événement</Modal.Title>
+                    </Modal.Header>
+                    {editingEvent && (
+                        <Form onSubmit={handleEditSubmit}>
+                            <Modal.Body>
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Titre de l'événement *</Form.Label>
+                                            <Form.Control 
+                                                name="title"
+                                                type="text" 
+                                                defaultValue={editingEvent.title}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Catégorie *</Form.Label>
+                                            <Form.Select name="category" defaultValue={editingEvent.category} required>
+                                                <option value="">Choisir une catégorie</option>
+                                                <option value="conference">Conférence</option>
+                                                <option value="workshop">Atelier</option>
+                                                <option value="seminar">Séminaire</option>
+                                                <option value="networking">Networking</option>
+                                                <option value="training">Formation</option>
+                                                <option value="webinar">Webinaire</option>
+                                                <option value="meetup">Meetup</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Description *</Form.Label>
+                                    <Form.Control 
+                                        name="description"
+                                        as="textarea" 
+                                        rows={3} 
+                                        defaultValue={editingEvent.description}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Lieu *</Form.Label>
+                                            <Form.Control 
+                                                name="location"
+                                                type="text" 
+                                                defaultValue={editingEvent.location}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Prix (XAF) *</Form.Label>
+                                            <Form.Control 
+                                                name="price"
+                                                type="number" 
+                                                defaultValue={editingEvent.price}
+                                                min="0"
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Capacité</Form.Label>
+                                            <Form.Control 
+                                                name="capacity"
+                                                type="number" 
+                                                defaultValue={editingEvent.capacity || ''}
+                                                min="1"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="mt-4">
+                                            <Form.Check 
+                                                name="is_free"
+                                                type="checkbox" 
+                                                label="Événement gratuit"
+                                                defaultChecked={editingEvent.is_free}
+                                            />
+                                        </div>
+                                    </Col>
+                                </Row>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="outline-secondary" onClick={() => setShowEditModal(false)}>
+                                    Annuler
+                                </Button>
+                                <Button 
+                                    type="submit"
+                                    style={{ backgroundColor: '#5FA145', borderColor: '#5FA145' }}
+                                >
+                                    Sauvegarder
+                                </Button>
+                            </Modal.Footer>
                         </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="outline-secondary" onClick={() => setShowCreateModal(false)}>
-                            Annuler
-                        </Button>
-                        <Button style={{ backgroundColor: '#5FA145', borderColor: '#5FA145' }}>
-                            Créer l'événement
-                        </Button>
-                    </Modal.Footer>
+                    )}
                 </Modal>
             </div>
         </DashboardLayout>

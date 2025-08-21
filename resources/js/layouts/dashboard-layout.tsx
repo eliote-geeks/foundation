@@ -65,7 +65,28 @@ export default function DashboardLayout({ children, title = 'Dashboard', user }:
             label: t('events', 'Événements'),
             icon: 'bi-calendar-event',
             href: '/dashboard/events',
-            badge: '12'
+            badge: '12',
+            children: [
+                {
+                    key: 'events-list',
+                    label: t('eventsList', 'Liste des événements'),
+                    icon: 'bi-list-ul',
+                    href: '/dashboard/events'
+                },
+                {
+                    key: 'tickets',
+                    label: t('tickets', 'Billetterie'),
+                    icon: 'bi-ticket-perforated',
+                    href: '/dashboard/events/tickets'
+                }
+            ]
+        },
+        {
+            key: 'contests',
+            label: t('contests', 'Concours'),
+            icon: 'bi-trophy',
+            href: '/dashboard/contests',
+            badge: '7'
         },
         {
             key: 'donations',
@@ -228,7 +249,8 @@ export default function DashboardLayout({ children, title = 'Dashboard', user }:
                         color: isActive ? '#FFFFFF' : '#E8F5E8',
                         backgroundColor: isActive ? 'rgba(95, 161, 69, 0.8)' : 'transparent',
                         marginLeft: `${level * 1}rem`,
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.2s ease',
+                        boxShadow: isActive ? '0 4px 12px rgba(95, 161, 69, 0.3)' : 'none'
                     }}
                     onMouseEnter={(e) => {
                         if (!isActive) {
@@ -440,43 +462,6 @@ export default function DashboardLayout({ children, title = 'Dashboard', user }:
                 </div>
             </div>
 
-            <style jsx>{`
-                .sidebar-link:hover {
-                    transform: translateX(2px);
-                }
-                
-                .sidebar-link.active {
-                    box-shadow: 0 4px 12px rgba(95, 161, 69, 0.3);
-                }
-                
-                .sidebar-nav::-webkit-scrollbar {
-                    width: 4px;
-                }
-                
-                .sidebar-nav::-webkit-scrollbar-track {
-                    background: rgba(232, 245, 232, 0.1);
-                    border-radius: 2px;
-                }
-                
-                .sidebar-nav::-webkit-scrollbar-thumb {
-                    background: rgba(232, 245, 232, 0.3);
-                    border-radius: 2px;
-                }
-                
-                .sidebar-nav::-webkit-scrollbar-thumb:hover {
-                    background: rgba(232, 245, 232, 0.5);
-                }
-                
-                @media (max-width: 991.98px) {
-                    .main-content {
-                        margin-left: 0 !important;
-                    }
-                    .top-bar {
-                        margin-left: 0 !important;
-                        padding-left: 1rem !important;
-                    }
-                }
-            `}</style>
         </>
     );
 }
