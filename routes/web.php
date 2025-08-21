@@ -81,10 +81,27 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
         return app(App\Http\Controllers\Dashboard\EventController::class)->index();
     })->name('events');
 
+    // Routes dashboard dons
+    Route::controller(App\Http\Controllers\Dashboard\DonationCampaignController::class)->prefix('donations')->name('donations.')->group(function () {
+        Route::get('/campaigns', 'index')->name('campaigns.index');
+        Route::post('/campaigns', 'store')->name('campaigns.store');
+        Route::get('/campaigns/export', 'export')->name('campaigns.export');
+        Route::get('/campaigns/{campaign}', 'show')->name('campaigns.show');
+        Route::put('/campaigns/{campaign}', 'update')->name('campaigns.update');
+        Route::delete('/campaigns/{campaign}', 'destroy')->name('campaigns.destroy');
+        Route::post('/campaigns/{campaign}/status', 'updateStatus')->name('campaigns.update-status');
+        Route::post('/campaigns/{campaign}/update', 'addUpdate')->name('campaigns.add-update');
+    });
+
+    Route::controller(App\Http\Controllers\Dashboard\DonorController::class)->prefix('donations')->name('donations.')->group(function () {
+        Route::get('/donors', 'index')->name('donors.index');
+        Route::get('/donors/export', 'export')->name('donors.export');
+        Route::get('/donors/{donor}', 'show')->name('donors.show');
+        Route::post('/donors/{donor}/thank-you', 'sendThankYou')->name('donors.thank-you');
+    });
+
     Route::get('/donations', function () {
-        return Inertia::render('dashboard/donations', [
-            'user' => auth()->user()
-        ]);
+        return app(App\Http\Controllers\Dashboard\DonationCampaignController::class)->index(request());
     })->name('donations');
 
     Route::get('/projects', function () {
@@ -178,19 +195,13 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
         return redirect('/dashboard/members?filter=volunteer');
     })->name('members.volunteers');
 
-    // Donations submenu routes
+    // Donations submenu routes (redirections vers les contrôleurs)
     Route::get('/donations/campaigns', function () {
-        return Inertia::render('dashboard/donations', [
-            'user' => auth()->user(),
-            'tab' => 'campaigns'
-        ]);
+        return app(App\Http\Controllers\Dashboard\DonationCampaignController::class)->index(request());
     })->name('donations.campaigns');
 
     Route::get('/donations/donors', function () {
-        return Inertia::render('dashboard/donations', [
-            'user' => auth()->user(),
-            'tab' => 'donors'
-        ]);
+        return app(App\Http\Controllers\Dashboard\DonorController::class)->index(request());
     })->name('donations.donors');
 
     // Projects submenu routes

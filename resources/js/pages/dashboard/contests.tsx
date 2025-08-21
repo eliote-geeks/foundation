@@ -173,6 +173,9 @@ export default function DashboardContests({ user, stats, contests, recentContest
         const errors = validationErrors[fieldName];
         if (!errors || errors.length === 0) return null;
 
+        // S'assurer que errors est un array
+        const errorArray = Array.isArray(errors) ? errors : [errors];
+
         return (
             <Popover id={`popover-${fieldName}`}>
                 <Popover.Header as="h3" className="text-danger">
@@ -181,7 +184,7 @@ export default function DashboardContests({ user, stats, contests, recentContest
                 </Popover.Header>
                 <Popover.Body>
                     <ul className="mb-0 ps-3">
-                        {errors.map((error, index) => (
+                        {errorArray.map((error, index) => (
                             <li key={index} className="text-danger small">{error}</li>
                         ))}
                     </ul>
@@ -192,7 +195,8 @@ export default function DashboardContests({ user, stats, contests, recentContest
 
     // Fonction pour wrapper un champ avec un popover d'erreur
     const withErrorPopover = (fieldName: string, children: React.ReactElement) => {
-        const hasError = validationErrors[fieldName] && validationErrors[fieldName].length > 0;
+        const errors = validationErrors[fieldName];
+        const hasError = errors && (Array.isArray(errors) ? errors.length > 0 : true);
         
         if (!hasError) {
             return children;
@@ -221,6 +225,9 @@ export default function DashboardContests({ user, stats, contests, recentContest
         const errors = voteValidationErrors[fieldName];
         if (!errors || errors.length === 0) return null;
 
+        // S'assurer que errors est un array
+        const errorArray = Array.isArray(errors) ? errors : [errors];
+
         return (
             <Popover id={`vote-popover-${fieldName}`}>
                 <Popover.Header as="h3" className="text-danger">
@@ -229,7 +236,7 @@ export default function DashboardContests({ user, stats, contests, recentContest
                 </Popover.Header>
                 <Popover.Body>
                     <ul className="mb-0 ps-3">
-                        {errors.map((error, index) => (
+                        {errorArray.map((error, index) => (
                             <li key={index} className="text-danger small">{error}</li>
                         ))}
                     </ul>
@@ -240,7 +247,8 @@ export default function DashboardContests({ user, stats, contests, recentContest
 
     // Fonction pour wrapper un champ vote avec un popover d'erreur
     const withVoteErrorPopover = (fieldName: string, children: React.ReactElement) => {
-        const hasError = voteValidationErrors[fieldName] && voteValidationErrors[fieldName].length > 0;
+        const errors = voteValidationErrors[fieldName];
+        const hasError = errors && (Array.isArray(errors) ? errors.length > 0 : true);
         
         if (!hasError) {
             return children;
@@ -1285,7 +1293,6 @@ export default function DashboardContests({ user, stats, contests, recentContest
                                             value={formData.max_votes_per_user}
                                             onChange={handleInputChange}
                                             min="1"
-                                            max="10"
                                             style={{ borderRadius: '8px' }}
                                         />
                                     )}
@@ -1496,7 +1503,6 @@ export default function DashboardContests({ user, stats, contests, recentContest
                                                 value={formData.max_votes_per_user}
                                                 onChange={handleInputChange}
                                                 min="1"
-                                                max="10"
                                                 style={{ borderRadius: '8px' }}
                                             />
                                         )}
