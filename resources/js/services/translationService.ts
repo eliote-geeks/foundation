@@ -1,4 +1,6 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
+
+type ServiceError = Record<string, unknown> | string;
 
 interface TranslationResponse {
     success: boolean;
@@ -8,7 +10,7 @@ interface TranslationResponse {
         source_language: string;
         target_language: string;
     };
-    errors?: any;
+    errors?: ServiceError;
     message?: string;
 }
 
@@ -19,7 +21,7 @@ interface BatchTranslationResponse {
         source_language: string;
         target_language: string;
     };
-    errors?: any;
+    errors?: ServiceError;
 }
 
 interface LanguageDetectionResponse {
@@ -28,7 +30,7 @@ interface LanguageDetectionResponse {
         text: string;
         detected_language: string;
     };
-    errors?: any;
+    errors?: ServiceError;
 }
 
 interface SupportedLanguagesResponse {
@@ -47,7 +49,7 @@ interface AutoTranslationResponse {
         target_language: string;
         translation_needed: boolean;
     };
-    errors?: any;
+    errors?: ServiceError;
 }
 
 class TranslationService {
@@ -68,10 +70,10 @@ class TranslationService {
                 source_language: sourceLanguage
             });
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return {
                 success: false,
-                errors: error.response?.data?.errors || error.message
+                errors: this.extractErrors(error)
             };
         }
     }
@@ -91,10 +93,10 @@ class TranslationService {
                 source_language: sourceLanguage
             });
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return {
                 success: false,
-                errors: error.response?.data?.errors || error.message
+                errors: this.extractErrors(error)
             };
         }
     }
@@ -108,10 +110,10 @@ class TranslationService {
                 text
             });
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return {
                 success: false,
-                errors: error.response?.data?.errors || error.message
+                errors: this.extractErrors(error)
             };
         }
     }
@@ -123,10 +125,10 @@ class TranslationService {
         try {
             const response = await axios.get<SupportedLanguagesResponse>(`${this.baseURL}/languages`);
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return {
                 success: false,
-                errors: error.message
+                errors: this.extractErrors(error)
             };
         }
     }
@@ -141,10 +143,10 @@ class TranslationService {
                 user_language: userLanguage
             });
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return {
                 success: false,
-                errors: error.response?.data?.errors || error.message
+                errors: this.extractErrors(error)
             };
         }
     }
@@ -169,9 +171,21 @@ class TranslationService {
             return text;
         } catch (error) {
             console.error('Translation error:', error);
-            return text;
-        }
+        return text;
     }
+
+    private extractErrors(error: unknown): ServiceError {
+        if (isAxiosError(error)) {
+            return error.response?.data?.errors || error.message || 'Unknown error';
+        }
+
+        if (error instanceof Error) {
+            return error.message;
+        }
+
+        return 'Unknown error';
+    }
+}
 
     /**
      * Cache simple pour éviter les requêtes répétées

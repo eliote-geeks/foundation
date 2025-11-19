@@ -3,7 +3,6 @@ import { Container, Row, Col, Card, Button, Badge, Nav, Tab, Form, Alert } from 
 import { useState } from 'react';
 import { ModernHeader } from '../components/home/modern-header';
 import { ModernFooter } from '../components/home/modern-footer';
-import { useTranslation } from '../hooks/useTranslation';
 
 interface ProfileProps {
     user?: {
@@ -18,7 +17,6 @@ interface ProfileProps {
 }
 
 export default function Profile({ user }: ProfileProps) {
-    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState('overview');
     const [showAlert, setShowAlert] = useState(false);
     const [isEditing, setIsEditing] = useState(false);

@@ -8,7 +8,7 @@ import { Badge } from '../../components/ui/badge';
 import { Alert } from '../../components/ui/alert';
 
 export default function LanguageSettings() {
-    const { currentLanguage, t, translateText } = useTranslation();
+    const { currentLanguage, t } = useTranslation();
     const [savedLanguage, setSavedLanguage] = useState(currentLanguage);
     const [showSuccess, setShowSuccess] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
@@ -18,7 +18,8 @@ export default function LanguageSettings() {
     }, [currentLanguage, savedLanguage]);
 
     const handleLanguageChange = (newLanguage: string) => {
-        setHasChanges(true);
+        setSavedLanguage(newLanguage);
+        setHasChanges(newLanguage !== currentLanguage);
     };
 
     const handleSave = () => {
@@ -34,8 +35,8 @@ export default function LanguageSettings() {
     };
 
     const handleReset = () => {
-        const savedLang = localStorage.getItem('preferredLanguage') || 'fr';
-        // Réinitialiser à la langue sauvegardée
+        const preferredLanguage = localStorage.getItem('preferredLanguage') || 'fr';
+        setSavedLanguage(preferredLanguage);
         window.location.reload();
     };
 

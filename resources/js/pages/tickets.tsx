@@ -37,7 +37,7 @@ export default function Tickets({ user }: TicketsProps) {
     const [purchasedTickets, setPurchasedTickets] = useState<number[]>([]);
 
     // Données d'événements
-    const events: Event[] = [
+    const events: Event[] = useMemo(() => ([
         {
             id: 1,
             title: "Conférence Innovation Sociale",
@@ -168,7 +168,7 @@ export default function Tickets({ user }: TicketsProps) {
             featured: true,
             tags: ["concert", "musique", "solidaire"]
         }
-    ];
+    ]), []);
 
     const categories = [
         { value: 'all', label: 'Toutes catégories' },
