@@ -6,6 +6,8 @@ const resources = {
     translation: {
       // Navigation
       dashboard: 'Tableau de bord',
+      home: 'Accueil',
+      tickets: 'Billetterie',
       contests: 'Concours',
       events: 'Événements',
       members: 'Membres',
@@ -70,13 +72,6 @@ const resources = {
       profile: 'Profil',
       join: 'Rejoindre',
       
-      // Navigation
-      home: 'Accueil',
-      contests: 'Concours',
-      tickets: 'Billetterie',
-      partners: 'Partenaires',
-      dashboard: 'Tableau de bord',
-      
       // Member registration
       memberRegistration: 'Inscription membre',
       joinFoundation: 'Rejoignez la Fondation Titi',
@@ -128,7 +123,6 @@ const resources = {
       memberType: 'Type de membre',
       
       // Misc
-      confirmPassword: 'Confirmer le mot de passe',
       memberTypeDescription: 'Choisissez le type de membre qui correspond à votre profil et vos objectifs',
       clickToSelect: 'Cliquer pour sélectionner',
       memberRegistrationBadge: 'Inscription membre simplifiée !',
@@ -138,6 +132,8 @@ const resources = {
     translation: {
       // Navigation
       dashboard: 'Dashboard',
+      home: 'Home',
+      tickets: 'Tickets',
       contests: 'Contests',
       events: 'Events',
       members: 'Members',
@@ -202,13 +198,6 @@ const resources = {
       profile: 'Profile',
       join: 'Join',
       
-      // Navigation
-      home: 'Home',
-      contests: 'Contests',
-      tickets: 'Tickets',
-      partners: 'Partners',
-      dashboard: 'Dashboard',
-      
       // Member registration
       memberRegistration: 'Member Registration',
       joinFoundation: 'Join Titi Foundation',
@@ -260,7 +249,6 @@ const resources = {
       memberType: 'Member type',
       
       // Misc
-      confirmPassword: 'Confirm password',
       memberTypeDescription: 'Choose the member type that matches your profile and goals',
       clickToSelect: 'Click to select',
       memberRegistrationBadge: 'Simplified member registration!',

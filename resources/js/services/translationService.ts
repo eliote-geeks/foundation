@@ -55,25 +55,27 @@ interface AutoTranslationResponse {
 class TranslationService {
     private baseURL = '/api/translation';
 
+    private translationCache = new Map<string, string>();
+
     /**
      * Traduit un texte simple
      */
     async translate(
-        text: string, 
-        targetLanguage: string, 
+        text: string,
+        targetLanguage: string,
         sourceLanguage: string = 'auto'
     ): Promise<TranslationResponse> {
         try {
             const response = await axios.post<TranslationResponse>(this.baseURL, {
                 text,
                 target_language: targetLanguage,
-                source_language: sourceLanguage
+                source_language: sourceLanguage,
             });
             return response.data;
         } catch (error: unknown) {
             return {
                 success: false,
-                errors: this.extractErrors(error)
+                errors: this.extractErrors(error),
             };
         }
     }
@@ -82,21 +84,21 @@ class TranslationService {
      * Traduit plusieurs textes en une fois
      */
     async translateBatch(
-        texts: string[], 
-        targetLanguage: string, 
+        texts: string[],
+        targetLanguage: string,
         sourceLanguage: string = 'auto'
     ): Promise<BatchTranslationResponse> {
         try {
             const response = await axios.post<BatchTranslationResponse>(`${this.baseURL}/batch`, {
                 texts,
                 target_language: targetLanguage,
-                source_language: sourceLanguage
+                source_language: sourceLanguage,
             });
             return response.data;
         } catch (error: unknown) {
             return {
                 success: false,
-                errors: this.extractErrors(error)
+                errors: this.extractErrors(error),
             };
         }
     }
@@ -107,13 +109,13 @@ class TranslationService {
     async detectLanguage(text: string): Promise<LanguageDetectionResponse> {
         try {
             const response = await axios.post<LanguageDetectionResponse>(`${this.baseURL}/detect`, {
-                text
+                text,
             });
             return response.data;
         } catch (error: unknown) {
             return {
                 success: false,
-                errors: this.extractErrors(error)
+                errors: this.extractErrors(error),
             };
         }
     }
@@ -128,7 +130,7 @@ class TranslationService {
         } catch (error: unknown) {
             return {
                 success: false,
-                errors: this.extractErrors(error)
+                errors: this.extractErrors(error),
             };
         }
     }
@@ -140,13 +142,13 @@ class TranslationService {
         try {
             const response = await axios.post<AutoTranslationResponse>(`${this.baseURL}/auto`, {
                 text,
-                user_language: userLanguage
+                user_language: userLanguage,
             });
             return response.data;
         } catch (error: unknown) {
             return {
                 success: false,
-                errors: this.extractErrors(error)
+                errors: this.extractErrors(error),
             };
         }
     }
@@ -155,66 +157,47 @@ class TranslationService {
      * Traduit automatiquement le contenu selon la langue courante de i18n
      */
     async translateContent(text: string, currentLanguage: string): Promise<string> {
-        // Si le texte est vide, retourner tel quel
         if (!text || text.trim() === '') {
             return text;
         }
 
         try {
             const result = await this.autoTranslate(text, currentLanguage);
-            
+
             if (result.success && result.data) {
                 return result.data.translated_text;
             }
-            
-            // En cas d'erreur, retourner le texte original
+
             return text;
         } catch (error) {
             console.error('Translation error:', error);
-        return text;
-    }
-
-    private extractErrors(error: unknown): ServiceError {
-        if (isAxiosError(error)) {
-            return error.response?.data?.errors || error.message || 'Unknown error';
+            return text;
         }
-
-        if (error instanceof Error) {
-            return error.message;
-        }
-
-        return 'Unknown error';
     }
-}
-
-    /**
-     * Cache simple pour éviter les requêtes répétées
-     */
-    private translationCache = new Map<string, string>();
 
     /**
      * Traduit avec mise en cache
      */
     async translateWithCache(
-        text: string, 
-        targetLanguage: string, 
+        text: string,
+        targetLanguage: string,
         sourceLanguage: string = 'auto'
     ): Promise<string> {
         const cacheKey = `${text}_${sourceLanguage}_${targetLanguage}`;
-        
+
         if (this.translationCache.has(cacheKey)) {
             return this.translationCache.get(cacheKey)!;
         }
 
         try {
             const result = await this.translate(text, targetLanguage, sourceLanguage);
-            
+
             if (result.success && result.data) {
                 const translatedText = result.data.translated_text;
                 this.translationCache.set(cacheKey, translatedText);
                 return translatedText;
             }
-            
+
             return text;
         } catch (error) {
             console.error('Translation error:', error);
@@ -227,6 +210,18 @@ class TranslationService {
      */
     clearCache(): void {
         this.translationCache.clear();
+    }
+
+    private extractErrors(error: unknown): ServiceError {
+        if (isAxiosError(error)) {
+            return error.response?.data?.errors || error.message || 'Unknown error';
+        }
+
+        if (error instanceof Error) {
+            return error.message;
+        }
+
+        return 'Unknown error';
     }
 }
 
