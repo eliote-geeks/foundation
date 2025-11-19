@@ -1,6 +1,5 @@
 import DashboardLayout from '../../layouts/dashboard-layout';
 import { Card, Row, Col, Table, Badge, Button, Nav, ProgressBar } from 'react-bootstrap';
-import { useTranslation } from '../../hooks/useTranslation';
 import { useState } from 'react';
 
 interface FinancesProps {
@@ -12,7 +11,6 @@ interface FinancesProps {
 }
 
 export default function Finances({ user }: FinancesProps) {
-    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState('overview');
 
     const stats = [

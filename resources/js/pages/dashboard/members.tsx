@@ -1,6 +1,5 @@
 import DashboardLayout from '../../layouts/dashboard-layout';
-import { Card, Row, Col, Table, Badge, Button, Form, InputGroup, Dropdown, ProgressBar } from 'react-bootstrap';
-import { useTranslation } from '../../hooks/useTranslation';
+import { Card, Row, Col, Table, Badge, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
 import { useState } from 'react';
 
 interface MembersProps {
@@ -12,8 +11,13 @@ interface MembersProps {
     filter?: string;
 }
 
+const memberTypeColors: Record<string, string> = {
+    'Adhérent': 'primary',
+    'Ambassadeur': 'warning',
+    'Bénévole': 'info',
+};
+
 export default function Members({ user, filter }: MembersProps) {
-    const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState(filter || 'all');
 
@@ -107,12 +111,7 @@ export default function Members({ user, filter }: MembersProps) {
     };
 
     const getTypeBadge = (type: string) => {
-        const colors: any = {
-            'Adhérent': 'primary',
-            'Ambassadeur': 'warning',
-            'Bénévole': 'info'
-        };
-        return <Badge bg={colors[type] || 'secondary'}>{type}</Badge>;
+        return <Badge bg={memberTypeColors[type] || 'secondary'}>{type}</Badge>;
     };
 
     return (

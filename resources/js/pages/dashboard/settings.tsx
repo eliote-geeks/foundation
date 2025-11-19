@@ -1,6 +1,5 @@
 import DashboardLayout from '../../layouts/dashboard-layout';
 import { Card, Row, Col, Form, Button, Nav, Alert } from 'react-bootstrap';
-import { useTranslation } from '../../hooks/useTranslation';
 import { useState } from 'react';
 
 interface SettingsProps {
@@ -12,7 +11,6 @@ interface SettingsProps {
 }
 
 export default function Settings({ user }: SettingsProps) {
-    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState('general');
     const [showSaveAlert, setShowSaveAlert] = useState(false);
 

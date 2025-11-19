@@ -1,6 +1,5 @@
 import DashboardLayout from '../../layouts/dashboard-layout';
 import { Card, Row, Col, Table, Badge, Button, Nav, Modal, Form } from 'react-bootstrap';
-import { useTranslation } from '../../hooks/useTranslation';
 import { useState } from 'react';
 
 interface PartnersProps {
@@ -12,7 +11,6 @@ interface PartnersProps {
 }
 
 export default function Partners({ user }: PartnersProps) {
-    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState('overview');
     const [showAddModal, setShowAddModal] = useState(false);
 

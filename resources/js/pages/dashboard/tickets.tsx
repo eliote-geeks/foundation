@@ -1,6 +1,5 @@
 import DashboardLayout from '../../layouts/dashboard-layout';
 import { Card, Row, Col, Badge, Button, Form, InputGroup, Modal, Table } from 'react-bootstrap';
-import { useTranslation } from '../../hooks/useTranslation';
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 
@@ -50,56 +49,59 @@ interface TicketsProps {
         icon: string;
     }>;
     events: Event[];
-    filters: any;
+    filters?: {
+        search?: string;
+        event?: string | number;
+        status?: string;
+    };
 }
 
 export default function Tickets({ user, tickets, stats, events, filters }: TicketsProps) {
-    const { t } = useTranslation();
     const [showCheckinModal, setShowCheckinModal] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
     const ticketsData = tickets?.data || [];
 
     const getStatusBadge = (status: string) => {
-        const variants: any = {
-            'confirmed': 'success',
-            'pending': 'warning',
-            'cancelled': 'danger'
+        const variants: Record<string, string> = {
+            confirmed: 'success',
+            pending: 'warning',
+            cancelled: 'danger',
         };
-        const labels: any = {
-            'confirmed': 'Confirmé',
-            'pending': 'En attente',
-            'cancelled': 'Annulé'
+        const labels: Record<string, string> = {
+            confirmed: 'Confirmé',
+            pending: 'En attente',
+            cancelled: 'Annulé',
         };
         return <Badge bg={variants[status] || 'secondary'}>{labels[status] || status}</Badge>;
     };
 
     const getPaymentStatusBadge = (status: string) => {
-        const variants: any = {
-            'paid': 'success',
-            'pending': 'warning',
-            'failed': 'danger'
+        const variants: Record<string, string> = {
+            paid: 'success',
+            pending: 'warning',
+            failed: 'danger',
         };
-        const labels: any = {
-            'paid': 'Payé',
-            'pending': 'En attente',
-            'failed': 'Échoué'
+        const labels: Record<string, string> = {
+            paid: 'Payé',
+            pending: 'En attente',
+            failed: 'Échoué',
         };
         return <Badge bg={variants[status] || 'secondary'}>{labels[status] || status}</Badge>;
     };
 
     const getTicketTypeBadge = (type: string) => {
-        const colors: any = {
-            'standard': 'primary',
-            'vip': 'warning',
-            'premium': 'info',
-            'student': 'success'
+        const colors: Record<string, string> = {
+            standard: 'primary',
+            vip: 'warning',
+            premium: 'info',
+            student: 'success',
         };
-        const labels: any = {
-            'standard': 'Standard',
-            'vip': 'VIP',
-            'premium': 'Premium',
-            'student': 'Étudiant'
+        const labels: Record<string, string> = {
+            standard: 'Standard',
+            vip: 'VIP',
+            premium: 'Premium',
+            student: 'Étudiant',
         };
         return <Badge bg={colors[type] || 'secondary'}>{labels[type] || type}</Badge>;
     };

@@ -1,6 +1,5 @@
 import DashboardLayout from '../../layouts/dashboard-layout';
 import { Card, Row, Col, Badge, Button, Form, InputGroup, Modal, ProgressBar } from 'react-bootstrap';
-import { useTranslation } from '../../hooks/useTranslation';
 import { useState } from 'react';
 
 interface ProjectsProps {
@@ -12,8 +11,29 @@ interface ProjectsProps {
     filter?: string;
 }
 
+const statusVariants: Record<string, string> = {
+    'Actif': 'success',
+    'Terminé': 'primary',
+    'En pause': 'warning',
+    'Planifié': 'info',
+    'Annulé': 'danger',
+};
+
+const priorityVariants: Record<string, string> = {
+    'Haute': 'danger',
+    'Moyenne': 'warning',
+    'Basse': 'success',
+};
+
+const categoryColors: Record<string, string> = {
+    'Solidarité': '#5FA145',
+    'Éducation': '#667eea',
+    'Infrastructure': '#E4518C',
+    'Communication': '#C69438',
+    'Formation': '#764ba2',
+};
+
 export default function Projects({ user, filter }: ProjectsProps) {
-    const { t } = useTranslation();
     const [showProjectModal, setShowProjectModal] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState(filter === 'active' ? 'En cours' : filter === 'completed' ? 'Terminé' : 'all');
     const [viewMode, setViewMode] = useState('grid'); // 'grid' ou 'timeline'
@@ -137,38 +157,15 @@ export default function Projects({ user, filter }: ProjectsProps) {
     ];
 
     const getStatusBadge = (status: string) => {
-        const variants: any = {
-            'Actif': 'success',
-            'Terminé': 'primary',
-            'En pause': 'warning',
-            'Planifié': 'info',
-            'Annulé': 'danger'
-        };
-        return <Badge bg={variants[status] || 'secondary'}>{status}</Badge>;
+        return <Badge bg={statusVariants[status] || 'secondary'}>{status}</Badge>;
     };
 
     const getPriorityBadge = (priority: string) => {
-        const variants: any = {
-            'Haute': 'danger',
-            'Moyenne': 'warning',
-            'Basse': 'success'
-        };
-        return <Badge bg={variants[priority] || 'secondary'}>{priority}</Badge>;
+        return <Badge bg={priorityVariants[priority] || 'secondary'}>{priority}</Badge>;
     };
 
     const getCategoryColor = (category: string) => {
-        const colors: any = {
-            'Solidarité': '#5FA145',
-            'Éducation': '#667eea',
-            'Infrastructure': '#E4518C',
-            'Communication': '#C69438',
-            'Formation': '#764ba2'
-        };
-        return colors[category] || '#6B7280';
-    };
-
-    const getBudgetUsedPercentage = (spent: number, budget: number) => {
-        return Math.round((spent / budget) * 100);
+        return categoryColors[category] || '#6B7280';
     };
 
     const filteredProjects = selectedStatus === 'all' 
