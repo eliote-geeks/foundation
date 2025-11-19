@@ -1,0 +1,110 @@
+name: Deploy Fondation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DEPLOY_PATH: /home/u764120993
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, bcmath, pdo_mysql, fileinfo, curl, ctype, dom
+          coverage: none
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+      - name: Generate production environment file
+        run: |
+          cat <<'EOF' > .env
+          APP_NAME=${{ secrets.APP_NAME }}
+          APP_ENV=production
+          APP_KEY=${{ secrets.APP_KEY }}
+          APP_DEBUG=false
+          APP_URL=${{ secrets.APP_URL }}
+          LOG_CHANNEL=stack
+          LOG_LEVEL=error
+
+          DB_CONNECTION=mysql
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_PORT=${{ secrets.DB_PORT }}
+          DB_DATABASE=${{ secrets.DB_DATABASE }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+          BROADCAST_DRIVER=log
+          CACHE_DRIVER=file
+          FILESYSTEM_DISK=public
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=file
+          SESSION_LIFETIME=120
+
+          MAIL_MAILER=log
+          MAIL_HOST=127.0.0.1
+          MAIL_PORT=2525
+          MAIL_USERNAME=null
+          MAIL_PASSWORD=null
+          MAIL_ENCRYPTION=null
+
+          VITE_APP_NAME="${{ secrets.APP_NAME }}"
+          EOF
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Deploy codebase over SSH
+        env:
+          SSHPASS: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          sshpass -p "$SSHPASS" rsync -az --delete \
+            --exclude=".git" \
+            --exclude=".github" \
+            --exclude="node_modules" \
+            --exclude="tests" \
+            --exclude="storage/app" \
+            --exclude="storage/logs" \
+            --exclude="public/storage" \
+            -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$DEPLOY_PATH
+
+      - name: Run post-deployment tasks
+        env:
+          SSHPASS: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          sshpass -p "$SSHPASS" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<'EOF'
+          set -e
+          cd /home/u764120993
+          php artisan migrate --force
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          php artisan optimize
+          php artisan storage:link
+          chmod -R 775 storage bootstrap/cache
+          EOF
