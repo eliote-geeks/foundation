@@ -81,7 +81,11 @@ jobs:
       - name: Deploy codebase over SSH
         env:
           SSHPASS: ${{ secrets.SSH_PASSWORD }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
+          PORT="${SSH_PORT:-22}"
           sshpass -p "$SSHPASS" rsync -az --delete \
             --exclude=".git" \
             --exclude=".github" \
@@ -90,14 +94,18 @@ jobs:
             --exclude="storage/app" \
             --exclude="storage/logs" \
             --exclude="public/storage" \
-            -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
-            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$DEPLOY_PATH
+            -e "ssh -p ${PORT} -o StrictHostKeyChecking=no" \
+            ./ "${SSH_USER}@${SSH_HOST}:$DEPLOY_PATH"
 
       - name: Run post-deployment tasks
         env:
           SSHPASS: ${{ secrets.SSH_PASSWORD }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
-          sshpass -p "$SSHPASS" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<'EOF'
+          PORT="${SSH_PORT:-22}"
+          sshpass -p "$SSHPASS" ssh -p ${PORT} -o StrictHostKeyChecking=no "${SSH_USER}@${SSH_HOST}" <<'EOF'
           set -e
           cd /home/u764120993
           php artisan migrate --force
