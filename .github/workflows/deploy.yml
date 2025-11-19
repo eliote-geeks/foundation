@@ -12,6 +12,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: foundation titi
 
     steps:
       - name: Checkout repository
