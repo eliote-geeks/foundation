@@ -1,6 +1,5 @@
 import DashboardLayout from '../../layouts/dashboard-layout';
 import { Card, Row, Col, Badge, Button, Form, InputGroup, Modal, Table } from 'react-bootstrap';
-import { useTranslation } from '../../hooks/useTranslation';
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 
@@ -50,14 +49,30 @@ interface EventsProps {
         color: string;
         icon: string;
     }>;
-    recentEvents: any[];
-    eventsByCategory: any;
-    status: string;
-    filters: any;
+    recentEvents?: Array<unknown>;
+    eventsByCategory?: Record<string, unknown>;
+    status?: string;
+    filters?: Record<string, unknown>;
 }
 
-export default function Events({ user, events, stats, recentEvents, eventsByCategory, status, filters }: EventsProps) {
-    const { t } = useTranslation();
+const statusVariants: Record<string, string> = {
+    published: 'success',
+    draft: 'secondary',
+    completed: 'info',
+    cancelled: 'danger',
+};
+
+const categoryColors: Record<string, string> = {
+    conference: 'primary',
+    workshop: 'success',
+    seminar: 'info',
+    networking: 'warning',
+    training: 'secondary',
+    webinar: 'dark',
+    meetup: 'light',
+};
+
+export default function Events({ user, events, stats }: EventsProps) {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -67,38 +82,16 @@ export default function Events({ user, events, stats, recentEvents, eventsByCate
     const eventsData = events?.data || [];
 
     const getStatusBadge = (status: string, statusDisplay: string) => {
-        const variants: any = {
-            'published': 'success',
-            'draft': 'secondary',
-            'completed': 'info',
-            'cancelled': 'danger'
-        };
-        return <Badge bg={variants[status] || 'secondary'}>{statusDisplay}</Badge>;
+        return <Badge bg={statusVariants[status] || 'secondary'}>{statusDisplay}</Badge>;
     };
 
     const getCategoryBadge = (category: string, categoryDisplay: string) => {
-        const colors: any = {
-            'conference': 'primary',
-            'workshop': 'success',
-            'seminar': 'info',
-            'networking': 'warning',
-            'training': 'secondary',
-            'webinar': 'dark',
-            'meetup': 'light'
-        };
-        return <Badge bg={colors[category] || 'secondary'}>{categoryDisplay}</Badge>;
+        return <Badge bg={categoryColors[category] || 'secondary'}>{categoryDisplay}</Badge>;
     };
 
     const getOccupancyPercentage = (ticketsSold: number, capacity: number) => {
         if (!capacity) return 0;
         return Math.round((ticketsSold / capacity) * 100);
-    };
-
-    // Le contrôleur fournit déjà les dates formatées
-    const parseFormattedDate = (formattedDate: string) => {
-        // Format: "25/08/2024 14:00"
-        const [datePart, timePart] = formattedDate.split(' ');
-        return { date: datePart, time: timePart };
     };
 
     const handleCreateEvent = () => {
