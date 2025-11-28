@@ -1,0 +1,1 @@
+import{d as f,e as p}from"./Row-CLtRBrrt.js";import{r as m,j as x}from"./app-DjVC1cjc.js";const c=m.forwardRef(({bsPrefix:a,fluid:s=!1,as:e="div",className:t,...o},n)=>{const r=f(a,"container"),i=typeof s=="string"?`-${s}`:"-fluid";return x.jsx(e,{ref:n,...o,className:p(t,s?`${r}${i}`:r)})});c.displayName="Container";export{c as C};

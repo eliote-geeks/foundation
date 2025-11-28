@@ -1,0 +1,1 @@
+import{d as i,e as x}from"./Row-CLtRBrrt.js";import{r as c,j as d}from"./app-DjVC1cjc.js";const f=c.forwardRef(({bsPrefix:r,variant:s,animation:o="border",size:e,as:t="div",className:n,...p},m)=>{r=i(r,"spinner");const a=`${r}-${o}`;return d.jsx(t,{ref:m,...p,className:x(n,a,e&&`${a}-${e}`,s&&`text-${s}`)})});f.displayName="Spinner";export{f as S};
