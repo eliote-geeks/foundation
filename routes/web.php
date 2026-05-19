@@ -102,6 +102,10 @@ Route::post('/contests/{contest}/vote', [App\Http\Controllers\ContestController:
 Route::post('/media/upload', [App\Http\Controllers\MediaController::class, 'store'])->name('media.upload')->middleware('auth');
 Route::delete('/media/{media}', [App\Http\Controllers\MediaController::class, 'destroy'])->name('media.destroy')->middleware('auth');
 
+// Public projects
+Route::get('/projects', [App\Http\Controllers\ProjectController::class, 'index'])->name('projects');
+Route::post('/projects', [App\Http\Controllers\ProjectController::class, 'store'])->name('projects.store')->middleware('auth');
+
 Route::get('/donate', [App\Http\Controllers\DonationController::class, 'index'])->name('donate');
 Route::post('/donate', [App\Http\Controllers\DonationController::class, 'store'])->name('donate.store');
 
@@ -194,12 +198,6 @@ Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->g
     });
 
     Route::get('/donations', [App\Http\Controllers\Dashboard\DonationCampaignController::class, 'summary'])->name('donations');
-
-    Route::get('/projects', function () {
-        return Inertia::render('dashboard/projects', [
-            'user' => auth()->user()
-        ]);
-    })->name('projects');
 
     Route::get('/communications', function () {
         return Inertia::render('dashboard/communications', [
@@ -313,6 +311,14 @@ Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->g
         return back()->with('success', 'Don rejeté.');
     })->name('pending-payments.donations.reject');
 
+    // Routes dashboard projets
+    Route::controller(App\Http\Controllers\Dashboard\ProjectsController::class)->prefix('projects')->name('projects.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/{project}/approve', 'approve')->name('approve');
+        Route::post('/{project}/reject', 'reject')->name('reject');
+        Route::delete('/{project}', 'destroy')->name('destroy');
+    });
+
     Route::get('/content', function () {
         return Inertia::render('dashboard/content', [
             'user' => auth()->user()
@@ -410,21 +416,6 @@ Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->g
     Route::get('/donations/donors', function () {
         return app(App\Http\Controllers\Dashboard\DonorController::class)->index(request());
     })->name('donations.donors');
-
-    // Projects submenu routes
-    Route::get('/projects/active', function () {
-        return Inertia::render('dashboard/projects', [
-            'user' => auth()->user(),
-            'filter' => 'active'
-        ]);
-    })->name('projects.active');
-
-    Route::get('/projects/completed', function () {
-        return Inertia::render('dashboard/projects', [
-            'user' => auth()->user(),
-            'filter' => 'completed'
-        ]);
-    })->name('projects.completed');
 
     // Communications submenu routes
     Route::get('/communications/newsletters', function () {

@@ -17,6 +17,7 @@ const NAV_LINKS = [
     { href: '/', labelKey: 'home', labelDefault: 'Accueil' },
     { href: '/contests', labelKey: 'contests', labelDefault: 'Concours' },
     { href: '/events', labelKey: 'events', labelDefault: 'Événements' },
+    { href: '/projects', labelKey: 'projects', labelDefault: 'Projets' },
     { href: '/partners', labelKey: 'partners', labelDefault: 'Partenaires' },
     { href: '/donate', labelKey: 'donate', labelDefault: 'Faire un don' },
 ];
@@ -41,7 +42,7 @@ export function ModernHeader({ user: userProp }: ModernHeaderProps) {
     }, [typeof window !== 'undefined' ? window.location.pathname : '']);
 
     const navLinkStyle: React.CSSProperties = {
-        color: '#374151',
+        color: 'var(--titi-text)',
         fontSize: '0.875rem',
         fontWeight: 500,
         padding: '5px 10px',
@@ -54,15 +55,15 @@ export function ModernHeader({ user: userProp }: ModernHeaderProps) {
     return (
         <>
             <nav
-                className="modern-header-nav"
+                className="modern-header"
                 style={{
                     position: 'fixed',
                     top: 0,
                     left: 0,
                     right: 0,
                     zIndex: 1050,
-                    backgroundColor: '#FFFFFF',
-                    borderBottom: '1px solid #E5E7EB',
+                    backgroundColor: 'var(--titi-white)',
+                    borderBottom: '1px solid var(--titi-border)',
                     boxShadow: scrolled ? '0 2px 10px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.08)',
                     transition: 'box-shadow 0.3s ease',
                 }}
@@ -96,7 +97,7 @@ export function ModernHeader({ user: userProp }: ModernHeaderProps) {
                                     href={link.href}
                                     style={navLinkStyle}
                                     onMouseEnter={(e) => (e.currentTarget.style.color = '#059669')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.color = '#374151')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--titi-text)')}
                                 >
                                     {t(link.labelKey, link.labelDefault)}
                                 </Link>
@@ -172,8 +173,8 @@ export function ModernHeader({ user: userProp }: ModernHeaderProps) {
                         left: 0,
                         right: 0,
                         zIndex: 1049,
-                        backgroundColor: '#FFFFFF',
-                        borderBottom: '1px solid #E5E7EB',
+                        backgroundColor: 'var(--titi-white)',
+                        borderBottom: '1px solid var(--titi-border)',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                         padding: '12px 0',
                     }}
@@ -185,9 +186,9 @@ export function ModernHeader({ user: userProp }: ModernHeaderProps) {
                                     key={link.href}
                                     href={link.href}
                                     className="text-decoration-none px-3 py-2 rounded"
-                                    style={{ color: '#374151', fontSize: '0.95rem', fontWeight: 500 }}
+                                    style={{ color: 'var(--titi-text)', fontSize: '0.95rem', fontWeight: 500 }}
                                     onClick={() => setMobileOpen(false)}
-                                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F3F4F6'; }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--titi-surface)'; }}
                                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                                 >
                                     {t(link.labelKey, link.labelDefault)}

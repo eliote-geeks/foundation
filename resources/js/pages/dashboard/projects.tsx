@@ -1,536 +1,428 @@
 import DashboardLayout from '../../layouts/dashboard-layout';
-import { Card, Row, Col, Badge, Button, Form, InputGroup, Modal, ProgressBar } from 'react-bootstrap';
 import { useState } from 'react';
+import { useForm, router } from '@inertiajs/react';
+import { Card, Row, Col, Button, Form, Modal } from 'react-bootstrap';
 
-interface ProjectsProps {
-    user?: {
-        name: string;
-        email: string;
-        avatar?: string;
-    };
-    filter?: string;
+interface MediaItem {
+    id: number;
+    url: string;
+    filename: string;
+    mime_type: string;
+    size: number;
+    size_fmt: string;
+    is_image: boolean;
+    width?: number | null;
+    height?: number | null;
 }
 
-const statusVariants: Record<string, string> = {
-    'Actif': 'success',
-    'Terminé': 'primary',
-    'En pause': 'warning',
-    'Planifié': 'info',
-    'Annulé': 'danger',
+interface Project {
+    id: number;
+    title: string;
+    category: string | null;
+    short_description: string | null;
+    status: string;
+    status_label: string;
+    featured: boolean;
+    submitted_at: string | null;
+    author_name: string;
+    author_email: string;
+    team_size: number;
+    budget_formatted: string;
+    media_count: number;
+    media: MediaItem[];
+    description: string;
+    project_url: string | null;
+    admin_notes: string | null;
+}
+
+interface Stats {
+    pending: number;
+    approved: number;
+    total: number;
+}
+
+interface Props {
+    user?: { name: string; email: string; is_admin?: boolean };
+    projects: Project[];
+    stats: Stats;
+}
+
+const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+    pending:  { bg: 'rgba(245,158,11,0.12)',  text: '#D97706' },
+    approved: { bg: 'rgba(22,163,74,0.12)',   text: '#16A34A' },
+    rejected: { bg: 'rgba(220,38,38,0.12)',   text: '#DC2626' },
+    draft:    { bg: 'rgba(107,114,128,0.12)', text: '#6B7280' },
 };
 
-const priorityVariants: Record<string, string> = {
-    'Haute': 'danger',
-    'Moyenne': 'warning',
-    'Basse': 'success',
+const TAB_LABELS: Record<string, string> = {
+    pending: 'En attente', approved: 'Approuvés', rejected: 'Rejetés', all: 'Tous',
 };
 
-const categoryColors: Record<string, string> = {
-    'Solidarité': '#5FA145',
-    'Éducation': '#4A8A2A',
-    'Infrastructure': '#C69438',
-    'Communication': '#C69438',
-    'Formation': '#2D5016',
-};
+export default function DashboardProjects({ user, projects, stats }: Props) {
+    const [tab, setTab]               = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
+    const [selected, setSelected]     = useState<Project | null>(null);
+    const [lightbox, setLightbox]     = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
 
-export default function Projects({ user, filter }: ProjectsProps) {
-    const [showProjectModal, setShowProjectModal] = useState(false);
-    const [selectedStatus, setSelectedStatus] = useState(filter === 'active' ? 'En cours' : filter === 'completed' ? 'Terminé' : 'all');
-    const [viewMode, setViewMode] = useState('grid'); // 'grid' ou 'timeline'
+    const approveForm = useForm({ notes: '', featured: false as boolean });
+    const rejectForm  = useForm({ notes: '' });
 
-    const stats = [
-        {
-            title: 'Projets actifs',
-            value: '18',
-            change: '+3',
-            positive: true,
-            color: '#5FA145',
-            icon: 'bi-play-circle-fill'
-        },
-        {
-            title: 'Projets terminés',
-            value: '42',
-            change: '+7',
-            positive: true,
-            color: '#4A8A2A',
-            icon: 'bi-check-circle-fill'
-        },
-        {
-            title: 'Budget total',
-            value: '81.750.000 FCFA',
-            change: '+15%',
-            positive: true,
-            color: '#C69438',
-            icon: 'bi-wallet-fill'
-        },
-        {
-            title: 'Bénéficiaires',
-            value: '2,340',
-            change: '+28%',
-            positive: true,
-            color: '#C69438',
-            icon: 'bi-person-hearts'
-        }
-    ];
+    const filtered = tab === 'all' ? projects : projects.filter(p => p.status === tab);
 
-    const projects = [
-        {
-            id: 1,
-            title: 'Aide alimentaire d\'urgence',
-            description: 'Distribution de repas aux familles dans le besoin',
-            status: 'Actif',
-            priority: 'Haute',
-            startDate: '2024-01-15',
-            endDate: '2024-12-31',
-            budget: 25000,
-            spent: 15750,
-            progress: 63,
-            beneficiaries: 450,
-            manager: 'Marie Dubois',
-            team: 8,
-            category: 'Solidarité'
-        },
-        {
-            id: 2,
-            title: 'Programme éducation numérique',
-            description: 'Formation aux outils numériques pour les jeunes',
-            status: 'Actif',
-            priority: 'Moyenne',
-            startDate: '2024-03-01',
-            endDate: '2024-11-30',
-            budget: 18000,
-            spent: 8200,
-            progress: 45,
-            beneficiaries: 120,
-            manager: 'Jean Mbong',
-            team: 5,
-            category: 'Éducation'
-        },
-        {
-            id: 3,
-            title: 'Rénovation centre d\'accueil',
-            description: 'Remise en état du centre d\'accueil principal',
-            status: 'En pause',
-            priority: 'Basse',
-            startDate: '2024-06-01',
-            endDate: '2024-10-15',
-            budget: 35000,
-            spent: 12000,
-            progress: 25,
-            beneficiaries: 800,
-            manager: 'Sophie Martin',
-            team: 12,
-            category: 'Infrastructure'
-        },
-        {
-            id: 4,
-            title: 'Campagne sensibilisation',
-            description: 'Sensibilisation aux droits des enfants',
-            status: 'Terminé',
-            priority: 'Haute',
-            startDate: '2024-02-01',
-            endDate: '2024-07-31',
-            budget: 8000,
-            spent: 7850,
-            progress: 100,
-            beneficiaries: 1500,
-            manager: 'Paul Nguyen',
-            team: 6,
-            category: 'Communication'
-        },
-        {
-            id: 5,
-            title: 'Formation professionnelle',
-            description: 'Programme de formation aux métiers du bâtiment',
-            status: 'Planifié',
-            priority: 'Moyenne',
-            startDate: '2024-10-01',
-            endDate: '2025-03-31',
-            budget: 22000,
-            spent: 0,
-            progress: 0,
-            beneficiaries: 60,
-            manager: 'Aminata Ba',
-            team: 4,
-            category: 'Formation'
-        }
-    ];
-
-    const getStatusBadge = (status: string) => {
-        return <Badge bg={statusVariants[status] || 'secondary'}>{status}</Badge>;
+    const openPanel = (project: Project) => {
+        setSelected(project);
+        approveForm.setData({ notes: project.admin_notes ?? '', featured: project.featured });
+        rejectForm.setData('notes', project.admin_notes ?? '');
     };
 
-    const getPriorityBadge = (priority: string) => {
-        return <Badge bg={priorityVariants[priority] || 'secondary'}>{priority}</Badge>;
+    const handleApprove = () => {
+        if (!selected) return;
+        approveForm.post(`/dashboard/projects/${selected.id}/approve`, {
+            onSuccess: () => { approveForm.reset(); setSelected(null); },
+        });
     };
 
-    const getCategoryColor = (category: string) => {
-        return categoryColors[category] || '#6B7280';
+    const handleReject = () => {
+        if (!selected) return;
+        rejectForm.post(`/dashboard/projects/${selected.id}/reject`, {
+            onSuccess: () => { rejectForm.reset(); setSelected(null); },
+        });
     };
 
-    const filteredProjects = selectedStatus === 'all' 
-        ? projects 
-        : projects.filter(p => p.status === selectedStatus);
+    const handleDelete = () => {
+        if (!deleteTarget) return;
+        router.delete(`/dashboard/projects/${deleteTarget.id}`, {
+            onSuccess: () => { setDeleteTarget(null); setSelected(null); },
+        });
+    };
+
+    const sc = (status: string) => STATUS_COLORS[status] ?? STATUS_COLORS.draft;
 
     return (
-        <DashboardLayout title="Gestion des Projets" user={user}>
-            <div className="projects-page">
-                {/* Header */}
-                <div className="mb-4">
-                    <div className="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h2 className="fw-bold mb-1" style={{ color: '#1F2937' }}>
-                                Gestion des Projets
-                            </h2>
-                            <p className="text-muted mb-0">
-                                Suivez et pilotez tous vos projets de A à Z
-                            </p>
-                        </div>
-                        <div className="d-flex gap-2">
-                            <div className="btn-group" role="group">
-                                <Button 
-                                    variant={viewMode === 'grid' ? 'primary' : 'outline-secondary'}
-                                    size="sm"
-                                    onClick={() => setViewMode('grid')}
-                                >
-                                    <i className="bi bi-grid-3x3"></i>
-                                </Button>
-                                <Button 
-                                    variant={viewMode === 'timeline' ? 'primary' : 'outline-secondary'}
-                                    size="sm"
-                                    onClick={() => setViewMode('timeline')}
-                                >
-                                    <i className="bi bi-diagram-3"></i>
-                                </Button>
-                            </div>
-                            <Button 
-                                style={{
-                                    backgroundColor: '#5FA145',
-                                    borderColor: '#5FA145'
-                                }}
-                                onClick={() => setShowProjectModal(true)}
-                            >
-                                <i className="bi bi-plus-circle me-2"></i>
-                                Nouveau projet
-                            </Button>
-                        </div>
-                    </div>
+        <DashboardLayout title="Projets soumis" user={user}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+                {/* Page header */}
+                <div>
+                    <h2 className="fw-bold mb-1" style={{ color: 'var(--titi-text)' }}>Projets soumis</h2>
+                    <p className="mb-0" style={{ color: 'var(--titi-sub)', fontSize: '0.9rem' }}>
+                        Examinez et validez les projets soumis par les utilisateurs
+                    </p>
                 </div>
 
-                {/* Stats Cards */}
-                <Row className="g-4 mb-4">
-                    {stats.map((stat, index) => (
-                        <Col lg={3} md={6} key={index}>
-                            <Card className="h-100 border-0" style={{ boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-                                <Card.Body className="p-4">
-                                    <div className="d-flex justify-content-between align-items-start mb-3">
-                                        <div>
-                                            <h3 className="h4 fw-bold mb-0" style={{ color: '#1F2937' }}>
-                                                {stat.value}
-                                            </h3>
-                                            <p className="text-muted mb-2 small">
-                                                {stat.title}
-                                            </p>
-                                        </div>
-                                        <div 
-                                            className="rounded-circle d-flex align-items-center justify-content-center"
-                                            style={{
-                                                width: '48px',
-                                                height: '48px',
-                                                backgroundColor: stat.color,
-                                                color: 'white'
-                                            }}
-                                        >
-                                            <i className={`${stat.icon} fs-5`}></i>
-                                        </div>
+                {/* Stats */}
+                <Row className="g-3">
+                    {[
+                        { label: 'En attente', value: stats.pending,  icon: 'bi-hourglass-split',  color: '#D97706', bg: 'rgba(245,158,11,0.12)' },
+                        { label: 'Approuvés',  value: stats.approved, icon: 'bi-check-circle-fill', color: '#16A34A', bg: 'rgba(22,163,74,0.12)'  },
+                        { label: 'Total',      value: stats.total,    icon: 'bi-folder2-open',      color: '#5FA145', bg: 'rgba(95,161,69,0.12)'   },
+                    ].map(s => (
+                        <Col key={s.label} md={4}>
+                            <Card className="border-0 h-100" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)', background: 'var(--titi-white)' }}>
+                                <Card.Body className="p-4 d-flex align-items-center gap-3">
+                                    <div style={{ width: 48, height: 48, borderRadius: 12, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <i className={`bi ${s.icon}`} style={{ fontSize: '1.4rem', color: s.color }} />
                                     </div>
-                                    <Badge 
-                                        bg={stat.positive ? 'success' : 'danger'}
-                                        className="rounded-pill"
-                                    >
-                                        {stat.change}
-                                    </Badge>
+                                    <div>
+                                        <div className="fw-bold" style={{ fontSize: '1.75rem', color: 'var(--titi-text)', lineHeight: 1 }}>{s.value}</div>
+                                        <div style={{ fontSize: '0.875rem', color: 'var(--titi-sub)' }}>{s.label}</div>
+                                    </div>
                                 </Card.Body>
                             </Card>
                         </Col>
                     ))}
                 </Row>
 
-                {/* Filters */}
-                <Card className="mb-4 border-0" style={{ boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-                    <Card.Body className="p-4">
-                        <Row className="align-items-center">
-                            <Col md={4}>
-                                <InputGroup>
-                                    <InputGroup.Text>
-                                        <i className="bi bi-search"></i>
-                                    </InputGroup.Text>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Rechercher un projet..."
-                                    />
-                                </InputGroup>
-                            </Col>
-                            <Col md={2}>
-                                <Form.Select 
-                                    value={selectedStatus} 
-                                    onChange={(e) => setSelectedStatus(e.target.value)}
-                                >
-                                    <option value="all">Tous statuts</option>
-                                    <option value="Actif">Actifs</option>
-                                    <option value="Terminé">Terminés</option>
-                                    <option value="En pause">En pause</option>
-                                    <option value="Planifié">Planifiés</option>
-                                </Form.Select>
-                            </Col>
-                            <Col md={2}>
-                                <Form.Select>
-                                    <option value="">Toutes catégories</option>
-                                    <option value="solidarite">Solidarité</option>
-                                    <option value="education">Éducation</option>
-                                    <option value="infrastructure">Infrastructure</option>
-                                    <option value="communication">Communication</option>
-                                    <option value="formation">Formation</option>
-                                </Form.Select>
-                            </Col>
-                            <Col md={2}>
-                                <Form.Select>
-                                    <option value="">Toutes priorités</option>
-                                    <option value="haute">Haute</option>
-                                    <option value="moyenne">Moyenne</option>
-                                    <option value="basse">Basse</option>
-                                </Form.Select>
-                            </Col>
-                            <Col md={2}>
-                                <Button variant="outline-secondary" className="w-100">
-                                    <i className="bi bi-funnel me-2"></i>
-                                    Filtres
-                                </Button>
-                            </Col>
-                        </Row>
-                    </Card.Body>
-                </Card>
-
-                {/* Projects Grid/Timeline */}
-                {viewMode === 'grid' ? (
-                    <Row className="g-4">
-                        {filteredProjects.map((project) => (
-                            <Col lg={6} key={project.id}>
-                                <Card className="h-100 border-0" style={{ boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-                                    <Card.Body className="p-4">
-                                        <div className="d-flex justify-content-between align-items-start mb-3">
-                                            <div className="flex-grow-1">
-                                                <div className="d-flex align-items-center mb-2">
-                                                    <div 
-                                                        className="rounded me-2"
-                                                        style={{
-                                                            width: '4px',
-                                                            height: '20px',
-                                                            backgroundColor: getCategoryColor(project.category)
-                                                        }}
-                                                    ></div>
-                                                    <h5 className="fw-bold mb-0" style={{ color: '#1F2937' }}>
-                                                        {project.title}
-                                                    </h5>
-                                                </div>
-                                                <p className="text-muted mb-2 small">
-                                                    {project.description}
-                                                </p>
-                                            </div>
-                                            <div className="d-flex flex-column gap-1 ms-3">
-                                                {getStatusBadge(project.status)}
-                                                {getPriorityBadge(project.priority)}
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3">
-                                            <div className="d-flex justify-content-between align-items-center mb-2">
-                                                <span className="small text-muted">Progression</span>
-                                                <span className="small fw-medium">{project.progress}%</span>
-                                            </div>
-                                            <ProgressBar 
-                                                now={project.progress}
-                                                style={{ height: '6px' }}
-                                            />
-                                        </div>
-
-                                        <Row className="g-3 mb-3">
-                                            <Col xs={6}>
-                                                <div className="text-center">
-                                                    <div className="fw-bold" style={{ color: '#5FA145' }}>
-                                                        {project.spent.toLocaleString()} FCFA
-                                                    </div>
-                                                    <div className="text-muted small">
-                                                        / {project.budget.toLocaleString()} FCFA
-                                                    </div>
-                                                    <div className="text-muted" style={{ fontSize: '0.75rem' }}>
-                                                        Budget utilisé
-                                                    </div>
-                                                </div>
-                                            </Col>
-                                            <Col xs={6}>
-                                                <div className="text-center">
-                                                    <div className="fw-bold" style={{ color: '#C69438' }}>
-                                                        {project.beneficiaries}
-                                                    </div>
-                                                    <div className="text-muted" style={{ fontSize: '0.75rem' }}>
-                                                        Bénéficiaires
-                                                    </div>
-                                                </div>
-                                            </Col>
-                                        </Row>
-
-                                        <div className="mb-3">
-                                            <div className="d-flex align-items-center justify-content-between text-muted small">
-                                                <div className="d-flex align-items-center">
-                                                    <i className="bi bi-calendar3 me-1"></i>
-                                                    {new Date(project.startDate).toLocaleDateString('fr-FR')}
-                                                    <i className="bi bi-arrow-right mx-2"></i>
-                                                    {new Date(project.endDate).toLocaleDateString('fr-FR')}
-                                                </div>
-                                                <div className="d-flex align-items-center">
-                                                    <i className="bi bi-people me-1"></i>
-                                                    {project.team} membres
-                                                </div>
-                                            </div>
-                                            <div className="text-muted small mt-1">
-                                                <i className="bi bi-person-badge me-1"></i>
-                                                Chef de projet: {project.manager}
-                                            </div>
-                                        </div>
-
-                                        <div className="d-flex gap-2">
-                                            <Button variant="outline-primary" size="sm" className="flex-fill">
-                                                <i className="bi bi-eye me-2"></i>
-                                                Détails
-                                            </Button>
-                                            <Button variant="outline-secondary" size="sm" className="flex-fill">
-                                                <i className="bi bi-pencil me-2"></i>
-                                                Modifier
-                                            </Button>
-                                            <Button variant="outline-secondary" size="sm">
-                                                <i className="bi bi-three-dots-vertical"></i>
-                                            </Button>
-                                        </div>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
+                {/* Tab list */}
+                <Card className="border-0" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)', background: 'var(--titi-white)' }}>
+                    <div style={{ borderBottom: '1px solid var(--titi-border)', padding: '0 24px', display: 'flex', gap: 4 }}>
+                        {(['pending', 'approved', 'rejected', 'all'] as const).map(t => (
+                            <button key={t} onClick={() => setTab(t)} style={{
+                                border: 'none', background: 'none', padding: '14px 16px',
+                                fontWeight: 500, fontSize: '0.875rem', cursor: 'pointer',
+                                color: tab === t ? '#5FA145' : 'var(--titi-sub)',
+                                borderBottom: tab === t ? '2px solid #5FA145' : '2px solid transparent',
+                                transition: 'color 0.15s',
+                            }}>
+                                {TAB_LABELS[t]}{' '}
+                                <span style={{
+                                    background: tab === t ? 'rgba(95,161,69,0.12)' : 'var(--titi-surface)',
+                                    color: tab === t ? '#5FA145' : 'var(--titi-sub)',
+                                    borderRadius: 20, padding: '1px 8px', fontSize: '0.75rem',
+                                }}>
+                                    {t === 'all' ? projects.length : projects.filter(p => p.status === t).length}
+                                </span>
+                            </button>
                         ))}
-                    </Row>
-                ) : (
-                    <Card className="border-0" style={{ boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-                        <Card.Body className="p-4 text-center" style={{ minHeight: '400px' }}>
-                            <i className="bi bi-diagram-3 mb-3" style={{ fontSize: '3rem', color: '#5FA145' }}></i>
-                            <h4 className="fw-bold mb-3" style={{ color: '#1F2937' }}>
-                                Vue Timeline
-                            </h4>
-                            <p className="text-muted mb-4">
-                                La vue timeline avec diagramme de Gantt sera disponible prochainement pour visualiser la planification de vos projets.
-                            </p>
-                            <Button variant="outline-primary" onClick={() => setViewMode('grid')}>
-                                Retour à la vue grille
-                            </Button>
-                        </Card.Body>
-                    </Card>
-                )}
+                    </div>
 
-                {/* Create Project Modal */}
-                <Modal show={showProjectModal} onHide={() => setShowProjectModal(false)} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title>Créer un nouveau projet</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form>
-                            <Row>
-                                <Col md={8}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Titre du projet</Form.Label>
-                                        <Form.Control type="text" placeholder="Ex: Programme d'aide alimentaire" />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={4}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Priorité</Form.Label>
-                                        <Form.Select>
-                                            <option value="">Choisir une priorité</option>
-                                            <option value="haute">Haute</option>
-                                            <option value="moyenne">Moyenne</option>
-                                            <option value="basse">Basse</option>
-                                        </Form.Select>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Description</Form.Label>
-                                <Form.Control as="textarea" rows={3} placeholder="Description détaillée du projet..." />
-                            </Form.Group>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Catégorie</Form.Label>
-                                        <Form.Select>
-                                            <option value="">Choisir une catégorie</option>
-                                            <option value="solidarite">Solidarité</option>
-                                            <option value="education">Éducation</option>
-                                            <option value="infrastructure">Infrastructure</option>
-                                            <option value="communication">Communication</option>
-                                            <option value="formation">Formation</option>
-                                        </Form.Select>
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Chef de projet</Form.Label>
-                                        <Form.Select>
-                                            <option value="">Assigner un chef de projet</option>
-                                            <option value="marie">Marie Dubois</option>
-                                            <option value="jean">Jean Mbong</option>
-                                            <option value="sophie">Sophie Martin</option>
-                                            <option value="paul">Paul Nguyen</option>
-                                        </Form.Select>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Date de début</Form.Label>
-                                        <Form.Control type="date" />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Date de fin prévue</Form.Label>
-                                        <Form.Control type="date" />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Budget (FCFA)</Form.Label>
-                                        <Form.Control type="number" placeholder="25000" />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Bénéficiaires estimés</Form.Label>
-                                        <Form.Control type="number" placeholder="450" />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                        </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="outline-secondary" onClick={() => setShowProjectModal(false)}>
-                            Annuler
-                        </Button>
-                        <Button style={{ backgroundColor: '#5FA145', borderColor: '#5FA145' }}>
-                            Créer le projet
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
+                    {filtered.length === 0 ? (
+                        <div className="text-center py-5" style={{ color: 'var(--titi-sub)' }}>
+                            <i className="bi bi-inbox" style={{ fontSize: '2.5rem', display: 'block', marginBottom: 12 }} />
+                            Aucun projet dans cette catégorie
+                        </div>
+                    ) : filtered.map((project, idx) => {
+                        const cover = project.media.find(m => m.is_image);
+                        const s = sc(project.status);
+                        return (
+                            <div
+                                key={project.id}
+                                style={{
+                                    padding: '14px 24px',
+                                    borderBottom: idx < filtered.length - 1 ? '1px solid var(--titi-border)' : 'none',
+                                    display: 'flex', alignItems: 'center', gap: 16, transition: 'background 0.15s', cursor: 'default',
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.background = 'var(--titi-surface)')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                            >
+                                {/* Cover thumb */}
+                                <div style={{ width: 52, height: 52, borderRadius: 8, flexShrink: 0, overflow: 'hidden', background: 'var(--titi-surface)', border: '1px solid var(--titi-border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {cover
+                                        ? <img src={cover.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        : <i className="bi bi-image" style={{ color: 'var(--titi-sub)', fontSize: '1.3rem' }} />
+                                    }
+                                </div>
+
+                                {/* Info */}
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div className="fw-semibold" style={{ color: 'var(--titi-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        {project.title}
+                                    </div>
+                                    <div style={{ fontSize: '0.8125rem', color: 'var(--titi-sub)', marginTop: 2 }}>
+                                        {project.author_name} · {project.category ?? '—'} · {project.submitted_at ?? '—'}
+                                    </div>
+                                </div>
+
+                                <span style={{ background: s.bg, color: s.text, borderRadius: 20, padding: '3px 10px', fontSize: '0.75rem', fontWeight: 500, flexShrink: 0 }}>
+                                    {project.status_label}
+                                </span>
+
+                                {project.media_count > 0 && (
+                                    <span style={{ color: 'var(--titi-sub)', fontSize: '0.8125rem', flexShrink: 0 }}>
+                                        <i className="bi bi-images me-1" />{project.media_count}
+                                    </span>
+                                )}
+
+                                <Button size="sm" variant="outline-secondary" style={{ flexShrink: 0, fontSize: '0.8125rem' }}
+                                    onClick={() => openPanel(project)}>
+                                    Examiner <i className="bi bi-chevron-right ms-1" />
+                                </Button>
+                            </div>
+                        );
+                    })}
+                </Card>
             </div>
+
+            {/* ── Slide-out detail panel ── */}
+            {selected && (
+                <div
+                    style={{ position: 'fixed', inset: 0, zIndex: 1060, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', background: 'rgba(0,0,0,0.45)' }}
+                    onClick={() => setSelected(null)}
+                >
+                    <div
+                        onClick={e => e.stopPropagation()}
+                        style={{ width: '100%', maxWidth: 560, height: '100vh', overflowY: 'auto', background: 'var(--titi-white)', boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column' }}
+                    >
+                        {/* Panel header (sticky) */}
+                        <div style={{ padding: '18px 24px', borderBottom: '1px solid var(--titi-border)', display: 'flex', alignItems: 'center', gap: 12, position: 'sticky', top: 0, background: 'var(--titi-white)', zIndex: 1 }}>
+                            <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', color: 'var(--titi-sub)', borderRadius: 6 }}>
+                                <i className="bi bi-x-lg" style={{ fontSize: '1rem' }} />
+                            </button>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <div className="fw-bold" style={{ color: 'var(--titi-text)', fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {selected.title}
+                                </div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--titi-sub)' }}>{selected.author_name} · {selected.author_email}</div>
+                            </div>
+                            {(() => { const s = sc(selected.status); return (
+                                <span style={{ background: s.bg, color: s.text, borderRadius: 20, padding: '3px 10px', fontSize: '0.75rem', fontWeight: 500 }}>
+                                    {selected.status_label}
+                                </span>
+                            ); })()}
+                        </div>
+
+                        {/* Panel body */}
+                        <div style={{ padding: 24, flex: 1, display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+                            {/* Media gallery */}
+                            {selected.media.length > 0 && (
+                                <div>
+                                    <div className="fw-semibold mb-2" style={{ color: 'var(--titi-text)', fontSize: '0.875rem' }}>
+                                        <i className="bi bi-images me-1" />Médias ({selected.media.length})
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                                        {selected.media.map(m => m.is_image ? (
+                                            <button key={m.id} onClick={() => setLightbox(m.url)} style={{
+                                                border: 'none', padding: 0, borderRadius: 8, overflow: 'hidden',
+                                                cursor: 'zoom-in', aspectRatio: '1', background: 'var(--titi-surface)', display: 'block',
+                                            }}>
+                                                <img src={m.url} alt={m.filename} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            </button>
+                                        ) : (
+                                            <a key={m.id} href={m.url} target="_blank" rel="noreferrer" style={{
+                                                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                                aspectRatio: '1', background: 'var(--titi-surface)', borderRadius: 8,
+                                                border: '1px solid var(--titi-border)', textDecoration: 'none',
+                                                color: 'var(--titi-sub)', fontSize: '0.75rem', gap: 6, padding: 8,
+                                            }}>
+                                                <i className="bi bi-file-pdf" style={{ fontSize: '1.5rem', color: '#DC2626' }} />
+                                                <span style={{ textAlign: 'center', wordBreak: 'break-all' }}>{m.filename}</span>
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Short description */}
+                            {selected.short_description && (
+                                <div style={{ background: 'var(--titi-surface)', borderRadius: 8, padding: '12px 16px', fontSize: '0.875rem', color: 'var(--titi-sub)', fontStyle: 'italic' }}>
+                                    {selected.short_description}
+                                </div>
+                            )}
+
+                            {/* Description */}
+                            <div>
+                                <div className="fw-semibold mb-2" style={{ color: 'var(--titi-text)', fontSize: '0.875rem' }}>
+                                    <i className="bi bi-text-paragraph me-1" />Description complète
+                                </div>
+                                <div style={{ fontSize: '0.875rem', color: 'var(--titi-sub)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+                                    {selected.description}
+                                </div>
+                            </div>
+
+                            {/* Meta grid */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                                {[
+                                    { icon: 'bi-tag',       label: 'Catégorie',  value: selected.category ?? '—' },
+                                    { icon: 'bi-people',    label: 'Équipe',     value: `${selected.team_size} membre${selected.team_size > 1 ? 's' : ''}` },
+                                    { icon: 'bi-cash',      label: 'Budget',     value: selected.budget_formatted },
+                                    { icon: 'bi-calendar3', label: 'Soumis le',  value: selected.submitted_at ?? '—' },
+                                ].map(m => (
+                                    <div key={m.label} style={{ background: 'var(--titi-surface)', borderRadius: 8, padding: '10px 14px' }}>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--titi-sub)', marginBottom: 4 }}>
+                                            <i className={`bi ${m.icon} me-1`} />{m.label}
+                                        </div>
+                                        <div style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--titi-text)', wordBreak: 'break-word' }}>
+                                            {m.value}
+                                        </div>
+                                    </div>
+                                ))}
+                                {selected.project_url && (
+                                    <div style={{ gridColumn: '1 / -1', background: 'var(--titi-surface)', borderRadius: 8, padding: '10px 14px' }}>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--titi-sub)', marginBottom: 4 }}>
+                                            <i className="bi bi-link-45deg me-1" />URL du projet
+                                        </div>
+                                        <a href={selected.project_url} target="_blank" rel="noreferrer" style={{ fontSize: '0.875rem', color: '#5FA145', wordBreak: 'break-all' }}>
+                                            {selected.project_url}
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Previous admin notes */}
+                            {selected.admin_notes && (
+                                <div style={{ background: 'rgba(107,114,128,0.08)', border: '1px solid var(--titi-border)', borderRadius: 8, padding: '12px 16px' }}>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--titi-sub)', marginBottom: 6 }}>
+                                        <i className="bi bi-sticky me-1" />Notes précédentes
+                                    </div>
+                                    <div style={{ fontSize: '0.875rem', color: 'var(--titi-text)' }}>{selected.admin_notes}</div>
+                                </div>
+                            )}
+
+                            {/* Approve */}
+                            {selected.status !== 'approved' && (
+                                <div style={{ background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 10, padding: 16 }}>
+                                    <div className="fw-semibold mb-3" style={{ color: '#16A34A', fontSize: '0.875rem' }}>
+                                        <i className="bi bi-check-circle me-1" />Approuver ce projet
+                                    </div>
+                                    <Form.Group className="mb-2">
+                                        <Form.Control as="textarea" rows={2} size="sm"
+                                            placeholder="Notes pour l'auteur (optionnel)"
+                                            value={approveForm.data.notes}
+                                            onChange={e => approveForm.setData('notes', e.target.value)}
+                                        />
+                                    </Form.Group>
+                                    <Form.Check type="checkbox" className="mb-3"
+                                        label="Mettre en avant (featured)"
+                                        id="featured-check"
+                                        checked={approveForm.data.featured}
+                                        onChange={e => approveForm.setData('featured', e.target.checked as false)}
+                                    />
+                                    <Button size="sm" style={{ background: '#16A34A', borderColor: '#16A34A' }}
+                                        disabled={approveForm.processing}
+                                        onClick={handleApprove}>
+                                        {approveForm.processing ? 'En cours…' : 'Approuver le projet'}
+                                    </Button>
+                                </div>
+                            )}
+
+                            {/* Reject */}
+                            {selected.status !== 'rejected' && (
+                                <div style={{ background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 10, padding: 16 }}>
+                                    <div className="fw-semibold mb-3" style={{ color: '#DC2626', fontSize: '0.875rem' }}>
+                                        <i className="bi bi-x-circle me-1" />Rejeter ce projet
+                                    </div>
+                                    <Form.Group className="mb-3">
+                                        <Form.Control as="textarea" rows={2} size="sm"
+                                            placeholder="Motif du rejet (requis, min. 10 caractères)"
+                                            value={rejectForm.data.notes}
+                                            onChange={e => rejectForm.setData('notes', e.target.value)}
+                                            isInvalid={!!rejectForm.errors.notes}
+                                        />
+                                        {rejectForm.errors.notes && (
+                                            <Form.Control.Feedback type="invalid">{rejectForm.errors.notes}</Form.Control.Feedback>
+                                        )}
+                                    </Form.Group>
+                                    <Button size="sm" variant="danger"
+                                        disabled={rejectForm.processing}
+                                        onClick={handleReject}>
+                                        {rejectForm.processing ? 'En cours…' : 'Rejeter le projet'}
+                                    </Button>
+                                </div>
+                            )}
+
+                            {/* Delete */}
+                            <div style={{ borderTop: '1px solid var(--titi-border)', paddingTop: 16 }}>
+                                <Button size="sm" variant="outline-danger"
+                                    onClick={() => setDeleteTarget(selected)}>
+                                    <i className="bi bi-trash me-1" />Supprimer définitivement
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Lightbox */}
+            {lightbox && (
+                <div onClick={() => setLightbox(null)} style={{
+                    position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.9)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out',
+                }}>
+                    <button onClick={() => setLightbox(null)} style={{
+                        position: 'absolute', top: 20, right: 20, background: 'rgba(255,255,255,0.1)',
+                        border: 'none', borderRadius: '50%', width: 40, height: 40,
+                        color: '#fff', fontSize: '1.1rem', cursor: 'pointer',
+                    }}>
+                        <i className="bi bi-x-lg" />
+                    </button>
+                    <img src={lightbox} alt="" style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 8 }} />
+                </div>
+            )}
+
+            {/* Delete confirm */}
+            <Modal show={!!deleteTarget} onHide={() => setDeleteTarget(null)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title style={{ fontSize: '1rem' }}>Confirmer la suppression</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Supprimer <strong>«{deleteTarget?.title}»</strong> ? Cette action est irréversible et supprimera également les médias associés.
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-secondary" size="sm" onClick={() => setDeleteTarget(null)}>Annuler</Button>
+                    <Button variant="danger" size="sm" onClick={handleDelete}>Supprimer</Button>
+                </Modal.Footer>
+            </Modal>
         </DashboardLayout>
     );
 }

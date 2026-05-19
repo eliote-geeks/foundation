@@ -1,10 +1,20 @@
 import { Link, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import type { SharedData } from '../../types';
 
 export function ModernFooter() {
     const currentYear = new Date().getFullYear();
     const { auth } = usePage<SharedData>().props;
     const isAdmin = auth?.user?.is_admin === true;
+    const [showTop, setShowTop] = useState(false);
+
+    useEffect(() => {
+        const onScroll = () => setShowTop(window.scrollY > 300);
+        window.addEventListener('scroll', onScroll);
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
     return (
         <footer style={{ background: '#111827', color: '#D1D5DB' }}>
@@ -140,7 +150,7 @@ export function ModernFooter() {
                     <span style={{ fontSize: '0.8125rem', color: '#6B7280' }}>
                         © {currentYear} TITI EVENTS. Tous droits réservés.
                     </span>
-                    <div style={{ display: 'flex', gap: 20 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                         {[
                             { label: 'Mentions légales', href: '/legal/mentions' },
                             { label: 'Confidentialité', href: '/legal/privacy' },
@@ -151,6 +161,21 @@ export function ModernFooter() {
                                 onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
                             >{l.label}</Link>
                         ))}
+                        <button
+                            onClick={scrollTop}
+                            title="Haut de page"
+                            style={{
+                                width: 36, height: 36, borderRadius: 8,
+                                background: showTop ? '#16A34A' : '#1F2937',
+                                border: '1px solid ' + (showTop ? '#16A34A' : '#374151'),
+                                color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                cursor: 'pointer', transition: 'background 0.2s, border-color 0.2s', flexShrink: 0,
+                            }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#15803d'; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = showTop ? '#16A34A' : '#1F2937'; }}
+                        >
+                            <i className="bi bi-arrow-up" style={{ fontSize: '1rem' }} />
+                        </button>
                     </div>
                 </div>
             </div>
