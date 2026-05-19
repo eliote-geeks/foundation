@@ -6,6 +6,7 @@ use App\Models\Donation;
 use App\Models\MemberActivity;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -88,7 +89,9 @@ class ProfileController extends Controller
                 'skills'     => $profile?->skills ?? [],
                 'engagement_score'  => $profile?->engagement_score ?? 0,
                 'engagement_level'  => $profile?->engagement_level ?? 'Faible',
-                'avatar'     => $profile?->avatar_path,
+                'avatar'     => $profile?->avatar_path
+                    ? Storage::disk('public')->url($profile->avatar_path)
+                    : null,
                 'accepts_newsletter' => $profile?->accepts_newsletter ?? true,
                 'accepts_sms'        => $profile?->accepts_sms ?? false,
                 'linkedin_url'   => $profile?->linkedin_url,

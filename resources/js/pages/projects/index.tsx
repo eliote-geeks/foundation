@@ -54,8 +54,10 @@ const STEPS = [
 ];
 
 export default function ProjectsIndex({ user, projects, stats }: Props) {
-    const { props } = usePage<any>();
-    const flash = props.flash as { success?: string; error?: string } | undefined;
+    const pageProps = usePage<any>().props;
+    const flash = pageProps.flash as { success?: string; error?: string } | undefined;
+    // Use shared auth (always reliable) rather than page prop alone
+    const authUser = (pageProps.auth?.user ?? user) as typeof user | null;
     const [lightbox, setLightbox] = useState<string | null>(null);
     const [showForm, setShowForm] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -73,10 +75,6 @@ export default function ProjectsIndex({ user, projects, stats }: Props) {
     });
 
     function scrollToForm() {
-        if (!user) {
-            window.location.href = '/register';
-            return;
-        }
         setShowForm(true);
         setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
     }
@@ -134,7 +132,7 @@ export default function ProjectsIndex({ user, projects, stats }: Props) {
                                 onClick={scrollToForm}
                                 style={{ padding: '12px 28px', background: '#fff', color: '#15803d', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: '0.9375rem', display: 'flex', alignItems: 'center', gap: 8 }}
                             >
-                                <i className="bi bi-rocket-takeoff"></i>{user ? 'Soumettre mon projet' : 'S\'inscrire pour soumettre'}
+                                <i className="bi bi-rocket-takeoff"></i>{authUser ? 'Soumettre mon projet' : 'Soumettre votre projet'}
                             </button>
                             <a href="#gallery" style={{ padding: '12px 24px', background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontWeight: 600, textDecoration: 'none', fontSize: '0.9375rem' }}>
                                 Voir les projets
@@ -187,14 +185,14 @@ export default function ProjectsIndex({ user, projects, stats }: Props) {
                             <div>
                                 <div style={{ fontWeight: 700, fontSize: '1.0625rem', color: 'var(--titi-text)' }}>Prêt à soumettre votre projet ?</div>
                                 <div style={{ fontSize: '0.875rem', color: 'var(--titi-sub)', marginTop: 4 }}>
-                                    {user ? 'Remplissez le formulaire ci-dessous pour soumettre votre projet.' : 'Créez un compte et soumettez votre projet en quelques minutes.'}
+                                    {authUser ? 'Remplissez le formulaire ci-dessous pour soumettre votre projet.' : 'Créez un compte et soumettez votre projet en quelques minutes.'}
                                 </div>
                             </div>
                             <button
                                 onClick={scrollToForm}
                                 style={{ padding: '10px 22px', background: '#16A34A', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}
                             >
-                                <i className="bi bi-rocket-takeoff"></i>{user ? 'Soumettre mon projet' : 'Commencer maintenant'}
+                                <i className="bi bi-rocket-takeoff"></i>{authUser ? 'Soumettre mon projet' : 'Commencer maintenant'}
                             </button>
                         </div>
                     </div>
@@ -261,7 +259,7 @@ export default function ProjectsIndex({ user, projects, stats }: Props) {
                             </p>
                         </div>
 
-                        {!user ? (
+                        {!authUser ? (
                             <div style={{ textAlign: 'center', padding: '48px 24px', background: 'var(--titi-white)', borderRadius: 14, border: '1px solid var(--titi-border)' }}>
                                 <i className="bi bi-person-lock" style={{ fontSize: '3rem', color: 'var(--titi-muted)', display: 'block', marginBottom: 16 }}></i>
                                 <h3 style={{ color: 'var(--titi-text)', fontWeight: 700, marginBottom: 8 }}>Connexion requise</h3>
