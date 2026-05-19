@@ -98,6 +98,10 @@ Route::get('/contests/{contest}', [App\Http\Controllers\ContestController::class
 Route::post('/contests/{contest}/entries', [App\Http\Controllers\ContestController::class, 'submitEntry'])->name('contests.entries.store')->middleware('auth');
 Route::post('/contests/{contest}/vote', [App\Http\Controllers\ContestController::class, 'submitVote'])->name('contests.vote')->middleware('auth');
 
+// Media upload (auth required, returns JSON)
+Route::post('/media/upload', [App\Http\Controllers\MediaController::class, 'store'])->name('media.upload')->middleware('auth');
+Route::delete('/media/{media}', [App\Http\Controllers\MediaController::class, 'destroy'])->name('media.destroy')->middleware('auth');
+
 Route::get('/donate', [App\Http\Controllers\DonationController::class, 'index'])->name('donate');
 Route::post('/donate', [App\Http\Controllers\DonationController::class, 'store'])->name('donate.store');
 

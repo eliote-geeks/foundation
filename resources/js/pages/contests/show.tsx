@@ -1,8 +1,21 @@
-import { Head, useForm, Link, router } from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { ModernHeader } from '../../components/home/modern-header';
 import { ModernFooter } from '../../components/home/modern-footer';
-import { Modal, Form, Button, Badge, ProgressBar } from 'react-bootstrap';
+import { Modal, Form, Button } from 'react-bootstrap';
+import { MediaUploader, type UploadedMedia } from '../../components/ui/MediaUploader';
+
+interface MediaItem {
+    id: number;
+    url: string;
+    filename: string;
+    mime_type: string;
+    size: number;
+    size_fmt: string;
+    is_image: boolean;
+    width?: number | null;
+    height?: number | null;
+}
 
 interface Entry {
     id: number;
@@ -14,6 +27,7 @@ interface Entry {
     votes_count: number;
     author_name: string;
     submitted_at: string | null;
+    media: MediaItem[];
 }
 
 interface ContestDetail {
@@ -50,11 +64,11 @@ interface ShowProps {
 }
 
 const STATUS_COLORS: Record<string, { label: string; bg: string; color: string }> = {
-    active:    { label: 'Actif',           bg: '#f0fdf4', color: '#15803d' },
-    voting:    { label: 'Vote en cours',   bg: '#eff6ff', color: '#1d4ed8' },
-    upcoming:  { label: 'À venir',         bg: '#fffbeb', color: '#92400e' },
-    completed: { label: 'Terminé',         bg: '#f9fafb', color: '#6b7280' },
-    closed:    { label: 'Fermé',           bg: '#fef2f2', color: '#b91c1c' },
+    active:    { label: 'Actif',           bg: 'rgba(22,163,74,0.12)',   color: '#15803d' },
+    voting:    { label: 'Vote en cours',   bg: 'rgba(29,78,216,0.12)',   color: '#1d4ed8' },
+    upcoming:  { label: 'À venir',         bg: 'rgba(146,64,14,0.12)',   color: '#92400e' },
+    completed: { label: 'Terminé',         bg: 'rgba(107,114,128,0.12)', color: '#6b7280' },
+    closed:    { label: 'Fermé',           bg: 'rgba(185,28,28,0.12)',   color: '#b91c1c' },
 };
 
 export default function ContestShow({ user, contest, entries, userEntry, userHasVoted, settings }: ShowProps) {
@@ -62,19 +76,19 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
     const [showVoteModal, setShowVoteModal] = useState(false);
     const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
     const [flash, setFlash] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+    const [lightbox, setLightbox] = useState<string | null>(null);
 
     const st = STATUS_COLORS[contest.status] ?? STATUS_COLORS.upcoming;
 
-    // Submit entry form
     const submitForm = useForm({
         title: '',
         description: '',
         category: '',
         project_url: '',
         team_members: [] as string[],
+        media_ids: [] as number[],
     });
 
-    // Vote form
     const voteForm = useForm({
         entry_id: '',
         payment_method: 'mtn',
@@ -87,7 +101,7 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
         submitForm.post(`/contests/${contest.id}/entries`, {
             onSuccess: () => {
                 setShowSubmitModal(false);
-                setFlash({ type: 'success', msg: 'Projet soumis avec succès ! Il sera examiné par notre équipe.' });
+                setFlash({ type: 'success', msg: 'Projet soumis ! Il sera examiné par notre équipe.' });
                 submitForm.reset();
             },
             onError: () => setFlash({ type: 'error', msg: 'Erreur lors de la soumission.' }),
@@ -105,7 +119,7 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
         voteForm.post(`/contests/${contest.id}/vote`, {
             onSuccess: () => {
                 setShowVoteModal(false);
-                setFlash({ type: 'success', msg: 'Vote enregistré ! Il sera confirmé après vérification du paiement.' });
+                setFlash({ type: 'success', msg: 'Vote enregistré ! Confirmation après vérification du paiement.' });
                 voteForm.reset();
             },
             onError: () => setFlash({ type: 'error', msg: 'Erreur lors du vote.' }),
@@ -126,14 +140,33 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                     <div style={{
                         position: 'fixed', top: 80, left: '50%', transform: 'translateX(-50%)',
                         zIndex: 2000, padding: '10px 20px', borderRadius: 8, fontWeight: 500,
-                        background: flash.type === 'success' ? '#f0fdf4' : '#fef2f2',
+                        background: flash.type === 'success' ? 'rgba(22,163,74,0.1)' : 'rgba(185,28,28,0.1)',
                         border: `1px solid ${flash.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
                         color: flash.type === 'success' ? '#15803d' : '#b91c1c',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
                     }}>
                         <i className={`bi ${flash.type === 'success' ? 'bi-check-circle' : 'bi-exclamation-circle'} me-2`}></i>
                         {flash.msg}
                         <button onClick={() => setFlash(null)} style={{ background: 'none', border: 'none', marginLeft: 12, cursor: 'pointer', opacity: 0.6 }}>✕</button>
+                    </div>
+                )}
+
+                {/* Lightbox */}
+                {lightbox && (
+                    <div
+                        onClick={() => setLightbox(null)}
+                        style={{
+                            position: 'fixed', inset: 0, zIndex: 9999,
+                            background: 'rgba(0,0,0,0.88)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'zoom-out',
+                        }}
+                    >
+                        <img src={lightbox} alt="" style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 8, boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }} />
+                        <button
+                            onClick={() => setLightbox(null)}
+                            style={{ position: 'absolute', top: 20, right: 24, background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', lineHeight: 1 }}
+                        >×</button>
                     </div>
                 )}
 
@@ -159,8 +192,6 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                     <p style={{ color: 'var(--titi-sub)', marginTop: 8, marginBottom: 0 }}>{contest.short_description}</p>
                                 )}
                             </div>
-
-                            {/* Action buttons */}
                             <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
                                 {contest.is_active && !userEntry && user && (
                                     <button
@@ -177,19 +208,11 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                 )}
                             </div>
                         </div>
-
-                        {/* Meta */}
                         <div style={{ display: 'flex', gap: 20, marginTop: 16, flexWrap: 'wrap' }}>
                             {contest.end_date && (
                                 <span style={{ fontSize: '0.8125rem', color: 'var(--titi-sub)' }}>
                                     <i className="bi bi-calendar-event me-1"></i>
                                     Fin des soumissions : {new Date(contest.end_date).toLocaleDateString('fr-FR')}
-                                </span>
-                            )}
-                            {contest.voting_end && (
-                                <span style={{ fontSize: '0.8125rem', color: 'var(--titi-sub)' }}>
-                                    <i className="bi bi-hand-thumbs-up me-1"></i>
-                                    Fin des votes : {new Date(contest.voting_end).toLocaleDateString('fr-FR')}
                                 </span>
                             )}
                             <span style={{ fontSize: '0.8125rem', color: 'var(--titi-sub)' }}>
@@ -208,35 +231,32 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                 </div>
 
                 <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 24px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 24 }}>
 
-                        {/* Main content */}
+                        {/* Main */}
                         <div>
-                            {/* User's own entry status */}
                             {userEntry && (
                                 <div style={{
                                     padding: '14px 18px', borderRadius: 10, marginBottom: 20,
-                                    background: userEntry.status === 'approved' ? '#f0fdf4' : userEntry.status === 'rejected' ? '#fef2f2' : '#fffbeb',
+                                    background: userEntry.status === 'approved' ? 'rgba(22,163,74,0.1)' : userEntry.status === 'rejected' ? 'rgba(185,28,28,0.1)' : 'rgba(245,158,11,0.1)',
                                     border: `1px solid ${userEntry.status === 'approved' ? '#bbf7d0' : userEntry.status === 'rejected' ? '#fecaca' : '#fde68a'}`,
                                 }}>
-                                    <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                                    <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--titi-text)' }}>
                                         <i className={`bi ${userEntry.status === 'approved' ? 'bi-check-circle-fill text-success' : userEntry.status === 'rejected' ? 'bi-x-circle-fill text-danger' : 'bi-clock-fill text-warning'} me-2`}></i>
                                         Votre projet : {userEntry.title}
                                     </div>
-                                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Statut : <strong>{userEntry.status_label}</strong></div>
+                                    <div style={{ fontSize: '0.875rem', color: 'var(--titi-sub)' }}>Statut : <strong>{userEntry.status_label}</strong></div>
                                 </div>
                             )}
 
-                            {/* Vote status */}
                             {userHasVoted && (
-                                <div style={{ padding: '12px 16px', borderRadius: 8, background: '#f0fdf4', border: '1px solid #bbf7d0', marginBottom: 16, fontSize: '0.875rem', color: '#15803d', fontWeight: 500 }}>
+                                <div style={{ padding: '12px 16px', borderRadius: 8, background: 'rgba(22,163,74,0.1)', border: '1px solid #bbf7d0', marginBottom: 16, fontSize: '0.875rem', color: '#15803d', fontWeight: 500 }}>
                                     <i className="bi bi-check-circle-fill me-2"></i>Vous avez voté pour ce concours
                                 </div>
                             )}
 
-                            {/* Projects list */}
                             <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--titi-text)', marginBottom: 16 }}>
-                                {contest.is_voting_open ? 'Projets en compétition' : 'Projets soumis'}
+                                Projets en compétition
                                 <span style={{ fontWeight: 400, fontSize: '0.875rem', color: 'var(--titi-sub)', marginLeft: 8 }}>({entries.length})</span>
                             </h2>
 
@@ -244,64 +264,109 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                 <div style={{ textAlign: 'center', padding: '40px 20px', background: 'var(--titi-white)', borderRadius: 10, border: '1px solid var(--titi-border)' }}>
                                     <i className="bi bi-inbox" style={{ fontSize: '2rem', color: 'var(--titi-sub)', display: 'block', marginBottom: 12 }}></i>
                                     <p style={{ color: 'var(--titi-sub)', margin: 0 }}>
-                                        {contest.is_active ? 'Soyez le premier à soumettre un projet !' : 'Aucun projet soumis pour ce concours.'}
+                                        {contest.is_active ? 'Soyez le premier à soumettre un projet !' : 'Aucun projet soumis.'}
                                     </p>
-                                    {contest.is_active && !user && (
-                                        <Link href="/register" style={{ display: 'inline-block', marginTop: 12, padding: '8px 16px', background: '#16A34A', color: '#fff', borderRadius: 6, textDecoration: 'none', fontSize: '0.875rem' }}>
-                                            Créer un compte
-                                        </Link>
-                                    )}
                                 </div>
                             ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                                     {entries.map((entry, rank) => (
-                                        <div key={entry.id} style={{
-                                            background: 'var(--titi-white)', border: '1px solid var(--titi-border)', borderRadius: 10, padding: '16px 20px',
-                                            display: 'flex', alignItems: 'flex-start', gap: 16,
-                                        }}>
-                                            {/* Rank */}
-                                            <div style={{
-                                                width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                                                background: rank === 0 ? '#c69438' : rank === 1 ? '#9ca3af' : rank === 2 ? '#92400e' : '#e5e7eb',
-                                                color: rank < 3 ? '#fff' : '#6b7280',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem',
-                                            }}>
-                                                {rank === 0 ? <i className="bi bi-trophy-fill"></i> : rank + 1}
-                                            </div>
-                                            <div style={{ flex: 1 }}>
-                                                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                                                    <div>
-                                                        <div style={{ fontWeight: 600, color: 'var(--titi-text)', marginBottom: 4 }}>{entry.title}</div>
-                                                        <div style={{ fontSize: '0.8125rem', color: 'var(--titi-sub)', marginBottom: 4 }}>
-                                                            Par {entry.author_name}
-                                                            {entry.category && <span style={{ marginLeft: 8, padding: '1px 6px', background: '#f3f4f6', borderRadius: 4 }}>{entry.category}</span>}
-                                                        </div>
-                                                        <p style={{ fontSize: '0.875rem', color: 'var(--titi-sub)', margin: 0, lineHeight: 1.5 }}>
-                                                            {entry.description.length > 150 ? entry.description.slice(0, 150) + '…' : entry.description}
-                                                        </p>
-                                                        {entry.project_url && (
-                                                            <a href={entry.project_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.8125rem', color: '#16A34A', textDecoration: 'none', marginTop: 6, display: 'inline-block' }}>
-                                                                <i className="bi bi-link-45deg me-1"></i>Voir le projet
-                                                            </a>
-                                                        )}
-                                                    </div>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                                                        <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--titi-text)' }}>{entry.votes_count}</div>
-                                                        <div style={{ fontSize: '0.6875rem', color: 'var(--titi-sub)' }}>votes</div>
-                                                        {contest.is_voting_open && !userHasVoted && user && (
-                                                            <button
-                                                                onClick={() => openVote(entry)}
-                                                                style={{ padding: '5px 12px', background: '#16A34A', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 500 }}
+                                        <div key={entry.id} style={{ background: 'var(--titi-white)', border: '1px solid var(--titi-border)', borderRadius: 12, overflow: 'hidden' }}>
+                                            {/* Media strip */}
+                                            {entry.media.length > 0 && (
+                                                <div style={{ display: 'flex', gap: 2, height: 160, overflow: 'hidden' }}>
+                                                    {entry.media.slice(0, 4).map((m, mi) => (
+                                                        m.is_image ? (
+                                                            <div
+                                                                key={m.id}
+                                                                onClick={() => setLightbox(m.url)}
+                                                                style={{
+                                                                    flex: mi === 0 && entry.media.length === 1 ? '1' : mi === 0 ? '2' : '1',
+                                                                    minWidth: 0,
+                                                                    position: 'relative',
+                                                                    cursor: 'zoom-in',
+                                                                    overflow: 'hidden',
+                                                                }}
                                                             >
-                                                                <i className="bi bi-hand-thumbs-up me-1"></i>Voter
-                                                                {contest.vote_price > 0 && <span style={{ marginLeft: 4, opacity: 0.85, fontSize: '0.75rem' }}>({contest.vote_price_fmt})</span>}
-                                                            </button>
-                                                        )}
-                                                        {contest.is_voting_open && !user && (
-                                                            <Link href="/login" style={{ padding: '5px 12px', background: '#16A34A', color: '#fff', borderRadius: 6, textDecoration: 'none', fontSize: '0.8125rem', fontWeight: 500 }}>
-                                                                Voter
-                                                            </Link>
-                                                        )}
+                                                                <img
+                                                                    src={m.url}
+                                                                    alt={m.filename}
+                                                                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.3s ease' }}
+                                                                    onMouseEnter={e => { (e.target as HTMLImageElement).style.transform = 'scale(1.05)'; }}
+                                                                    onMouseLeave={e => { (e.target as HTMLImageElement).style.transform = 'scale(1)'; }}
+                                                                />
+                                                                {mi === 3 && entry.media.length > 4 && (
+                                                                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.25rem', fontWeight: 700 }}>
+                                                                        +{entry.media.length - 4}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <a
+                                                                key={m.id}
+                                                                href={m.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                style={{
+                                                                    flex: 1, minWidth: 0,
+                                                                    background: 'var(--titi-surface)',
+                                                                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
+                                                                    textDecoration: 'none', color: 'var(--titi-sub)',
+                                                                    padding: '12px 8px',
+                                                                }}
+                                                            >
+                                                                <i className="bi bi-file-earmark-pdf" style={{ fontSize: '2rem', color: '#ef4444' }} />
+                                                                <span style={{ fontSize: '0.7rem', textAlign: 'center', wordBreak: 'break-all' }}>{m.filename}</span>
+                                                            </a>
+                                                        )
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Entry content */}
+                                            <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                                                <div style={{
+                                                    width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                                                    background: rank === 0 ? '#c69438' : rank === 1 ? '#9ca3af' : rank === 2 ? '#92400e' : 'var(--titi-border)',
+                                                    color: rank < 3 ? '#fff' : 'var(--titi-sub)',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem',
+                                                }}>
+                                                    {rank === 0 ? <i className="bi bi-trophy-fill"></i> : rank + 1}
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                                                        <div>
+                                                            <div style={{ fontWeight: 600, color: 'var(--titi-text)', marginBottom: 4 }}>{entry.title}</div>
+                                                            <div style={{ fontSize: '0.8125rem', color: 'var(--titi-sub)', marginBottom: 6 }}>
+                                                                Par {entry.author_name}
+                                                                {entry.category && <span style={{ marginLeft: 8, padding: '1px 6px', background: 'var(--titi-surface)', borderRadius: 4, border: '1px solid var(--titi-border)' }}>{entry.category}</span>}
+                                                            </div>
+                                                            <p style={{ fontSize: '0.875rem', color: 'var(--titi-sub)', margin: 0, lineHeight: 1.5 }}>
+                                                                {entry.description.length > 180 ? entry.description.slice(0, 180) + '…' : entry.description}
+                                                            </p>
+                                                            {entry.project_url && (
+                                                                <a href={entry.project_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.8125rem', color: '#16A34A', textDecoration: 'none', marginTop: 6, display: 'inline-block' }}>
+                                                                    <i className="bi bi-link-45deg me-1"></i>Voir le projet
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                                                            <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--titi-text)' }}>{entry.votes_count}</div>
+                                                            <div style={{ fontSize: '0.6875rem', color: 'var(--titi-sub)' }}>votes</div>
+                                                            {contest.is_voting_open && !userHasVoted && user && (
+                                                                <button
+                                                                    onClick={() => openVote(entry)}
+                                                                    style={{ padding: '5px 12px', background: '#16A34A', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 500 }}
+                                                                >
+                                                                    <i className="bi bi-hand-thumbs-up me-1"></i>Voter
+                                                                    {contest.vote_price > 0 && <span style={{ marginLeft: 4, opacity: 0.85, fontSize: '0.75rem' }}>({contest.vote_price_fmt})</span>}
+                                                                </button>
+                                                            )}
+                                                            {contest.is_voting_open && !user && (
+                                                                <Link href="/login" style={{ padding: '5px 12px', background: '#16A34A', color: '#fff', borderRadius: 6, textDecoration: 'none', fontSize: '0.8125rem', fontWeight: 500 }}>
+                                                                    Voter
+                                                                </Link>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -310,7 +375,6 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                 </div>
                             )}
 
-                            {/* Description */}
                             {contest.description && (
                                 <div style={{ marginTop: 28, background: 'var(--titi-white)', borderRadius: 10, border: '1px solid var(--titi-border)', padding: '20px 24px' }}>
                                     <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--titi-text)', marginBottom: 12 }}>À propos du concours</h3>
@@ -321,7 +385,6 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
 
                         {/* Sidebar */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                            {/* Prizes */}
                             {contest.prizes && contest.prizes.length > 0 && (
                                 <div style={{ background: 'var(--titi-white)', borderRadius: 10, border: '1px solid var(--titi-border)', padding: '16px 18px' }}>
                                     <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--titi-text)', marginBottom: 12 }}>
@@ -336,7 +399,6 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                 </div>
                             )}
 
-                            {/* Rules */}
                             {contest.rules && contest.rules.length > 0 && (
                                 <div style={{ background: 'var(--titi-white)', borderRadius: 10, border: '1px solid var(--titi-border)', padding: '16px 18px' }}>
                                     <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--titi-text)', marginBottom: 12 }}>
@@ -350,22 +412,20 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                 </div>
                             )}
 
-                            {/* Voting info */}
                             {contest.vote_price > 0 && (
-                                <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '14px 16px' }}>
+                                <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid #fde68a', borderRadius: 10, padding: '14px 16px' }}>
                                     <div style={{ fontWeight: 600, color: '#92400e', marginBottom: 6, fontSize: '0.9375rem' }}>
                                         <i className="bi bi-info-circle me-2"></i>Vote payant
                                     </div>
-                                    <p style={{ fontSize: '0.8125rem', color: '#78350f', margin: 0, lineHeight: 1.6 }}>
+                                    <p style={{ fontSize: '0.8125rem', color: 'var(--titi-sub)', margin: 0, lineHeight: 1.6 }}>
                                         Chaque vote coûte <strong>{contest.vote_price_fmt}</strong>.<br />
-                                        Payez via Mobile Money puis soumettez votre référence de transaction.
+                                        Payez via Mobile Money puis soumettez votre référence.
                                     </p>
                                 </div>
                             )}
 
-                            {/* CTA */}
                             {contest.is_active && !userEntry && (
-                                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '16px 18px', textAlign: 'center' }}>
+                                <div style={{ background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.3)', borderRadius: 10, padding: '16px 18px', textAlign: 'center' }}>
                                     <i className="bi bi-lightbulb" style={{ fontSize: '1.5rem', color: '#16A34A', display: 'block', marginBottom: 8 }}></i>
                                     <p style={{ fontSize: '0.875rem', color: '#15803d', margin: '0 0 12px', fontWeight: 500 }}>Vous avez un projet innovant ?</p>
                                     {user ? (
@@ -400,7 +460,7 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                     <Modal.Body style={{ background: 'var(--titi-white)' }}>
                         <div className="d-flex flex-column gap-3">
                             <Form.Group>
-                                <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>Titre du projet *</Form.Label>
+                                <Form.Label className="small fw-semibold" style={{ color: 'var(--titi-sub)' }}>Titre du projet *</Form.Label>
                                 <Form.Control
                                     type="text"
                                     value={submitForm.data.title}
@@ -411,11 +471,12 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                 />
                                 <Form.Control.Feedback type="invalid">{submitForm.errors.title}</Form.Control.Feedback>
                             </Form.Group>
+
                             <Form.Group>
-                                <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>Description détaillée * (min. 50 caractères)</Form.Label>
+                                <Form.Label className="small fw-semibold" style={{ color: 'var(--titi-sub)' }}>Description *</Form.Label>
                                 <Form.Control
                                     as="textarea"
-                                    rows={5}
+                                    rows={4}
                                     value={submitForm.data.description}
                                     onChange={e => submitForm.setData('description', e.target.value)}
                                     isInvalid={!!submitForm.errors.description}
@@ -424,36 +485,50 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                 />
                                 <Form.Control.Feedback type="invalid">{submitForm.errors.description}</Form.Control.Feedback>
                             </Form.Group>
+
                             <div className="row g-3">
                                 <div className="col-md-6">
-                                    <Form.Group>
-                                        <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>Catégorie</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={submitForm.data.category}
-                                            onChange={e => submitForm.setData('category', e.target.value)}
-                                            placeholder="Innovation, Environnement..."
-                                            style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
-                                        />
-                                    </Form.Group>
+                                    <Form.Label className="small fw-semibold" style={{ color: 'var(--titi-sub)' }}>Catégorie</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={submitForm.data.category}
+                                        onChange={e => submitForm.setData('category', e.target.value)}
+                                        placeholder="Innovation, Environnement..."
+                                        style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
+                                    />
                                 </div>
                                 <div className="col-md-6">
-                                    <Form.Group>
-                                        <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>Lien du projet (optionnel)</Form.Label>
-                                        <Form.Control
-                                            type="url"
-                                            value={submitForm.data.project_url}
-                                            onChange={e => submitForm.setData('project_url', e.target.value)}
-                                            isInvalid={!!submitForm.errors.project_url}
-                                            placeholder="https://..."
-                                            style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
-                                        />
-                                        <Form.Control.Feedback type="invalid">{submitForm.errors.project_url}</Form.Control.Feedback>
-                                    </Form.Group>
+                                    <Form.Label className="small fw-semibold" style={{ color: 'var(--titi-sub)' }}>Lien du projet (optionnel)</Form.Label>
+                                    <Form.Control
+                                        type="url"
+                                        value={submitForm.data.project_url}
+                                        onChange={e => submitForm.setData('project_url', e.target.value)}
+                                        isInvalid={!!submitForm.errors.project_url}
+                                        placeholder="https://..."
+                                        style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
+                                    />
+                                    <Form.Control.Feedback type="invalid">{submitForm.errors.project_url}</Form.Control.Feedback>
                                 </div>
                             </div>
+
+                            {/* Media uploader */}
+                            <div>
+                                <div className="small fw-semibold mb-2" style={{ color: 'var(--titi-sub)' }}>
+                                    Médias du projet (photos, documents)
+                                </div>
+                                <MediaUploader
+                                    accept="image/*,application/pdf,video/*"
+                                    multiple
+                                    maxFiles={8}
+                                    maxSizeMb={10}
+                                    label="Glissez vos photos ou documents"
+                                    hint="Images, PDF, vidéos · max 10 MB par fichier · 8 fichiers maximum"
+                                    onChange={(media: UploadedMedia[]) => submitForm.setData('media_ids', media.map(m => m.id))}
+                                />
+                            </div>
+
                             {contest.entry_fee > 0 && (
-                                <div style={{ padding: '10px 14px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, fontSize: '0.875rem', color: '#92400e' }}>
+                                <div style={{ padding: '10px 14px', background: 'rgba(245,158,11,0.1)', border: '1px solid #fde68a', borderRadius: 8, fontSize: '0.875rem', color: '#92400e' }}>
                                     <i className="bi bi-info-circle me-2"></i>
                                     Frais d'inscription : <strong>{contest.entry_fee.toLocaleString('fr-FR')} {contest.currency}</strong>
                                 </div>
@@ -480,7 +555,7 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                 <Form onSubmit={handleVote}>
                     <Modal.Body style={{ background: 'var(--titi-white)' }}>
                         {contest.vote_price > 0 && (
-                            <div style={{ padding: '14px 16px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, marginBottom: 16 }}>
+                            <div style={{ padding: '14px 16px', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.3)', borderRadius: 10, marginBottom: 16 }}>
                                 <div style={{ fontWeight: 700, color: '#15803d', fontSize: '1rem', marginBottom: 8 }}>
                                     <i className="bi bi-phone me-2"></i>Étape 1 — Effectuez le paiement
                                 </div>
@@ -489,8 +564,8 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                         type="button"
                                         onClick={() => voteForm.setData('payment_method', 'mtn')}
                                         style={{
-                                            flex: 1, padding: '8px', border: `2px solid ${voteForm.data.payment_method === 'mtn' ? '#f59e0b' : '#e5e7eb'}`,
-                                            borderRadius: 8, background: voteForm.data.payment_method === 'mtn' ? '#fffbeb' : '#f9fafb', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem',
+                                            flex: 1, padding: '8px', border: `2px solid ${voteForm.data.payment_method === 'mtn' ? '#f59e0b' : 'var(--titi-border)'}`,
+                                            borderRadius: 8, background: voteForm.data.payment_method === 'mtn' ? 'rgba(245,158,11,0.1)' : 'var(--titi-surface)', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', color: 'var(--titi-text)',
                                         }}
                                     >
                                         <span style={{ color: '#f59e0b' }}>MTN</span> Mobile Money
@@ -499,17 +574,17 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                         type="button"
                                         onClick={() => voteForm.setData('payment_method', 'orange')}
                                         style={{
-                                            flex: 1, padding: '8px', border: `2px solid ${voteForm.data.payment_method === 'orange' ? '#ea580c' : '#e5e7eb'}`,
-                                            borderRadius: 8, background: voteForm.data.payment_method === 'orange' ? '#fff7ed' : '#f9fafb', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem',
+                                            flex: 1, padding: '8px', border: `2px solid ${voteForm.data.payment_method === 'orange' ? '#ea580c' : 'var(--titi-border)'}`,
+                                            borderRadius: 8, background: voteForm.data.payment_method === 'orange' ? 'rgba(234,88,12,0.1)' : 'var(--titi-surface)', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', color: 'var(--titi-text)',
                                         }}
                                     >
                                         <span style={{ color: '#ea580c' }}>Orange</span> Money
                                     </button>
                                 </div>
-                                <div style={{ padding: '10px 14px', background: '#fff', border: '1px solid #d1fae5', borderRadius: 8 }}>
-                                    <div style={{ fontSize: '0.8125rem', color: '#6b7280', marginBottom: 4 }}>Envoyez <strong>{contest.vote_price_fmt}</strong> au :</div>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#111827', letterSpacing: '0.05em' }}>{payNumber}</div>
-                                    <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: 4 }}>Mentionnez "Vote {contest.title}" dans le motif</div>
+                                <div style={{ padding: '10px 14px', background: 'var(--titi-white)', border: '1px solid var(--titi-border)', borderRadius: 8 }}>
+                                    <div style={{ fontSize: '0.8125rem', color: 'var(--titi-sub)', marginBottom: 4 }}>Envoyez <strong>{contest.vote_price_fmt}</strong> au :</div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--titi-text)', letterSpacing: '0.05em' }}>{payNumber}</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--titi-muted)', marginTop: 4 }}>Mentionnez "Vote {contest.title}" dans le motif</div>
                                 </div>
                             </div>
                         )}
@@ -519,7 +594,7 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                         </div>
                         <div className="d-flex flex-column gap-3">
                             <Form.Group>
-                                <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>Votre numéro de téléphone *</Form.Label>
+                                <Form.Label className="small fw-semibold" style={{ color: 'var(--titi-sub)' }}>Votre numéro de téléphone *</Form.Label>
                                 <Form.Control
                                     type="tel"
                                     value={voteForm.data.voter_phone}
@@ -532,7 +607,7 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                             </Form.Group>
                             {contest.vote_price > 0 && (
                                 <Form.Group>
-                                    <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>Référence de transaction *</Form.Label>
+                                    <Form.Label className="small fw-semibold" style={{ color: 'var(--titi-sub)' }}>Référence de transaction *</Form.Label>
                                     <Form.Control
                                         type="text"
                                         value={voteForm.data.transaction_ref}
@@ -541,7 +616,7 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                                         placeholder="Ex: MP26050001234"
                                         style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
                                     />
-                                    <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: 4 }}>Code reçu par SMS après le paiement Mobile Money</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--titi-muted)', marginTop: 4 }}>Code reçu par SMS après le paiement</div>
                                     <Form.Control.Feedback type="invalid">{voteForm.errors.transaction_ref}</Form.Control.Feedback>
                                 </Form.Group>
                             )}

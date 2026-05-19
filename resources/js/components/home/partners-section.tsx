@@ -12,12 +12,12 @@ interface Props {
 }
 
 const PLACEHOLDER_PARTNERS = [
-    { id: 0, name: 'MTN Cameroun', initials: 'MTN', color: '#FFCC00', bg: '#FFF8D6' },
-    { id: 1, name: 'Orange Cameroun', initials: 'ORA', color: '#FF6600', bg: '#FFF0E6' },
-    { id: 2, name: 'Gouvernement', initials: 'GOV', color: '#1A56DB', bg: '#E8EFFE' },
-    { id: 3, name: 'Partenaire 4', initials: 'P4', color: '#5FA145', bg: '#EAF5E5' },
-    { id: 4, name: 'Partenaire 5', initials: 'P5', color: '#C69438', bg: '#FDF4E3' },
-    { id: 5, name: 'Partenaire 6', initials: 'P6', color: '#C69438', bg: '#FDF4E3' },
+    { id: 0, name: 'MTN Cameroun', initials: 'MTN', color: '#FFCC00', bg: 'rgba(255, 204, 0, 0.18)' },
+    { id: 1, name: 'Orange Cameroun', initials: 'ORA', color: '#FF6600', bg: 'rgba(255, 102, 0, 0.18)' },
+    { id: 2, name: 'Gouvernement', initials: 'GOV', color: '#1A56DB', bg: 'rgba(26, 86, 219, 0.18)' },
+    { id: 3, name: 'Partenaire 4', initials: 'P4', color: '#5FA145', bg: 'rgba(95, 161, 69, 0.18)' },
+    { id: 4, name: 'Partenaire 5', initials: 'P5', color: '#C69438', bg: 'rgba(198, 148, 56, 0.18)' },
+    { id: 5, name: 'Partenaire 6', initials: 'P6', color: '#C69438', bg: 'rgba(198, 148, 56, 0.18)' },
 ];
 
 export function PartnersSection({ partners }: Props) {
@@ -29,11 +29,11 @@ export function PartnersSection({ partners }: Props) {
                 <div className="text-center mb-5">
                     <span
                         className="d-inline-block px-3 py-1 rounded-pill mb-3 small fw-semibold"
-                        style={{ background: '#E8F5E8', color: '#3D7020' }}
+                        style={{ background: 'rgba(95, 161, 69, 0.15)', color: 'var(--titi-green)' }}
                     >
                         Partenaires & Sponsors
                     </span>
-                    <h2 className="fw-bold mb-3" style={{ color: '#1A3209', fontSize: 'clamp(1.7rem, 3vw, 2.4rem)' }}>
+                    <h2 className="fw-bold mb-3" style={{ color: 'var(--titi-text)', fontSize: 'clamp(1.7rem, 3vw, 2.4rem)' }}>
                         Ils nous font confiance
                     </h2>
                     <p className="text-muted mx-auto" style={{ maxWidth: 560, lineHeight: 1.7 }}>
@@ -52,8 +52,8 @@ export function PartnersSection({ partners }: Props) {
                                         <div
                                             className="d-flex align-items-center justify-content-center p-3 rounded-3"
                                             style={{
-                                                background: '#FFFFFF',
-                                                border: '1px solid #E0EAE0',
+                                                background: 'var(--titi-white)',
+                                                border: '1px solid var(--titi-border)',
                                                 height: 80,
                                                 transition: 'box-shadow 0.2s ease',
                                             }}
@@ -66,7 +66,7 @@ export function PartnersSection({ partners }: Props) {
                                 ) : (
                                     <div
                                         className="d-flex align-items-center justify-content-center p-3 rounded-3"
-                                        style={{ background: '#FFFFFF', border: '1px solid #E0EAE0', height: 80 }}
+                                        style={{ background: 'var(--titi-white)', border: '1px solid var(--titi-border)', height: 80 }}
                                     >
                                         <img src={p.logo} alt={p.name} style={{ maxWidth: '100%', maxHeight: 48, objectFit: 'contain' }} />
                                     </div>
@@ -102,15 +102,15 @@ export function PartnersSection({ partners }: Props) {
                 {/* Become partner CTA */}
                 <div
                     className="rounded-4 p-4 p-md-5 text-center"
-                    style={{ background: '#111827', border: '1px solid #1F2937' }}
+                    style={{ background: 'var(--titi-white)', border: '1px solid var(--titi-border)' }}
                 >
                     <Row className="justify-content-center">
                         <Col md={8} lg={6}>
                             <i className="bi bi-handshake mb-3 d-block" style={{ color: '#F9D27A', fontSize: '2.5rem' }}></i>
-                            <h4 className="fw-bold mb-3" style={{ color: '#FFFFFF' }}>
+                            <h4 className="fw-bold mb-3" style={{ color: 'var(--titi-text)' }}>
                                 Devenez partenaire ou sponsor
                             </h4>
-                            <p style={{ color: '#A8D5A2', marginBottom: '1.5rem', lineHeight: 1.65 }}>
+                            <p style={{ color: 'var(--titi-sub)', marginBottom: '1.5rem', lineHeight: 1.65 }}>
                                 Associez votre organisation aux événements de TITI EVENTS.
                                 Visibilité, impact mesurable, réseau professionnel — rejoignez nos partenaires.
                             </p>
@@ -124,7 +124,7 @@ export function PartnersSection({ partners }: Props) {
                                 </Button>
                                 <Button
                                     href="/partners"
-                                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontWeight: 500, borderRadius: 6, padding: '8px 20px', fontSize: '0.875rem' }}
+                                    style={{ background: 'rgba(95,161,69,0.12)', border: '1px solid var(--titi-border)', color: 'var(--titi-text)', fontWeight: 500, borderRadius: 6, padding: '8px 20px', fontSize: '0.875rem' }}
                                 >
                                     <i className="bi bi-eye me-2"></i>
                                     Voir les partenaires

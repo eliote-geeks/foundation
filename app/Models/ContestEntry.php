@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class ContestEntry extends Model
 {
@@ -32,6 +33,11 @@ class ContestEntry extends Model
     public function votes(): HasMany
     {
         return $this->hasMany(Vote::class, 'participant_id');
+    }
+
+    public function media(): MorphMany
+    {
+        return $this->morphMany(Media::class, 'mediable');
     }
 
     public function scopeApproved($query)

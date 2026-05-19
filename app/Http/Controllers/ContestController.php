@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contest;
 use App\Models\ContestEntry;
+use App\Models\Media;
 use App\Models\SiteSetting;
 use App\Models\Vote;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +19,7 @@ class ContestController extends Controller
         $user = auth()->user();
 
         $entries = $contest->entries()
-            ->with('user')
+            ->with(['user', 'media'])
             ->approved()
             ->orderByDesc('votes_count')
             ->get()
@@ -32,6 +33,7 @@ class ContestController extends Controller
                 'votes_count' => $e->votes_count,
                 'author_name' => $e->user->name,
                 'submitted_at'=> $e->submitted_at?->toDateString(),
+                'media'       => $e->media->map(fn($m) => $m->toApiArray())->values(),
             ]);
 
         $userEntry = $user
@@ -100,11 +102,16 @@ class ContestController extends Controller
 
         $data = $request->validate([
             'title'       => 'required|string|max:255',
-            'description' => 'required|string|min:50',
+            'description' => 'required|string|min:20',
             'category'    => 'nullable|string|max:100',
             'project_url' => 'nullable|url',
             'team_members'=> 'nullable|array',
+            'media_ids'   => 'nullable|array',
+            'media_ids.*' => 'integer|exists:media,id',
         ]);
+
+        $mediaIds = $data['media_ids'] ?? [];
+        unset($data['media_ids']);
 
         $data['contest_id']    = $contest->id;
         $data['user_id']       = auth()->id();
@@ -112,7 +119,14 @@ class ContestController extends Controller
         $data['status']        = 'pending';
         $data['submitted_at']  = now();
 
-        ContestEntry::create($data);
+        $entry = ContestEntry::create($data);
+
+        // Attach uploaded media to this entry
+        if (!empty($mediaIds)) {
+            Media::whereIn('id', $mediaIds)
+                ->where('user_id', auth()->id())
+                ->update(['mediable_type' => ContestEntry::class, 'mediable_id' => $entry->id]);
+        }
 
         return back()->with('success', 'Votre projet a été soumis avec succès ! Il sera examiné par notre équipe.');
     }

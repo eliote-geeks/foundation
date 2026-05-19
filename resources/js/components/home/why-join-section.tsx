@@ -4,28 +4,28 @@ const REASONS = [
     {
         icon: 'bi-calendar-check',
         color: '#5FA145',
-        bg: '#EAF5E5',
+        bg: 'rgba(95, 161, 69, 0.18)',
         title: 'Événements authentiques',
         text: 'Des galas, conférences et programmes soigneusement organisés par la TITI EVENTS, avec programme, intervenants et informations claires.',
     },
     {
         icon: 'bi-phone-fill',
         color: '#C69438',
-        bg: '#FDF4E3',
+        bg: 'rgba(198, 148, 56, 0.18)',
         title: 'Paiement simplifié',
         text: 'Réglez en ligne par MTN Mobile Money, Orange Money ou carte bancaire. Reçevez votre billet QR immédiatement par email ou WhatsApp.',
     },
     {
         icon: 'bi-people-fill',
         color: '#C69438',
-        bg: '#FDF4E3',
+        bg: 'rgba(198, 148, 56, 0.18)',
         title: 'Communauté engagée',
         text: 'Rejoignez des milliers de membres — adhérents, ambassadeurs, bénévoles — unis autour de projets à impact social mesurable.',
     },
     {
         icon: 'bi-graph-up-arrow',
         color: '#4D8A3C',
-        bg: '#E8F4E5',
+        bg: 'rgba(77, 138, 60, 0.18)',
         title: 'Impact mesurable',
         text: 'Chaque participation soutient des initiatives concrètes. Suivez les résultats en transparence via les rapports d\'impact de la fondation.',
     },
@@ -33,16 +33,16 @@ const REASONS = [
 
 export function WhyJoinSection() {
     return (
-        <section className="py-5" style={{ background: '#F9FAFB' }}>
+        <section className="py-5" style={{ background: 'var(--titi-surface)' }}>
             <Container>
                 <div className="text-center mb-5">
                     <span
                         className="d-inline-block px-3 py-1 rounded-pill mb-3 small fw-semibold"
-                        style={{ background: '#E8F5E8', color: '#3D7020' }}
+                        style={{ background: 'rgba(95, 161, 69, 0.15)', color: 'var(--titi-green)' }}
                     >
                         Pourquoi nous choisir
                     </span>
-                    <h2 className="fw-bold mb-3" style={{ color: '#1A3209', fontSize: 'clamp(1.7rem, 3vw, 2.4rem)' }}>
+                    <h2 className="fw-bold mb-3" style={{ color: 'var(--titi-text)', fontSize: 'clamp(1.7rem, 3vw, 2.4rem)' }}>
                         Tout ce qu'il faut pour une réservation réussie
                     </h2>
                     <p className="text-muted mx-auto" style={{ maxWidth: 600, lineHeight: 1.7 }}>
@@ -56,8 +56,8 @@ export function WhyJoinSection() {
                             <div
                                 className="h-100 p-4 rounded-4"
                                 style={{
-                                    background: '#FFFFFF',
-                                    border: '1px solid #E8EDEA',
+                                    background: 'var(--titi-white)',
+                                    border: '1px solid var(--titi-border)',
                                     boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
                                     transition: 'transform 0.25s ease, box-shadow 0.25s ease',
                                 }}
@@ -70,7 +70,7 @@ export function WhyJoinSection() {
                                 >
                                     <i className={r.icon} style={{ color: r.color, fontSize: '1.4rem' }}></i>
                                 </div>
-                                <h5 className="fw-bold mb-2" style={{ color: '#1A3209' }}>{r.title}</h5>
+                                <h5 className="fw-bold mb-2" style={{ color: 'var(--titi-text)' }}>{r.title}</h5>
                                 <p className="text-muted small mb-0" style={{ lineHeight: 1.65 }}>{r.text}</p>
                             </div>
                         </Col>
@@ -80,7 +80,7 @@ export function WhyJoinSection() {
                 {/* Chiffres clés inline */}
                 <div
                     className="rounded-4 p-4 p-md-5"
-                    style={{ background: '#111827', border: '1px solid #1F2937' }}
+                    style={{ background: 'var(--titi-white)', border: '1px solid var(--titi-border)' }}
                 >
                     <Row className="g-4 text-center">
                         {[
@@ -91,7 +91,7 @@ export function WhyJoinSection() {
                         ].map((item, i) => (
                             <Col xs={6} md={3} key={i}>
                                 <div style={{ color: '#D97706', fontSize: '1.75rem', fontWeight: 700 }}>{item.value}</div>
-                                <div style={{ color: '#9CA3AF', fontSize: '0.8125rem', marginTop: 4 }}>{item.label}</div>
+                                <div style={{ color: 'var(--titi-sub)', fontSize: '0.8125rem', marginTop: 4 }}>{item.label}</div>
                             </Col>
                         ))}
                     </Row>

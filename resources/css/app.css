@@ -369,3 +369,69 @@ html.dark .modern-header-nav .btn-titi-secondary { background: #FFFFFF !importan
 html.dark .modern-header-nav .btn-titi-ghost     { color: #6B7280 !important; }
 html.dark .modern-header-nav .btn-titi-primary   { background: #16A34A !important; color: #fff !important; }
 
+/* ── Page transitions ─────────────────────────────────────────────────────── */
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pageExit {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+#page-transition-wrapper.page-entering {
+    animation: pageEnter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+#page-transition-wrapper.page-exiting {
+    animation: pageExit 0.15s ease-in both;
+    pointer-events: none;
+}
+
+/* Inertia progress bar — couleur de la marque */
+#nprogress .bar {
+    background: #5FA145 !important;
+    height: 3px !important;
+}
+#nprogress .peg {
+    box-shadow: 0 0 10px #5FA145, 0 0 5px #5FA145 !important;
+}
+
+/* ── Dark mode overrides for hero section (CSS-in-JS classes) ───────────── */
+html.dark .hero-root           { background: #111827 !important; }
+html.dark .hero-stats          { background: #1F2937 !important; border-color: #374151 !important; }
+html.dark .hero-stat-item      { border-color: #374151 !important; }
+html.dark .hero-stat-num       { color: #F3F4F6 !important; }
+html.dark .hero-stat-label     { color: #6B7280 !important; }
+html.dark .hero-panel-bg       { background: linear-gradient(145deg, #1a2e1a 0%, #1e3d1e 100%) !important; border-color: #2d4a2d !important; }
+html.dark .hero-card           { background: #1F2937 !important; border-color: #374151 !important; }
+html.dark .hero-card-lbl       { color: #9CA3AF !important; }
+html.dark .hero-progress-bg    { background: #374151 !important; }
+html.dark .hero-av             { border-color: #1F2937 !important; }
+html.dark .hero-chip           { background: #1F2937 !important; border-color: #374151 !important; color: #D1D5DB !important; }
+html.dark .hero-badge          { background: rgba(95,161,69,0.2) !important; color: #86d474 !important; border-color: rgba(95,161,69,0.3) !important; }
+html.dark .hero-bg-dots        { opacity: 0.08 !important; }
+
+/* ── Dark mode overrides for modern-header ──────────────────────────────── */
+html.dark .modern-header       { background: rgba(17,24,39,0.95) !important; border-bottom-color: #374151 !important; }
+html.dark .modern-header .nav-link { color: #D1D5DB !important; }
+html.dark .modern-header .nav-link:hover { color: #86d474 !important; }
+
