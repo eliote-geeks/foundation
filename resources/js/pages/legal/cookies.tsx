@@ -4,7 +4,7 @@ import { LegalLayout, LegalSection, LegalP, LegalList } from './layout';
 export default function Cookies() {
     return (
         <>
-            <Head title="Politique de cookies — Fondation TITI" />
+            <Head title="Politique de cookies — TITI EVENTS" />
             <LegalLayout title="Politique de cookies" lastUpdated="19 mai 2026">
                 <LegalSection title="Qu'est-ce qu'un cookie ?">
                     <LegalP>

@@ -56,7 +56,7 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
     return (
         <>
             <Head>
-                <title>{event.title} - Fondation TITI</title>
+                <title>{event.title} - TITI EVENTS</title>
                 <meta name="description" content={event.short_description ?? event.title} />
                 <link rel="canonical" href={`/events/${event.id}`} />
             </Head>
@@ -482,7 +482,7 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
                             <Card.Body className="p-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                                 <div>
                                     <h5 className="fw-bold mb-1" style={{ color: '#334E15' }}>
-                                        Fondation TITI : événements & campagnes
+                                        TITI EVENTS : événements & campagnes
                                     </h5>
                                     <div className="text-muted">Participez, réservez, ou soutenez nos actions.</div>
                                 </div>

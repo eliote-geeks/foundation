@@ -22,10 +22,35 @@ interface Partner {
     website_url: string | null;
 }
 
+interface HeroSlide {
+    headline: string;
+    headline_accent?: string;
+    tagline?: string;
+    badge_text?: string;
+    cta_primary_label?: string;
+    cta_primary_url?: string;
+    cta_secondary_label?: string;
+    cta_secondary_url?: string;
+}
+
+interface Testimonial {
+    id: number;
+    name: string;
+    role: string | null;
+    city: string | null;
+    content: string;
+    rating: number;
+    icon: string;
+    icon_color: string;
+    icon_bg: string;
+}
+
 interface HomeProps {
     user?: { name: string; email: string };
     stats: HomeStats;
     partners: Partner[];
+    heroSlide?: HeroSlide | null;
+    testimonials?: Testimonial[];
     upcomingEvents: Array<{
         id: number;
         title: string;
@@ -39,14 +64,14 @@ interface HomeProps {
     }>;
 }
 
-export default function Home({ user, stats, partners, upcomingEvents }: HomeProps) {
+export default function Home({ user, stats, partners, upcomingEvents, heroSlide, testimonials }: HomeProps) {
     return (
         <>
             <Head>
-                <title>Fondation TITI - Événements & Impact Social</title>
-                <meta name="description" content="Réservez vos places aux événements de la Fondation TITI, soutenez des initiatives à impact, et rejoignez une communauté engagée au Cameroun." />
+                <title>TITI EVENTS - Événements & Impact Social</title>
+                <meta name="description" content="Réservez vos places aux événements de la TITI EVENTS, soutenez des initiatives à impact, et rejoignez une communauté engagée au Cameroun." />
                 <meta name="keywords" content="fondation, événements, billetterie, réservation, gala, impact social, campagnes caritatives, Cameroun" />
-                <meta property="og:title" content="Fondation TITI - Événements & Impact Social" />
+                <meta property="og:title" content="TITI EVENTS - Événements & Impact Social" />
                 <meta property="og:description" content="Réservez vos places en ligne, paiement Mobile Money ou carte. Événements culturels, galas et programmes d'impact." />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary_large_image" />
@@ -55,12 +80,12 @@ export default function Home({ user, stats, partners, upcomingEvents }: HomeProp
 
             <div className="home-page">
                 <ModernHeader user={user} />
-                <ProfessionalHeroSection user={user} stats={stats} />
+                <ProfessionalHeroSection user={user} stats={stats} heroSlide={heroSlide} />
                 <UpcomingEventsSection events={upcomingEvents ?? []} />
                 <WhyJoinSection />
                 <HowItWorksSection />
                 <PartnersSection partners={partners ?? []} />
-                <SocialProofSection />
+                <SocialProofSection testimonials={testimonials ?? []} />
                 <ModernFooter />
             </div>
         </>

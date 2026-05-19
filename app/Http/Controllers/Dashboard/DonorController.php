@@ -44,28 +44,25 @@ class DonorController extends Controller
             ],
             [
                 'title' => 'Donateurs Majeurs',
-                'value' => User::withSum('completedDonations', 'amount')
-                              ->having('completed_donations_sum_amount', '>=', 500000)
-                              ->count(),
-                'change' => '+' . User::withSum(['completedDonations' => function($q) {
-                    $q->where('donated_at', '>=', now()->subMonth());
-                }], 'amount')
-                              ->having('completed_donations_sum_amount', '>=', 500000)
-                              ->count(),
+                'value' => User::whereRaw(
+                    '(SELECT COALESCE(SUM(amount),0) FROM donations WHERE donor_id = users.id AND payment_status = "completed") >= ?',
+                    [500000]
+                )->count(),
+                'change' => '+' . User::whereRaw(
+                    '(SELECT COALESCE(SUM(amount),0) FROM donations WHERE donor_id = users.id AND payment_status = "completed" AND donated_at >= ?) >= ?',
+                    [now()->subMonth(), 500000]
+                )->count(),
                 'positive' => true,
                 'color' => '#C69438',
                 'icon' => 'bi-star'
             ],
             [
                 'title' => 'Don Moyen (XAF)',
-                'value' => number_format(Donation::where('payment_status', 'completed')->avg('amount'), 0, ',', ' '),
+                'value' => number_format((float)(Donation::where('payment_status', 'completed')->avg('amount') ?? 0), 0, ',', ' '),
                 'change' => number_format(
-                    Donation::where('payment_status', 'completed')
-                           ->where('donated_at', '>=', now()->subWeek())
-                           ->avg('amount') - 
-                    Donation::where('payment_status', 'completed')
-                           ->where('donated_at', '<', now()->subWeek())
-                           ->avg('amount'), 0, ',', ' '
+                    (float)(Donation::where('payment_status', 'completed')->where('donated_at', '>=', now()->subWeek())->avg('amount') ?? 0) -
+                    (float)(Donation::where('payment_status', 'completed')->where('donated_at', '<', now()->subWeek())->avg('amount') ?? 0),
+                    0, ',', ' '
                 ),
                 'positive' => true,
                 'color' => '#C69438',
@@ -82,9 +79,9 @@ class DonorController extends Controller
 
         // Filtres par type de donateur
         if ($type === 'regular') {
-            $donorsQuery->having('total_donations', '>=', 3);
+            $donorsQuery->whereRaw('(SELECT COUNT(*) FROM donations WHERE donor_id = users.id AND payment_status = "completed") >= ?', [3]);
         } elseif ($type === 'major') {
-            $donorsQuery->having('total_amount', '>=', 500000);
+            $donorsQuery->whereRaw('(SELECT COALESCE(SUM(amount),0) FROM donations WHERE donor_id = users.id AND payment_status = "completed") >= ?', [500000]);
         } elseif ($type === 'recent') {
             $donorsQuery->whereHas('completedDonations', function($q) {
                 $q->where('donated_at', '>=', now()->subMonth());
@@ -123,13 +120,13 @@ class DonorController extends Controller
                 'total_donations' => $donor->total_donations,
                 'total_amount' => $donor->total_amount,
                 'average_donation' => $donor->average_donation,
-                'formatted_total_amount' => number_format($donor->total_amount, 0, ',', ' ') . ' XAF',
-                'formatted_average_donation' => number_format($donor->average_donation, 0, ',', ' ') . ' XAF',
+                'formatted_total_amount' => number_format((float)($donor->total_amount ?? 0), 0, ',', ' ') . ' XAF',
+                'formatted_average_donation' => number_format((float)($donor->average_donation ?? 0), 0, ',', ' ') . ' XAF',
                 'is_regular_donor' => $donor->total_donations >= 3,
                 'is_major_donor' => $donor->total_amount >= 500000,
                 'last_donation_date' => $lastDonation ? $lastDonation->donated_at->format('d/m/Y') : null,
                 'last_donation_amount' => $lastDonation ? $lastDonation->formatted_amount : null,
-                'last_donation_campaign' => $lastDonation ? $lastDonation->campaign->title : null,
+                'last_donation_campaign' => $lastDonation ? $lastDonation->campaign?->title : null,
                 'created_at' => $donor->created_at->diffForHumans()
             ];
         });
@@ -145,7 +142,7 @@ class DonorController extends Controller
                 return [
                     'name' => $donor->profile ? $donor->profile->full_name : $donor->name,
                     'total_amount' => $donor->total_amount,
-                    'formatted_total_amount' => number_format($donor->total_amount, 0, ',', ' ') . ' XAF',
+                    'formatted_total_amount' => number_format((float)($donor->total_amount ?? 0), 0, ',', ' ') . ' XAF',
                     'total_donations' => $donor->total_donations,
                     'is_major_donor' => $donor->total_amount >= 500000
                 ];
@@ -230,8 +227,8 @@ class DonorController extends Controller
             'total_donations' => $donor->donation_count,
             'total_amount' => $donor->total_donations,
             'average_donation' => $donor->average_donation,
-            'formatted_total_amount' => number_format($donor->total_donations, 0, ',', ' ') . ' XAF',
-            'formatted_average_donation' => number_format($donor->average_donation, 0, ',', ' ') . ' XAF',
+            'formatted_total_amount' => number_format((float)($donor->total_donations ?? 0), 0, ',', ' ') . ' XAF',
+            'formatted_average_donation' => number_format((float)($donor->average_donation ?? 0), 0, ',', ' ') . ' XAF',
             'is_regular_donor' => $donor->isRegularDonor(),
             'is_major_donor' => $donor->isMajorDonor(),
             'last_donation' => $donor->last_donation ? [
@@ -317,11 +314,11 @@ class DonorController extends Controller
             ->withAvg('completedDonations as average_donation', 'amount');
 
         if ($type === 'regular') {
-            $query->having('total_donations', '>=', 3);
+            $query->whereRaw('(SELECT COUNT(*) FROM donations WHERE donor_id = users.id AND payment_status = "completed") >= ?', [3]);
         } elseif ($type === 'major') {
-            $query->having('total_amount', '>=', 500000);
+            $query->whereRaw('(SELECT COALESCE(SUM(amount),0) FROM donations WHERE donor_id = users.id AND payment_status = "completed") >= ?', [500000]);
         }
-        
+
         $donors = $query->get();
         
         $fileName = 'donateurs_' . ($type === 'all' ? 'tous' : $type) . '_' . now()->format('Y-m-d_H-i') . '.csv';
@@ -356,8 +353,8 @@ class DonorController extends Controller
                     $donor->profile ? $donor->profile->country : '',
                     $donor->profile ? $donor->profile->company : '',
                     $donor->total_donations,
-                    number_format($donor->total_amount, 0, ',', ' ') . ' XAF',
-                    number_format($donor->average_donation, 0, ',', ' ') . ' XAF',
+                    number_format((float)($donor->total_amount ?? 0), 0, ',', ' ') . ' XAF',
+                    number_format((float)($donor->average_donation ?? 0), 0, ',', ' ') . ' XAF',
                     $lastDonation ? $lastDonation->donated_at->format('d/m/Y') : '',
                     $donor->profile ? $donor->profile->member_type_display : '',
                     $donor->created_at->format('d/m/Y H:i')

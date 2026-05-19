@@ -52,7 +52,7 @@ export function SocialFeedSection() {
                 memberType: 'Ancien Challenger',
                 badge: '🏆'
             },
-            content: 'Merci à toute l\'équipe de la Fondation TITI ! Grâce au concours Innovation Tech, j\'ai pu développer mon application mobile qui aide les agriculteurs camerounais. Aujourd\'hui, plus de 1000 utilisateurs !',
+            content: 'Merci à toute l\'équipe de la TITI EVENTS ! Grâce au concours Innovation Tech, j\'ai pu développer mon application mobile qui aide les agriculteurs camerounais. Aujourd\'hui, plus de 1000 utilisateurs !',
             timestamp: '4 heures',
             likes: 89,
             comments: 15,
@@ -64,7 +64,7 @@ export function SocialFeedSection() {
         {
             id: 3,
             author: {
-                name: 'Fondation TITI',
+                name: 'TITI EVENTS',
                 avatar: '🏛️',
                 memberType: 'Organisation',
                 badge: '✅'

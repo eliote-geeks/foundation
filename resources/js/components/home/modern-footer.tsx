@@ -1,7 +1,10 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import type { SharedData } from '../../types';
 
 export function ModernFooter() {
     const currentYear = new Date().getFullYear();
+    const { auth } = usePage<SharedData>().props;
+    const isAdmin = auth?.user?.is_admin === true;
 
     return (
         <footer style={{ background: '#111827', color: '#D1D5DB' }}>
@@ -13,10 +16,10 @@ export function ModernFooter() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                             <img
                                 src="/logo foundation.jpg"
-                                alt="Logo Fondation TITI"
+                                alt="Logo TITI EVENTS"
                                 style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }}
                             />
-                            <span style={{ color: '#F9FAFB', fontWeight: 600, fontSize: '1rem' }}>Fondation TITI</span>
+                            <span style={{ color: '#F9FAFB', fontWeight: 600, fontSize: '1rem' }}>TITI EVENTS</span>
                         </div>
                         <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#9CA3AF', marginBottom: 20, maxWidth: 260 }}>
                             Engagement citoyen, innovation sociale et événements qui transforment nos communautés.
@@ -75,7 +78,7 @@ export function ModernFooter() {
                         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
                             {[
                                 { label: 'Devenir membre', href: '/register' },
-                                { label: 'Tableau de bord', href: '/dashboard' },
+                                ...(isAdmin ? [{ label: 'Tableau de bord', href: '/dashboard' }] : []),
                                 { label: 'Mon profil', href: '/profile' },
                                 { label: 'Se connecter', href: '/login' },
                             ].map(l => (
@@ -135,7 +138,7 @@ export function ModernFooter() {
                 {/* Bottom bar */}
                 <div style={{ borderTop: '1px solid #1F2937', marginTop: 40, padding: '20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
                     <span style={{ fontSize: '0.8125rem', color: '#6B7280' }}>
-                        © {currentYear} Fondation TITI. Tous droits réservés.
+                        © {currentYear} TITI EVENTS. Tous droits réservés.
                     </span>
                     <div style={{ display: 'flex', gap: 20 }}>
                         {[

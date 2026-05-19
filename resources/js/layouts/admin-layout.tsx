@@ -201,7 +201,7 @@ export default function AdminLayout({ children, title = 'Dashboard', user }: Adm
 
     return (
         <>
-            <Head title={`${title} - Admin - Fondation TITI`} />
+            <Head title={`${title} - Admin - TITI EVENTS`} />
             
             <div className="admin-layout d-flex" style={{ minHeight: '100vh' }}>
                 {/* Sidebar Desktop */}
@@ -219,13 +219,13 @@ export default function AdminLayout({ children, title = 'Dashboard', user }: Adm
                         <Link href="/" className="d-flex align-items-center text-decoration-none">
                             <img 
                                 src="/logo foundation.jpg"
-                                alt="Logo Fondation TITI"
+                                alt="Logo TITI EVENTS"
                                 className="me-3 rounded-circle"
                                 style={{ width: '40px', height: '40px', objectFit: 'cover' }}
                             />
                             <div>
                                 <div className="fw-bold text-white mb-0" style={{ fontSize: '1.1rem' }}>
-                                    Fondation TITI
+                                    TITI EVENTS
                                 </div>
                                 <div className="text-white-50" style={{ fontSize: '0.75rem' }}>
                                     Admin Panel
@@ -285,11 +285,11 @@ export default function AdminLayout({ children, title = 'Dashboard', user }: Adm
                         <Offcanvas.Title className="d-flex align-items-center">
                             <img 
                                 src="/logo foundation.jpg"
-                                alt="Logo Fondation TITI"
+                                alt="Logo TITI EVENTS"
                                 className="me-2 rounded-circle"
                                 style={{ width: '30px', height: '30px', objectFit: 'cover' }}
                             />
-                            Fondation TITI
+                            TITI EVENTS
                         </Offcanvas.Title>
                     </Offcanvas.Header>
                     <Offcanvas.Body>

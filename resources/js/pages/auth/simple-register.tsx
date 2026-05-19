@@ -46,40 +46,40 @@ export default function SimpleRegister({ memberTypes }: Props) {
         post(route('register'), { onFinish: () => reset('password', 'password_confirmation') });
     };
 
-    const labelStyle: React.CSSProperties = { fontSize: '0.8125rem', fontWeight: 500, color: '#374151', display: 'block', marginBottom: 5 };
+    const labelStyle: React.CSSProperties = { fontSize: '0.9rem', fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 };
     const inputStyle = (hasError: boolean): React.CSSProperties => ({
-        width: '100%', height: 36, padding: '0 10px',
-        border: `1px solid ${hasError ? '#DC2626' : '#D1D5DB'}`,
-        borderRadius: 6, fontSize: '0.875rem', outline: 'none',
+        width: '100%', height: 44, padding: '0 13px',
+        border: `1.5px solid ${hasError ? '#DC2626' : '#D1D5DB'}`,
+        borderRadius: 8, fontSize: '0.9375rem', outline: 'none',
         boxSizing: 'border-box', background: '#fff',
     });
 
     return (
         <>
-            <Head title="Inscription — Fondation TITI" />
+            <Head title="Inscription — TITI EVENTS" />
             <ModernHeader />
 
             <div style={{ background: '#F9FAFB', minHeight: '100vh', paddingTop: 66, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 16px 40px' }}>
-                <div style={{ width: '100%', maxWidth: 480 }}>
+                <div style={{ width: '100%', maxWidth: 540 }}>
 
                     {/* Logo + heading */}
                     <div style={{ textAlign: 'center', marginBottom: 24 }}>
                         <img
                             src="/logo foundation.jpg"
-                            alt="Fondation TITI"
+                            alt="TITI EVENTS"
                             className="rounded-circle mb-3"
-                            style={{ width: 48, height: 48, objectFit: 'cover' }}
+                            style={{ width: 58, height: 58, objectFit: 'cover' }}
                         />
-                        <h1 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', margin: '0 0 4px' }}>
+                        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#111827', margin: '0 0 6px' }}>
                             Créer un compte
                         </h1>
-                        <p style={{ fontSize: '0.8125rem', color: '#6B7280', margin: 0 }}>
-                            Rejoignez la communauté Fondation TITI
+                        <p style={{ fontSize: '0.9375rem', color: '#6B7280', margin: 0 }}>
+                            Rejoignez la communauté TITI EVENTS
                         </p>
                     </div>
 
                     {/* Card */}
-                    <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: 24 }}>
+                    <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: 28 }}>
                         <form onSubmit={submit}>
 
                             {/* Type de membre */}
@@ -94,14 +94,14 @@ export default function SimpleRegister({ memberTypes }: Props) {
                                                 type="button"
                                                 onClick={() => setData('member_type', key)}
                                                 style={{
-                                                    padding: '8px 4px', borderRadius: 6, cursor: 'pointer', textAlign: 'center',
-                                                    border: selected ? '2px solid #16A34A' : '1px solid #E5E7EB',
+                                                    padding: '10px 6px', borderRadius: 8, cursor: 'pointer', textAlign: 'center',
+                                                    border: selected ? '2px solid #16A34A' : '1.5px solid #E5E7EB',
                                                     background: selected ? '#F0FDF4' : '#fff',
                                                     transition: 'all 0.1s',
                                                 }}
                                             >
-                                                <i className={`bi ${t.icon}`} style={{ fontSize: '1.125rem', color: selected ? '#16A34A' : '#9CA3AF', display: 'block', marginBottom: 4 }} />
-                                                <span style={{ fontSize: '0.6875rem', fontWeight: selected ? 600 : 400, color: selected ? '#15803D' : '#374151', lineHeight: 1.2, display: 'block' }}>
+                                                <i className={`bi ${t.icon}`} style={{ fontSize: '1.25rem', color: selected ? '#16A34A' : '#9CA3AF', display: 'block', marginBottom: 5 }} />
+                                                <span style={{ fontSize: '0.75rem', fontWeight: selected ? 700 : 400, color: selected ? '#15803D' : '#374151', lineHeight: 1.2, display: 'block' }}>
                                                     {t.label}
                                                 </span>
                                             </button>
@@ -196,7 +196,7 @@ export default function SimpleRegister({ memberTypes }: Props) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                style={{ width: '100%', height: 36, background: '#16A34A', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.875rem', fontWeight: 500, cursor: processing ? 'not-allowed' : 'pointer', opacity: processing ? 0.7 : 1 }}
+                                style={{ width: '100%', height: 48, background: '#16A34A', color: '#fff', border: 'none', borderRadius: 8, fontSize: '1rem', fontWeight: 600, cursor: processing ? 'not-allowed' : 'pointer', opacity: processing ? 0.7 : 1, marginTop: 4 }}
                             >
                                 {processing
                                     ? <><span className="spinner-border spinner-border-sm me-2" style={{ width: 12, height: 12, borderWidth: 2 }} />Création…</>
@@ -207,13 +207,13 @@ export default function SimpleRegister({ memberTypes }: Props) {
                     </div>
 
                     {/* Footer */}
-                    <p style={{ textAlign: 'center', fontSize: '0.8125rem', color: '#6B7280', marginTop: 16 }}>
+                    <p style={{ textAlign: 'center', fontSize: '0.9375rem', color: '#6B7280', marginTop: 18 }}>
                         Déjà membre ?{' '}
-                        <Link href={route('login')} style={{ color: '#16A34A', fontWeight: 500, textDecoration: 'none' }}>
+                        <Link href={route('login')} style={{ color: '#16A34A', fontWeight: 600, textDecoration: 'none' }}>
                             Se connecter
                         </Link>
                     </p>
-                    <p style={{ textAlign: 'center', fontSize: '0.75rem', color: '#9CA3AF', marginTop: 6 }}>
+                    <p style={{ textAlign: 'center', fontSize: '0.8125rem', color: '#9CA3AF', marginTop: 6 }}>
                         En créant votre compte, vous acceptez nos{' '}
                         <Link href="/legal/cgu" style={{ color: '#9CA3AF' }}>conditions d'utilisation</Link>
                     </p>

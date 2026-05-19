@@ -4,14 +4,64 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Donation;
+use App\Models\Expense;
 use App\Models\Ticket;
 use App\Models\Vote;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class FinancesController extends Controller
 {
+    public function storeExpense(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'title'          => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'amount'         => 'required|numeric|min:0',
+            'currency'       => 'required|string|max:10',
+            'category'       => 'required|string',
+            'expense_date'   => 'required|date',
+            'payment_method' => 'nullable|string|max:100',
+            'status'         => 'required|in:pending,paid,cancelled',
+            'reference'      => 'nullable|string|max:100',
+            'notes'          => 'nullable|string',
+        ]);
+
+        $data['created_by'] = auth()->id();
+        Expense::create($data);
+
+        return back()->with('success', 'Dépense ajoutée.');
+    }
+
+    public function updateExpense(Request $request, Expense $expense): RedirectResponse
+    {
+        $data = $request->validate([
+            'title'          => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'amount'         => 'required|numeric|min:0',
+            'currency'       => 'required|string|max:10',
+            'category'       => 'required|string',
+            'expense_date'   => 'required|date',
+            'payment_method' => 'nullable|string|max:100',
+            'status'         => 'required|in:pending,paid,cancelled',
+            'reference'      => 'nullable|string|max:100',
+            'notes'          => 'nullable|string',
+        ]);
+
+        $expense->update($data);
+
+        return back()->with('success', 'Dépense mise à jour.');
+    }
+
+    public function destroyExpense(Expense $expense): RedirectResponse
+    {
+        $expense->delete();
+        return back()->with('success', 'Dépense supprimée.');
+    }
+
     public function index(): Response
     {
         $now = Carbon::now();
@@ -156,17 +206,63 @@ class FinancesController extends Controller
             ]);
         }
 
+        // ── Dépenses ────────────────────────────────────────────────────────
+        $totalExpenses      = Expense::paid()->sum('amount');
+        $monthExpenses      = Expense::paid()->where('expense_date', '>=', $startOfMonth)->sum('amount');
+        $lastMonthExpenses  = Expense::paid()->whereBetween('expense_date', [$lastMonthStart, $lastMonthEnd])->sum('amount');
+
+        $expenses = Expense::latest('expense_date')
+            ->limit(50)
+            ->get()
+            ->map(fn ($e) => [
+                'id'             => $e->id,
+                'title'          => $e->title,
+                'description'    => $e->description,
+                'amount'         => (float) $e->amount,
+                'formatted'      => $e->formatted_amount,
+                'currency'       => $e->currency,
+                'category'       => $e->category,
+                'category_label' => $e->category_label,
+                'expense_date'   => $e->expense_date->toDateString(),
+                'payment_method' => $e->payment_method,
+                'status'         => $e->status,
+                'reference'      => $e->reference,
+                'notes'          => $e->notes,
+            ]);
+
+        $expenseByCategory = collect(Expense::$categories)->map(fn ($label, $cat) => [
+            'category' => $cat,
+            'label'    => $label,
+            'amount'   => (float) Expense::paid()->where('category', $cat)->sum('amount'),
+            'formatted'=> $fmt((float) Expense::paid()->where('category', $cat)->sum('amount')),
+        ])->values();
+
+        $netBalance = $totalRevenue - $totalExpenses;
+
         return Inertia::render('dashboard/finances', [
-            'stats'          => $stats,
-            'transactions'   => $transactions,
-            'revenueBySource' => $revenueBySource,
-            'monthlyRevenue' => $monthlyRevenue,
+            'stats'            => $stats,
+            'transactions'     => $transactions,
+            'revenueBySource'  => $revenueBySource,
+            'monthlyRevenue'   => $monthlyRevenue,
             'totals' => [
                 'donations' => $totalDonations,
                 'tickets'   => $totalTickets,
                 'votes'     => $totalVotes,
                 'total'     => $totalRevenue,
             ],
+            'expenses'          => $expenses,
+            'expenseByCategory' => $expenseByCategory,
+            'expenseStats' => [
+                'total'          => (float) $totalExpenses,
+                'totalFormatted' => $fmt((float) $totalExpenses),
+                'month'          => (float) $monthExpenses,
+                'monthFormatted' => $fmt((float) $monthExpenses),
+                'lastMonth'      => (float) $lastMonthExpenses,
+                'netBalance'     => (float) $netBalance,
+                'netFormatted'   => $fmt(abs((float) $netBalance)),
+                'netPositive'    => $netBalance >= 0,
+            ],
+            'expenseCategories' => Expense::$categories,
         ]);
     }
 }

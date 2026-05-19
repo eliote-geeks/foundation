@@ -87,7 +87,7 @@ export default function Profile({ user, stats, recentActivities, recentDonations
 
     return (
         <>
-            <Head title={`Profil de ${user.name} - Fondation TITI`} />
+            <Head title={`Profil de ${user.name} - TITI EVENTS`} />
             <div style={{ backgroundColor: '#F8FFFE', minHeight: '100vh' }}>
                 <ModernHeader user={user} />
 

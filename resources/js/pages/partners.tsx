@@ -105,11 +105,11 @@ export default function Partners({ partners: dbPartners = [], stats: dbStats }: 
     return (
         <>
             <Head>
-                <title>Partenaires — Fondation TITI</title>
+                <title>Partenaires — TITI EVENTS</title>
                 <meta name="description" content="Découvrez nos partenaires et rejoignez notre écosystème d'impact social." />
             </Head>
 
-            <ModernHeader user={user} />
+            <ModernHeader user={user ?? undefined} />
 
             <div style={{ background: '#F9FAFB', minHeight: '100vh', paddingTop: 66 }}>
                 {/* Page header */}

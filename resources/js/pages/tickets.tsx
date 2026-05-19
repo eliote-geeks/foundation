@@ -147,8 +147,8 @@ export default function Tickets({ user, events }: TicketsProps) {
     return (
         <>
             <Head>
-                <title>Billetterie - Fondation TITI</title>
-                <meta name="description" content="Réservez vos billets pour les événements de la Fondation TITI. Conférences, formations, galas et bien plus." />
+                <title>Billetterie - TITI EVENTS</title>
+                <meta name="description" content="Réservez vos billets pour les événements de la TITI EVENTS. Conférences, formations, galas et bien plus." />
             </Head>
 
             <div className="tickets-page">

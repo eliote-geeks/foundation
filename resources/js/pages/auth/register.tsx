@@ -28,7 +28,7 @@ export default function Register() {
 
     return (
         <>
-            <Head title="Inscription - Fondation TITI" />
+            <Head title="Inscription - TITI EVENTS" />
             
             <div className="register-page">
                 <ModernHeader />
@@ -57,7 +57,7 @@ export default function Register() {
                                     >
                                         <img 
                                             src="/logo foundation.jpg"
-                                            alt="Logo Fondation TITI"
+                                            alt="Logo TITI EVENTS"
                                             className="rounded-circle"
                                             style={{
                                                 width: '60px',

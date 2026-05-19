@@ -18,6 +18,7 @@ const NAV_LINKS = [
     { href: '/contests', labelKey: 'contests', labelDefault: 'Concours' },
     { href: '/events', labelKey: 'events', labelDefault: 'Événements' },
     { href: '/partners', labelKey: 'partners', labelDefault: 'Partenaires' },
+    { href: '/donate', labelKey: 'donate', labelDefault: 'Faire un don' },
 ];
 
 export function ModernHeader({ user: userProp }: ModernHeaderProps) {
@@ -53,6 +54,7 @@ export function ModernHeader({ user: userProp }: ModernHeaderProps) {
     return (
         <>
             <nav
+                className="modern-header-nav"
                 style={{
                     position: 'fixed',
                     top: 0,
@@ -72,13 +74,13 @@ export function ModernHeader({ user: userProp }: ModernHeaderProps) {
                         <Link href="/" className="d-flex align-items-center text-decoration-none flex-shrink-0" style={{ marginRight: 16 }}>
                             <img
                                 src="/logo foundation.jpg"
-                                alt="Logo Fondation TITI"
+                                alt="Logo TITI EVENTS"
                                 className="rounded-circle me-2"
                                 style={{ width: 42, height: 42, objectFit: 'cover' }}
                             />
                             <div>
                                 <div className="fw-bold" style={{ fontSize: '1.2rem', color: '#1F2937', lineHeight: 1.2 }}>
-                                    Fondation TITI
+                                    TITI EVENTS
                                 </div>
                                 <div style={{ fontSize: '0.72rem', color: '#6B7280', lineHeight: 1 }}>
                                     Événements & Impact
@@ -111,7 +113,7 @@ export function ModernHeader({ user: userProp }: ModernHeaderProps) {
                                         className="btn-titi-secondary"
                                         style={{ fontSize: '0.8125rem' }}
                                         onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = '#F3F4F6'; }}
-                                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = '#fff'; }}
+                                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
                                     >
                                         <i className="bi bi-person" style={{ fontSize: '0.8rem' }}></i>
                                         {user.name}

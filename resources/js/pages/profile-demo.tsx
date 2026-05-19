@@ -62,8 +62,8 @@ export default function ProfileDemo({ user }: ProfileDemoProps) {
     return (
         <>
             <Head>
-                <title>Types de Profil - Fondation TITI</title>
-                <meta name="description" content="Explorez les différents types de profil utilisateur de la Fondation TITI" />
+                <title>Types de Profil - TITI EVENTS</title>
+                <meta name="description" content="Explorez les différents types de profil utilisateur de la TITI EVENTS" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
 
@@ -86,7 +86,7 @@ export default function ProfileDemo({ user }: ProfileDemoProps) {
                                 Types de Profil Utilisateur
                             </h1>
                             <p className="lead mb-5" style={{ maxWidth: '700px', margin: '0 auto' }}>
-                                Découvrez les différents profils d'utilisateurs de la Fondation TITI et leurs modules spécifiques.
+                                Découvrez les différents profils d'utilisateurs de la TITI EVENTS et leurs modules spécifiques.
                                 Chaque type d'utilisateur a accès à des fonctionnalités adaptées à ses besoins.
                             </p>
                         </div>

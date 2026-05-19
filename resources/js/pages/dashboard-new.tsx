@@ -29,9 +29,19 @@ interface UpcomingEvent {
     category: string;
 }
 
+interface ModuleStat {
+    label: string;
+    value: string | number;
+    total: number | null;
+    icon: string;
+    color: string;
+    href: string;
+}
+
 interface DashboardProps {
     user?: { name: string; email: string; avatar?: string };
     stats: Stat[];
+    moduleStats: ModuleStat[];
     recentActivities: Activity[];
     upcomingEvents: UpcomingEvent[];
 }
@@ -43,7 +53,7 @@ const quickActions = [
     { title: 'Voir les donations', description: 'Suivi des contributions', icon: 'bi-heart', href: '/dashboard/donations', color: '#C69438' },
 ];
 
-export default function DashboardNew({ user, stats, recentActivities, upcomingEvents }: DashboardProps) {
+export default function DashboardNew({ user, stats, moduleStats, recentActivities, upcomingEvents }: DashboardProps) {
     const { t } = useTranslation();
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -108,6 +118,38 @@ export default function DashboardNew({ user, stats, recentActivities, upcomingEv
                         </Col>
                     ))}
                 </Row>
+
+                {/* Module Stats */}
+                <div className="mb-4">
+                    <h6 className="fw-semibold mb-3" style={{ color: '#6B7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        Statistiques par module
+                    </h6>
+                    <Row className="g-3">
+                        {moduleStats.map((m, i) => (
+                            <Col lg={2} md={4} sm={6} key={i}>
+                                <div
+                                    className="p-3 rounded-3 border-0 h-100"
+                                    style={{ background: '#FFFFFF', boxShadow: '0 2px 4px rgba(0,0,0,0.04)', cursor: 'pointer', transition: 'transform 0.15s ease, box-shadow 0.15s ease' }}
+                                    onClick={() => router.visit(m.href)}
+                                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 12px rgba(0,0,0,0.08)'; }}
+                                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 4px rgba(0,0,0,0.04)'; }}
+                                >
+                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                        <div className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                            style={{ width: 32, height: 32, background: m.color + '1A', color: m.color }}>
+                                            <i className={`bi ${m.icon}`} style={{ fontSize: '0.875rem' }}></i>
+                                        </div>
+                                        <span style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 500, lineHeight: 1.2 }}>{m.label}</span>
+                                    </div>
+                                    <div style={{ fontSize: '1.125rem', fontWeight: 700, color: '#111827', lineHeight: 1 }}>{m.value}</div>
+                                    {m.total !== null && (
+                                        <div style={{ fontSize: '0.6875rem', color: '#9CA3AF', marginTop: 2 }}>sur {m.total} total</div>
+                                    )}
+                                </div>
+                            </Col>
+                        ))}
+                    </Row>
+                </div>
 
                 <Row className="g-4 mb-4">
                     {/* Activités récentes */}

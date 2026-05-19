@@ -4,11 +4,11 @@ import { LegalLayout, LegalSection, LegalP, LegalList } from './layout';
 export default function RGPD() {
     return (
         <>
-            <Head title="RGPD & Protection des données — Fondation TITI" />
+            <Head title="RGPD & Protection des données — TITI EVENTS" />
             <LegalLayout title="RGPD & Protection des données" lastUpdated="19 mai 2026">
                 <LegalSection title="Notre engagement">
                     <LegalP>
-                        La Fondation TITI s'engage à protéger la vie privée de ses membres et utilisateurs. Nous appliquons les principes du Règlement Général sur la Protection des Données (RGPD) européen ainsi que les dispositions de la loi camerounaise sur la cybersécurité et la cybercriminalité.
+                        La TITI EVENTS s'engage à protéger la vie privée de ses membres et utilisateurs. Nous appliquons les principes du Règlement Général sur la Protection des Données (RGPD) européen ainsi que les dispositions de la loi camerounaise sur la cybersécurité et la cybercriminalité.
                     </LegalP>
                 </LegalSection>
 
@@ -26,7 +26,7 @@ export default function RGPD() {
 
                 <LegalSection title="Responsable du traitement">
                     <LegalP>
-                        Le responsable du traitement des données est la <strong>Fondation TITI</strong>, représentée par son Président, dont le siège est situé à Yaoundé, Cameroun.
+                        Le responsable du traitement des données est la <strong>TITI EVENTS</strong>, représentée par son Président, dont le siège est situé à Yaoundé, Cameroun.
                     </LegalP>
                     <LegalP>
                         Contact DPO (Délégué à la Protection des Données) : <strong>dpo@fondation-titi.org</strong>

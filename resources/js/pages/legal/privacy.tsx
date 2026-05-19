@@ -4,11 +4,11 @@ import { LegalLayout, LegalSection, LegalP, LegalList } from './layout';
 export default function Privacy() {
     return (
         <>
-            <Head title="Politique de confidentialité — Fondation TITI" />
+            <Head title="Politique de confidentialité — TITI EVENTS" />
             <LegalLayout title="Politique de confidentialité" lastUpdated="19 mai 2026">
                 <LegalSection title="Introduction">
                     <LegalP>
-                        La Fondation TITI attache une grande importance à la protection de vos données personnelles. La présente politique de confidentialité décrit comment nous collectons, utilisons et protégeons vos informations lorsque vous utilisez notre plateforme.
+                        La TITI EVENTS attache une grande importance à la protection de vos données personnelles. La présente politique de confidentialité décrit comment nous collectons, utilisons et protégeons vos informations lorsque vous utilisez notre plateforme.
                     </LegalP>
                 </LegalSection>
 

@@ -88,7 +88,7 @@ export default function AdminContent({ user }: AdminContentProps) {
         },
         {
             id: '5',
-            title: 'Histoire et mission de la Fondation TITI',
+            title: 'Histoire et mission de la TITI EVENTS',
             type: 'page',
             status: 'archived',
             author: 'Sarah Martin',

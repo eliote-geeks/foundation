@@ -16,7 +16,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
     return (
         <>
-            <Head title="Mot de passe oublié - Fondation TITI" />
+            <Head title="Mot de passe oublié - TITI EVENTS" />
             
             <div className="forgot-password-page">
                 <ModernHeader />

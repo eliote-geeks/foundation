@@ -18,7 +18,7 @@ export default function Login({ status, canResetPassword }: { status?: string; c
 
     return (
         <>
-            <Head title="Connexion — Fondation TITI" />
+            <Head title="Connexion — TITI EVENTS" />
             <ModernHeader />
 
             <div className="titi-page d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
@@ -28,7 +28,7 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                     <div className="text-center mb-6" style={{ marginBottom: 28 }}>
                         <img
                             src="/logo foundation.jpg"
-                            alt="Fondation TITI"
+                            alt="TITI EVENTS"
                             className="rounded-circle mb-3"
                             style={{ width: 48, height: 48, objectFit: 'cover' }}
                         />

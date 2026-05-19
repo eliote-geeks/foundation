@@ -3,11 +3,17 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Contest;
 use App\Models\Donation;
+use App\Models\DonationCampaign;
 use App\Models\Event;
+use App\Models\HeroSlide;
 use App\Models\MemberActivity;
+use App\Models\Partner;
+use App\Models\Testimonial;
 use App\Models\User;
 use App\Models\UserProfile;
+use App\Models\Vote;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -113,9 +119,61 @@ class DashboardController extends Controller
                 'category' => $e->category_display,
             ]);
 
+        $moduleStats = [
+            [
+                'label' => 'Partenaires actifs',
+                'value' => Partner::where('status', 'active')->count(),
+                'total' => Partner::count(),
+                'icon'  => 'bi-building',
+                'color' => '#5FA145',
+                'href'  => '/dashboard/partners',
+            ],
+            [
+                'label' => 'Campagnes de dons',
+                'value' => DonationCampaign::where('status', 'active')->count(),
+                'total' => DonationCampaign::count(),
+                'icon'  => 'bi-megaphone',
+                'color' => '#C69438',
+                'href'  => '/dashboard/donations/campaigns',
+            ],
+            [
+                'label' => 'Concours',
+                'value' => Contest::whereIn('status', ['active', 'voting'])->count(),
+                'total' => Contest::count(),
+                'icon'  => 'bi-trophy',
+                'color' => '#4A8A2A',
+                'href'  => '/dashboard/contests',
+            ],
+            [
+                'label' => 'Témoignages',
+                'value' => Testimonial::where('is_active', true)->count(),
+                'total' => Testimonial::count(),
+                'icon'  => 'bi-chat-quote',
+                'color' => '#7C3AED',
+                'href'  => '/dashboard/testimonials',
+            ],
+            [
+                'label' => 'Total dons',
+                'value' => number_format((float)(Donation::completed()->sum('amount') ?? 0), 0, ',', ' ') . ' XAF',
+                'total' => Donation::completed()->count(),
+                'icon'  => 'bi-currency-exchange',
+                'color' => '#C69438',
+                'href'  => '/dashboard/donations',
+            ],
+            [
+                'label' => 'Votes (concours)',
+                'value' => Vote::count(),
+                'total' => null,
+                'icon'  => 'bi-hand-thumbs-up',
+                'color' => '#0EA5E9',
+                'href'  => '/dashboard/contests',
+            ],
+        ];
+
         return Inertia::render('dashboard-new', [
             'user'             => $user,
             'stats'            => $stats,
+            'moduleStats'      => $moduleStats,
             'recentActivities' => $recentActivities,
             'upcomingEvents'   => $upcomingEvents,
         ]);

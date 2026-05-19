@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Offcanvas } from 'react-bootstrap';
+import type { SharedData } from '../types';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -42,6 +43,9 @@ const NAV: NavItem[] = [
         ]
     },
     { key: 'partners', label: 'Partenaires', icon: 'bi-buildings', href: '/dashboard/partners' },
+    { key: 'testimonials', label: 'Témoignages', icon: 'bi-chat-quote', href: '/dashboard/testimonials' },
+    { key: 'hero', label: 'Page d\'accueil', icon: 'bi-house-heart', href: '/dashboard/hero' },
+    { key: 'pending-payments', label: 'Paiements en attente', icon: 'bi-clock-history', href: '/dashboard/pending-payments' },
     {
         key: 'finances', label: 'Finances', icon: 'bi-graph-up-arrow', href: '/dashboard/finances',
         children: [
@@ -109,7 +113,9 @@ function SidebarLink({ item, level = 0 }: { item: NavItem; level?: number }) {
     );
 }
 
-function SidebarContent({ user }: { user?: DashboardLayoutProps['user'] }) {
+function SidebarContent({ user: _user }: { user?: DashboardLayoutProps['user'] }) {
+    const { auth } = usePage<SharedData>().props;
+    const user = auth?.user ?? _user;
     return (
         <div className="d-flex flex-column h-100">
             {/* Logo */}
@@ -117,12 +123,12 @@ function SidebarContent({ user }: { user?: DashboardLayoutProps['user'] }) {
                 <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none mb-3">
                     <img
                         src="/logo foundation.jpg"
-                        alt="Fondation TITI"
+                        alt="TITI EVENTS"
                         className="rounded-circle"
                         style={{ width: 40, height: 40, objectFit: 'cover', border: '2px solid rgba(198,148,56,0.5)' }}
                     />
                     <div>
-                        <div className="fw-bold" style={{ color: '#FFFFFF', fontSize: '0.95rem', lineHeight: 1.2 }}>Fondation TITI</div>
+                        <div className="fw-bold" style={{ color: '#FFFFFF', fontSize: '0.95rem', lineHeight: 1.2 }}>TITI EVENTS</div>
                         <div style={{ color: '#A8D5A2', fontSize: '0.7rem' }}>Administration</div>
                     </div>
                 </Link>
@@ -167,7 +173,7 @@ export default function DashboardLayout({ children, title = 'Dashboard', user }:
 
     return (
         <>
-            <Head title={`${title} — Fondation TITI`} />
+            <Head title={`${title} — TITI EVENTS`} />
 
             <div className="d-flex" style={{ minHeight: '100vh', background: '#F4F6F4' }}>
                 {/* Desktop sidebar */}

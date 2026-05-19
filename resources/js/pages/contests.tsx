@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { ModernHeader } from '../components/home/modern-header';
 import { ModernFooter } from '../components/home/modern-footer';
@@ -65,8 +65,8 @@ export default function Contests({ user, contests: dbContests = [] }: ContestsPr
     return (
         <>
             <Head>
-                <title>Concours — Fondation TITI</title>
-                <meta name="description" content="Participez aux concours de la Fondation TITI et votez pour les projets innovants." />
+                <title>Concours — TITI EVENTS</title>
+                <meta name="description" content="Participez aux concours de la TITI EVENTS et votez pour les projets innovants." />
             </Head>
 
             <ModernHeader user={user} />
@@ -154,23 +154,29 @@ export default function Contests({ user, contests: dbContests = [] }: ContestsPr
                                                 </div>
                                             )}
 
-                                            <div style={{ marginTop: 'auto', paddingTop: 4 }}>
-                                                <button
-                                                    disabled={contest.status === 'ended' || hasVoted}
-                                                    onClick={() => !hasVoted && contest.status === 'active' && setVoted(v => [...v, contest.id])}
+                                            <div style={{ marginTop: 'auto', paddingTop: 4, display: 'flex', gap: 6 }}>
+                                                <Link
+                                                    href={`/contests/${contest.id}`}
                                                     style={{
-                                                        width: '100%', height: 34, border: 'none', borderRadius: 6,
-                                                        fontSize: '0.8125rem', fontWeight: 500, cursor: contest.status === 'ended' || hasVoted ? 'default' : 'pointer',
-                                                        background: hasVoted ? '#F3F4F6' : contest.status === 'ended' ? '#F3F4F6' : '#16A34A',
-                                                        color: hasVoted || contest.status === 'ended' ? '#9CA3AF' : '#fff',
+                                                        flex: 1, height: 34, lineHeight: '34px', textAlign: 'center', borderRadius: 6,
+                                                        fontSize: '0.8125rem', fontWeight: 500, textDecoration: 'none',
+                                                        border: '1px solid #D1D5DB', color: '#374151', background: '#fff', display: 'block',
                                                     }}
                                                 >
-                                                    <i className={`bi ${hasVoted ? 'bi-check-circle' : contest.status === 'ended' ? 'bi-lock' : contest.status === 'upcoming' ? 'bi-clock' : 'bi-hand-thumbs-up'} me-1`} />
-                                                    {hasVoted ? 'Voté !'
-                                                        : contest.status === 'ended' ? 'Concours terminé'
-                                                        : contest.status === 'upcoming' ? 'Bientôt disponible'
-                                                        : 'Voter pour ce projet'}
-                                                </button>
+                                                    <i className="bi bi-eye me-1" />Voir
+                                                </Link>
+                                                {contest.status === 'active' && (
+                                                    <Link
+                                                        href={`/contests/${contest.id}`}
+                                                        style={{
+                                                            flex: 2, height: 34, lineHeight: '34px', textAlign: 'center', borderRadius: 6,
+                                                            fontSize: '0.8125rem', fontWeight: 500, textDecoration: 'none',
+                                                            background: '#16A34A', color: '#fff', display: 'block',
+                                                        }}
+                                                    >
+                                                        <i className="bi bi-lightbulb me-1" />Participer
+                                                    </Link>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

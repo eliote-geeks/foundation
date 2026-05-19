@@ -51,8 +51,8 @@ export default function EventsPage({ user, events, categories, filters }: Events
     return (
         <>
             <Head>
-                <title>Événements — Fondation TITI</title>
-                <meta name="description" content="Découvrez les événements à venir de la Fondation TITI." />
+                <title>Événements — TITI EVENTS</title>
+                <meta name="description" content="Découvrez les événements à venir de la TITI EVENTS." />
                 <link rel="canonical" href="/events" />
             </Head>
 

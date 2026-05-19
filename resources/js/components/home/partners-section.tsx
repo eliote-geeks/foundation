@@ -24,7 +24,7 @@ export function PartnersSection({ partners }: Props) {
     const hasRealPartners = partners.length > 0;
 
     return (
-        <section className="py-5" style={{ background: '#F9FAFB' }}>
+        <section className="py-5" style={{ background: 'var(--titi-surface)' }}>
             <Container>
                 <div className="text-center mb-5">
                     <span
@@ -37,7 +37,7 @@ export function PartnersSection({ partners }: Props) {
                         Ils nous font confiance
                     </h2>
                     <p className="text-muted mx-auto" style={{ maxWidth: 560, lineHeight: 1.7 }}>
-                        La Fondation TITI porte ses projets avec le soutien d'organisations engagées
+                        TITI EVENTS porte ses projets avec le soutien d'organisations engagées
                         pour un développement durable au Cameroun.
                     </p>
                 </div>
@@ -111,7 +111,7 @@ export function PartnersSection({ partners }: Props) {
                                 Devenez partenaire ou sponsor
                             </h4>
                             <p style={{ color: '#A8D5A2', marginBottom: '1.5rem', lineHeight: 1.65 }}>
-                                Associez votre organisation aux événements de la Fondation TITI.
+                                Associez votre organisation aux événements de TITI EVENTS.
                                 Visibilité, impact mesurable, réseau professionnel — rejoignez nos partenaires.
                             </p>
                             <div className="d-flex flex-wrap gap-3 justify-content-center">

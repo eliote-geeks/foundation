@@ -9,6 +9,8 @@ Route::get('/', function () {
     $totalRaised = \App\Models\Donation::where('payment_status', 'completed')->sum('amount')
         + \App\Models\Ticket::where('payment_status', 'paid')->sum('price_paid');
 
+    $heroSlide = \App\Models\HeroSlide::activeFirst();
+
     return Inertia::render('home', [
         'user' => auth()->user(),
         'stats' => [
@@ -20,9 +22,14 @@ Route::get('/', function () {
                 : number_format($totalRaised / 1_000, 0) . 'K',
         ],
         'partners' => \App\Models\Partner::active()
-            ->whereNotNull('logo')
             ->limit(8)
-            ->get(['id', 'name', 'logo', 'website_url']),
+            ->get(['id', 'name', 'logo', 'website', 'is_featured'])
+            ->map(fn($p) => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'logo' => $p->logo,
+                'website_url' => $p->website,
+            ])->values(),
         'upcomingEvents' => Event::query()
             ->published()
             ->upcoming()
@@ -41,6 +48,27 @@ Route::get('/', function () {
                 'requires_approval' => $event->requires_approval,
             ])
             ->values(),
+        'heroSlide' => $heroSlide ? [
+            'headline'            => $heroSlide->headline,
+            'headline_accent'     => $heroSlide->headline_accent,
+            'tagline'             => $heroSlide->tagline,
+            'badge_text'          => $heroSlide->badge_text,
+            'cta_primary_label'   => $heroSlide->cta_primary_label,
+            'cta_primary_url'     => $heroSlide->cta_primary_url,
+            'cta_secondary_label' => $heroSlide->cta_secondary_label,
+            'cta_secondary_url'   => $heroSlide->cta_secondary_url,
+        ] : null,
+        'testimonials' => \App\Models\Testimonial::active()->get()->map(fn ($t) => [
+            'id'         => $t->id,
+            'name'       => $t->name,
+            'role'       => $t->role,
+            'city'       => $t->city,
+            'content'    => $t->content,
+            'rating'     => $t->rating,
+            'icon'       => $t->icon,
+            'icon_color' => $t->icon_color,
+            'icon_bg'    => $t->icon_bg,
+        ])->values(),
     ]);
 })->name('home');
 
@@ -65,6 +93,13 @@ Route::get('/contests', function () {
         'contests' => $contests,
     ]);
 })->name('contests');
+
+Route::get('/contests/{contest}', [App\Http\Controllers\ContestController::class, 'show'])->name('contests.show');
+Route::post('/contests/{contest}/entries', [App\Http\Controllers\ContestController::class, 'submitEntry'])->name('contests.entries.store')->middleware('auth');
+Route::post('/contests/{contest}/vote', [App\Http\Controllers\ContestController::class, 'submitVote'])->name('contests.vote')->middleware('auth');
+
+Route::get('/donate', [App\Http\Controllers\DonationController::class, 'index'])->name('donate');
+Route::post('/donate', [App\Http\Controllers\DonationController::class, 'store'])->name('donate.store');
 
 // /tickets redirige vers /events (même contenu, évite la duplication)
 Route::get('/tickets', fn() => redirect('/events'))->name('tickets');
@@ -169,6 +204,9 @@ Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->g
     })->name('communications');
 
     Route::get('/finances', [App\Http\Controllers\Dashboard\FinancesController::class, 'index'])->name('finances');
+    Route::post('/finances/expenses', [App\Http\Controllers\Dashboard\FinancesController::class, 'storeExpense'])->name('finances.expenses.store');
+    Route::put('/finances/expenses/{expense}', [App\Http\Controllers\Dashboard\FinancesController::class, 'updateExpense'])->name('finances.expenses.update');
+    Route::delete('/finances/expenses/{expense}', [App\Http\Controllers\Dashboard\FinancesController::class, 'destroyExpense'])->name('finances.expenses.destroy');
 
     // Routes dashboard partenaires
     Route::controller(App\Http\Controllers\Dashboard\PartnerController::class)->prefix('partners')->name('partners.')->group(function () {
@@ -209,19 +247,143 @@ Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->g
         Route::get('/export', 'export')->name('export');
     });
 
+    // Confirmation des votes/dons en attente
+    Route::get('/pending-payments', function () {
+        $pendingVotes = \App\Models\Vote::where('payment_status', 'pending')
+            ->with(['contest', 'user'])
+            ->latest()
+            ->get()
+            ->map(fn ($v) => [
+                'id'           => $v->id,
+                'type'         => 'vote',
+                'contest'      => $v->contest?->title,
+                'user_name'    => $v->user?->name,
+                'participant'  => $v->participant_name,
+                'amount'       => number_format($v->amount_paid, 0, ',', ' ') . ' ' . $v->currency,
+                'method'       => $v->payment_method,
+                'ref'          => $v->transaction_id,
+                'date'         => $v->created_at->toDateString(),
+            ]);
+        $pendingDonations = \App\Models\Donation::where('payment_status', 'pending')
+            ->with('campaign')
+            ->latest('donated_at')
+            ->get()
+            ->map(fn ($d) => [
+                'id'        => $d->id,
+                'type'      => 'donation',
+                'campaign'  => $d->campaign?->title,
+                'user_name' => $d->donor_name,
+                'amount'    => $d->formatted_amount,
+                'method'    => $d->payment_provider ?? $d->payment_method,
+                'ref'       => $d->payment_reference,
+                'date'      => $d->donated_at->toDateString(),
+            ]);
+        return Inertia::render('dashboard/pending-payments', [
+            'user'             => auth()->user(),
+            'pendingVotes'     => $pendingVotes,
+            'pendingDonations' => $pendingDonations,
+        ]);
+    })->name('pending-payments');
+
+    Route::post('/pending-payments/votes/{vote}/confirm', function (\App\Models\Vote $vote) {
+        $vote->update(['payment_status' => 'paid', 'voted_at' => now()]);
+        // Increment entry votes_count
+        if ($vote->participant_id) {
+            \App\Models\ContestEntry::where('id', $vote->participant_id)->increment('votes_count');
+        }
+        return back()->with('success', 'Vote confirmé.');
+    })->name('pending-payments.votes.confirm');
+
+    Route::post('/pending-payments/votes/{vote}/reject', function (\App\Models\Vote $vote) {
+        $vote->update(['payment_status' => 'failed']);
+        return back()->with('success', 'Vote rejeté.');
+    })->name('pending-payments.votes.reject');
+
+    Route::post('/pending-payments/donations/{donation}/confirm', function (\App\Models\Donation $donation) {
+        $donation->markAsCompleted();
+        return back()->with('success', 'Don confirmé.');
+    })->name('pending-payments.donations.confirm');
+
+    Route::post('/pending-payments/donations/{donation}/reject', function (\App\Models\Donation $donation) {
+        $donation->update(['payment_status' => 'failed']);
+        return back()->with('success', 'Don rejeté.');
+    })->name('pending-payments.donations.reject');
+
     Route::get('/content', function () {
         return Inertia::render('dashboard/content', [
             'user' => auth()->user()
         ]);
     })->name('content');
 
+    // Routes dashboard hero
+    Route::controller(App\Http\Controllers\Dashboard\HeroSlideController::class)->prefix('hero')->name('hero.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{heroSlide}', 'update')->name('update');
+        Route::delete('/{heroSlide}', 'destroy')->name('destroy');
+    });
+
+    // Routes dashboard témoignages
+    Route::controller(App\Http\Controllers\Dashboard\TestimonialController::class)->prefix('testimonials')->name('testimonials.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{testimonial}', 'update')->name('update');
+        Route::delete('/{testimonial}', 'destroy')->name('destroy');
+    });
+
     Route::get('/analytics', [App\Http\Controllers\Dashboard\AnalyticsController::class, 'index'])->name('analytics');
 
     Route::get('/settings', function () {
+        $settings = \App\Models\SiteSetting::all()->pluck('value', 'key')->toArray();
         return Inertia::render('dashboard/settings', [
-            'user' => auth()->user()
+            'user' => auth()->user(),
+            'siteSettings' => $settings,
         ]);
     })->name('settings');
+
+    Route::post('/settings', function (\Illuminate\Http\Request $request) {
+        $data = $request->validate([
+            'donation_mtn_number'    => 'nullable|string|max:30',
+            'donation_orange_number' => 'nullable|string|max:30',
+            'donation_contact_name'  => 'nullable|string|max:100',
+            'org_phone'              => 'nullable|string|max:30',
+            'org_email'              => 'nullable|email|max:100',
+        ]);
+        foreach ($data as $key => $value) {
+            \App\Models\SiteSetting::set($key, $value);
+        }
+        return back()->with('success', 'Paramètres sauvegardés.');
+    })->name('settings.save');
+
+    // Contest entries management
+    Route::get('/contests/{contest}/entries', function (\App\Models\Contest $contest) {
+        $entries = $contest->entries()->with('user')->latest()->get()->map(fn ($e) => [
+            'id'           => $e->id,
+            'entry_number' => $e->entry_number,
+            'title'        => $e->title,
+            'description'  => $e->description,
+            'status'       => $e->status,
+            'status_label' => $e->status_label,
+            'author_name'  => $e->user->name,
+            'submitted_at' => $e->submitted_at?->toDateString(),
+            'votes_count'  => $e->votes_count,
+        ]);
+        return Inertia::render('dashboard/contest-entries', [
+            'user'    => auth()->user(),
+            'contest' => ['id' => $contest->id, 'title' => $contest->title],
+            'entries' => $entries,
+        ]);
+    })->name('contests.entries');
+
+    Route::post('/contests/{contest}/entries/{entry}/approve', function (\App\Models\Contest $contest, \App\Models\ContestEntry $entry) {
+        $entry->update(['status' => 'approved']);
+        return back()->with('success', 'Projet approuvé.');
+    })->name('contests.entries.approve');
+
+    Route::post('/contests/{contest}/entries/{entry}/reject', function (\App\Models\Contest $contest, \App\Models\ContestEntry $entry) {
+        $entry->update(['status' => 'rejected']);
+        return back()->with('success', 'Projet rejeté.');
+    })->name('contests.entries.reject');
 
     // Routes des sous-menus membres (redirections vers le contrôleur principal)
     Route::get('/members/adherents', function () {

@@ -6,7 +6,7 @@ const REASONS = [
         color: '#5FA145',
         bg: '#EAF5E5',
         title: 'Événements authentiques',
-        text: 'Des galas, conférences et programmes soigneusement organisés par la Fondation TITI, avec programme, intervenants et informations claires.',
+        text: 'Des galas, conférences et programmes soigneusement organisés par la TITI EVENTS, avec programme, intervenants et informations claires.',
     },
     {
         icon: 'bi-phone-fill',

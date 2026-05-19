@@ -13,32 +13,34 @@ function SettingsSidebar({ active }: { active: string }) {
     ];
     return (
         <div style={{ width: 200, flexShrink: 0 }}>
-            <div style={{ marginBottom: 8, padding: '0 8px 12px', borderBottom: '1px solid #E5E7EB' }}>
-                <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#111827' }}>{auth.user?.name}</div>
-                <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: 1 }}>{auth.user?.email}</div>
+            <div style={{ marginBottom: 8, padding: '0 8px 12px', borderBottom: '1px solid var(--titi-border)' }}>
+                <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--titi-text)' }}>{auth.user?.name}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--titi-sub)', marginTop: 1 }}>{auth.user?.email}</div>
             </div>
             <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 {navItems.map(item => {
                     const isActive = item.href === active;
                     return (
                         <Link key={item.href} href={item.href}
-                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', borderRadius: 6, fontSize: '0.8125rem', fontWeight: isActive ? 500 : 400, color: isActive ? '#111827' : '#6B7280', background: isActive ? '#F3F4F6' : 'transparent', textDecoration: 'none', transition: 'background 0.1s ease' }}
-                            onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; } }}
-                            onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6B7280'; } }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', borderRadius: 6, fontSize: '0.8125rem', fontWeight: isActive ? 500 : 400, color: isActive ? 'var(--titi-text)' : 'var(--titi-sub)', background: isActive ? 'var(--titi-surface)' : 'transparent', textDecoration: 'none', transition: 'background 0.1s ease' }}
+                            onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.background = 'var(--titi-surface)'; e.currentTarget.style.color = 'var(--titi-text)'; } }}
+                            onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--titi-sub)'; } }}
                         >
                             <i className={`bi ${item.icon}`} style={{ fontSize: '0.875rem', width: 16, textAlign: 'center' }}></i>
                             {item.label}
                         </Link>
                     );
                 })}
-                <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #E5E7EB' }}>
-                    <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', borderRadius: 6, fontSize: '0.75rem', color: '#9CA3AF', textDecoration: 'none' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.color = '#6B7280'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF'; }}>
-                        <i className="bi bi-arrow-left" style={{ fontSize: '0.75rem' }}></i>
-                        Tableau de bord
-                    </Link>
-                </div>
+                {auth.user?.is_admin && (
+                    <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--titi-border)' }}>
+                        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', borderRadius: 6, fontSize: '0.75rem', color: 'var(--titi-muted)', textDecoration: 'none' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--titi-sub)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--titi-muted)'; }}>
+                            <i className="bi bi-speedometer2" style={{ fontSize: '0.75rem' }}></i>
+                            Tableau de bord
+                        </Link>
+                    </div>
+                )}
             </nav>
         </div>
     );
@@ -69,8 +71,8 @@ export default function Password() {
 
     return (
         <>
-            <Head title="Mot de passe — Fondation TITI" />
-            <ModernHeader user={auth.user} />
+            <Head title="Mot de passe — TITI EVENTS" />
+            <ModernHeader user={auth.user ?? undefined} />
 
             <div className="titi-page">
                 <div className="titi-content-wide">

@@ -1,22 +1,29 @@
 import DashboardLayout from '../../layouts/dashboard-layout';
 import { Card, Row, Col, Form, Button, Nav, Alert } from 'react-bootstrap';
 import { useState } from 'react';
+import { useForm, usePage } from '@inertiajs/react';
+import type { SharedData } from '../../types';
 
 interface SettingsProps {
-    user?: {
-        name: string;
-        email: string;
-        avatar?: string;
-    };
+    user?: { name: string; email: string; avatar?: string };
+    siteSettings?: Record<string, string>;
 }
 
-export default function Settings({ user }: SettingsProps) {
+export default function Settings({ user, siteSettings = {} }: SettingsProps) {
+    const { flash } = usePage<SharedData & { flash?: { success?: string } }>().props;
     const [activeTab, setActiveTab] = useState('general');
-    const [showSaveAlert, setShowSaveAlert] = useState(false);
 
-    const handleSave = () => {
-        setShowSaveAlert(true);
-        setTimeout(() => setShowSaveAlert(false), 3000);
+    const { data, setData, post, processing } = useForm({
+        donation_mtn_number:    siteSettings['donation_mtn_number']    ?? '',
+        donation_orange_number: siteSettings['donation_orange_number'] ?? '',
+        donation_contact_name:  siteSettings['donation_contact_name']  ?? '',
+        org_phone:              siteSettings['org_phone']              ?? '',
+        org_email:              siteSettings['org_email']              ?? '',
+    });
+
+    const handleSave = (e: React.FormEvent) => {
+        e.preventDefault();
+        post('/dashboard/settings');
     };
 
     return (
@@ -27,10 +34,9 @@ export default function Settings({ user }: SettingsProps) {
                     <p className="text-muted mb-0">Configuration et préférences de votre fondation</p>
                 </div>
 
-                {showSaveAlert && (
+                {flash?.success && (
                     <Alert variant="success" className="mb-4">
-                        <i className="bi bi-check-circle me-2"></i>
-                        Paramètres sauvegardés avec succès !
+                        <i className="bi bi-check-circle me-2"></i>{flash.success}
                     </Alert>
                 )}
 
@@ -71,44 +77,102 @@ export default function Settings({ user }: SettingsProps) {
                             <Card.Body className="p-4">
                                 {activeTab === 'general' && (
                                     <div>
-                                        <h5 className="fw-bold mb-4">Paramètres généraux</h5>
-                                        <Form>
-                                            <Row>
+                                        <h5 className="fw-bold mb-1" style={{ color: 'var(--titi-text)' }}>Paramètres généraux</h5>
+                                        <p className="small mb-4" style={{ color: 'var(--titi-sub)' }}>Configuration de l'organisation et des paiements</p>
+                                        <Form onSubmit={handleSave}>
+                                            <h6 className="fw-semibold mb-3" style={{ color: 'var(--titi-text)' }}>Contact</h6>
+                                            <Row className="mb-3">
                                                 <Col md={6}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Nom de la fondation</Form.Label>
-                                                        <Form.Control type="text" defaultValue="Fondation TITI" />
+                                                    <Form.Group>
+                                                        <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>Téléphone principal</Form.Label>
+                                                        <Form.Control
+                                                            type="tel"
+                                                            value={data.org_phone}
+                                                            onChange={e => setData('org_phone', e.target.value)}
+                                                            placeholder="+237 6XX XXX XXX"
+                                                            style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
+                                                        />
                                                     </Form.Group>
                                                 </Col>
                                                 <Col md={6}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Email principal</Form.Label>
-                                                        <Form.Control type="email" defaultValue="contact@fondation-titi.org" />
+                                                    <Form.Group>
+                                                        <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>Email principal</Form.Label>
+                                                        <Form.Control
+                                                            type="email"
+                                                            value={data.org_email}
+                                                            onChange={e => setData('org_email', e.target.value)}
+                                                            placeholder="info@titi-events.org"
+                                                            style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
+                                                        />
                                                     </Form.Group>
                                                 </Col>
                                             </Row>
-                                            <Row>
+
+                                            <hr style={{ borderColor: 'var(--titi-border)', margin: '20px 0' }} />
+                                            <h6 className="fw-semibold mb-3" style={{ color: 'var(--titi-text)' }}>
+                                                <i className="bi bi-phone me-2 text-success"></i>Numéros Mobile Money (dons & votes)
+                                            </h6>
+                                            <p className="small mb-3" style={{ color: 'var(--titi-sub)' }}>
+                                                Ces numéros sont affichés sur la page de dons et lors du vote payant dans les concours.
+                                            </p>
+                                            <Row className="mb-3">
                                                 <Col md={6}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Téléphone</Form.Label>
-                                                        <Form.Control type="tel" defaultValue="+33 1 23 45 67 89" />
+                                                    <Form.Group>
+                                                        <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>
+                                                            <span style={{ color: '#f59e0b', fontWeight: 700 }}>MTN</span> Mobile Money
+                                                        </Form.Label>
+                                                        <Form.Control
+                                                            type="tel"
+                                                            value={data.donation_mtn_number}
+                                                            onChange={e => setData('donation_mtn_number', e.target.value)}
+                                                            placeholder="+237 6XX XXX XXX"
+                                                            style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
+                                                        />
                                                     </Form.Group>
                                                 </Col>
                                                 <Col md={6}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Site web</Form.Label>
-                                                        <Form.Control type="url" defaultValue="https://fondation-titi.org" />
+                                                    <Form.Group>
+                                                        <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>
+                                                            <span style={{ color: '#ea580c', fontWeight: 700 }}>Orange</span> Money
+                                                        </Form.Label>
+                                                        <Form.Control
+                                                            type="tel"
+                                                            value={data.donation_orange_number}
+                                                            onChange={e => setData('donation_orange_number', e.target.value)}
+                                                            placeholder="+237 6XX XXX XXX"
+                                                            style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
+                                                        />
                                                     </Form.Group>
                                                 </Col>
                                             </Row>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Adresse</Form.Label>
-                                                <Form.Control as="textarea" rows={3} defaultValue="123 Rue de la Solidarité&#10;75001 Paris&#10;France" />
-                                            </Form.Group>
-                                            <Form.Group className="mb-4">
-                                                <Form.Label>Description</Form.Label>
-                                                <Form.Control as="textarea" rows={4} defaultValue="La Fondation TITI œuvre pour l'aide aux personnes dans le besoin et le développement de projets sociaux." />
-                                            </Form.Group>
+                                            <Row className="mb-4">
+                                                <Col md={6}>
+                                                    <Form.Group>
+                                                        <Form.Label className="small fw-medium" style={{ color: 'var(--titi-sub)' }}>Nom du bénéficiaire affiché</Form.Label>
+                                                        <Form.Control
+                                                            type="text"
+                                                            value={data.donation_contact_name}
+                                                            onChange={e => setData('donation_contact_name', e.target.value)}
+                                                            placeholder="TITI EVENTS"
+                                                            style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </Row>
+
+                                            <div style={{ padding: '12px 16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, marginBottom: 20, fontSize: '0.8125rem', color: '#92400e' }}>
+                                                <i className="bi bi-clock me-2"></i>
+                                                <strong>Intégration Touchpay</strong> — En cours d'obtention.
+                                                Le paiement automatique via API sera activé dès la réception des credentials.
+                                            </div>
+
+                                            <Button
+                                                type="submit"
+                                                disabled={processing}
+                                                style={{ backgroundColor: '#5FA145', borderColor: '#5FA145' }}
+                                            >
+                                                {processing ? 'Sauvegarde…' : <><i className="bi bi-check2 me-2"></i>Sauvegarder</>}
+                                            </Button>
                                         </Form>
                                     </div>
                                 )}
