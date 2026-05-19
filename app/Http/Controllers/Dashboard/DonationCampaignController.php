@@ -26,7 +26,7 @@ class DonationCampaignController extends Controller
                 'value' => DonationCampaign::count(),
                 'change' => '+' . DonationCampaign::whereDate('created_at', '>=', now()->subMonth())->count(),
                 'positive' => true,
-                'color' => '#E4518C',
+                'color' => '#C69438',
                 'icon' => 'bi-heart'
             ],
             [
@@ -50,7 +50,7 @@ class DonationCampaignController extends Controller
                 'value' => Donation::where('payment_status', 'completed')->distinct('donor_id')->count(),
                 'change' => '+' . Donation::where('payment_status', 'completed')->whereDate('donated_at', '>=', now()->subWeek())->distinct('donor_id')->count(),
                 'positive' => true,
-                'color' => '#667eea',
+                'color' => '#4A8A2A',
                 'icon' => 'bi-people'
             ]
         ];
@@ -241,6 +241,128 @@ class DonationCampaignController extends Controller
 
         return Inertia::render('dashboard/donation-campaign-detail', [
             'campaign' => $campaignData
+        ]);
+    }
+
+    /**
+     * Vue résumé des dons (page principale /dashboard/donations)
+     */
+    public function summary(Request $request): Response
+    {
+        $now = now();
+        $startOfMonth = $now->copy()->startOfMonth();
+        $lastMonth = $now->copy()->subMonth()->startOfMonth();
+
+        $totalAmount = Donation::completed()->sum('amount');
+        $thisMonthAmount = Donation::completed()->where('donated_at', '>=', $startOfMonth)->sum('amount');
+        $lastMonthAmount = Donation::completed()
+            ->whereBetween('donated_at', [$lastMonth, $startOfMonth])
+            ->sum('amount');
+        $monthChange = $lastMonthAmount > 0
+            ? round((($thisMonthAmount - $lastMonthAmount) / $lastMonthAmount) * 100)
+            : 0;
+
+        $activeDonors = Donation::completed()->distinct('donor_id')->count('donor_id');
+        $newDonorsThisMonth = Donation::completed()
+            ->where('donated_at', '>=', $startOfMonth)
+            ->distinct('donor_id')
+            ->count('donor_id');
+
+        $activeCampaigns = DonationCampaign::where('status', 'active')->count();
+        $newCampaignsThisMonth = DonationCampaign::where('status', 'active')
+            ->where('created_at', '>=', $startOfMonth)
+            ->count();
+
+        $stats = [
+            [
+                'title' => 'Total des dons',
+                'value' => number_format($totalAmount, 0, ',', ' ') . ' XAF',
+                'change' => ($monthChange >= 0 ? '+' : '') . $monthChange . '%',
+                'positive' => $monthChange >= 0,
+                'color' => '#5FA145',
+                'icon' => 'bi-heart-fill',
+            ],
+            [
+                'title' => 'Dons ce mois',
+                'value' => number_format($thisMonthAmount, 0, ',', ' ') . ' XAF',
+                'change' => ($monthChange >= 0 ? '+' : '') . $monthChange . '%',
+                'positive' => $monthChange >= 0,
+                'color' => '#4A8A2A',
+                'icon' => 'bi-calendar-heart',
+            ],
+            [
+                'title' => 'Donateurs actifs',
+                'value' => number_format($activeDonors, 0, ',', ' '),
+                'change' => '+' . $newDonorsThisMonth,
+                'positive' => true,
+                'color' => '#C69438',
+                'icon' => 'bi-people-fill',
+            ],
+            [
+                'title' => 'Campagnes actives',
+                'value' => $activeCampaigns,
+                'change' => '+' . $newCampaignsThisMonth,
+                'positive' => true,
+                'color' => '#C69438',
+                'icon' => 'bi-megaphone-fill',
+            ],
+        ];
+
+        $recentDonations = Donation::with(['campaign', 'donor'])
+            ->latest('donated_at')
+            ->limit(20)
+            ->get()
+            ->map(fn ($d) => [
+                'id'       => $d->id,
+                'donor'    => $d->donor_display_name,
+                'email'    => $d->is_anonymous ? null : ($d->donor_email ?? $d->donor?->email),
+                'amount'   => $d->amount,
+                'formatted_amount' => $d->formatted_amount,
+                'campaign' => $d->campaign?->title,
+                'type'     => $d->type_display,
+                'method'   => $d->payment_method_display,
+                'status'   => $d->payment_status_display,
+                'status_raw' => $d->payment_status,
+                'date'     => $d->donated_at?->format('Y-m-d H:i'),
+                'receipt'  => (bool) $d->receipt_sent_at,
+            ]);
+
+        $campaigns = DonationCampaign::where('status', 'active')
+            ->orderByDesc('current_amount')
+            ->limit(6)
+            ->get()
+            ->map(fn ($c) => [
+                'id'          => $c->id,
+                'title'       => $c->title,
+                'description' => $c->short_description ?: substr($c->description ?? '', 0, 120),
+                'goal'        => $c->target_amount,
+                'raised'      => $c->current_amount,
+                'donors'      => $c->donor_count,
+                'endDate'     => $c->end_date?->toDateString(),
+                'status'      => $c->status_display,
+                'completion_percentage' => $c->completion_percentage,
+                'formatted_raised' => $c->formatted_current_amount,
+                'formatted_goal'   => $c->formatted_target_amount,
+            ]);
+
+        $topDonors = \App\Models\User::whereHas('completedDonations')
+            ->withSum('completedDonations as total_amount', 'amount')
+            ->withCount('completedDonations as total_donations')
+            ->orderByDesc('total_amount')
+            ->limit(5)
+            ->get()
+            ->map(fn ($u) => [
+                'name'            => $u->profile?->full_name ?? $u->name,
+                'totalAmount'     => $u->total_amount,
+                'formatted_total' => number_format($u->total_amount, 0, ',', ' ') . ' XAF',
+                'donations'       => $u->total_donations,
+            ]);
+
+        return Inertia::render('dashboard/donations', [
+            'stats'           => $stats,
+            'recentDonations' => $recentDonations,
+            'campaigns'       => $campaigns,
+            'topDonors'       => $topDonors,
         ]);
     }
 

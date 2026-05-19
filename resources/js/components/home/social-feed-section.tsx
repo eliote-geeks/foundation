@@ -131,7 +131,7 @@ export function SocialFeedSection() {
         const colors = {
             'event': '#5FA145',
             'contest': '#C69438',
-            'achievement': '#E4518C',
+            'achievement': '#C69438',
             'community': '#4D8A3C'
         };
         return colors[type as keyof typeof colors] || '#5FA145';
@@ -142,7 +142,7 @@ export function SocialFeedSection() {
             'Ambassadrice': { bg: 'linear-gradient(135deg, #C69438 0%, #5FA145 100%)', color: '#334E15' },
             'Ambassadeur': { bg: 'linear-gradient(135deg, #C69438 0%, #5FA145 100%)', color: '#334E15' },
             'Ancien Challenger': { bg: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)', color: '#FFF' },
-            'Bénéficiaire': { bg: 'linear-gradient(135deg, #E4518C 0%, #F5B4C6 100%)', color: '#334E15' },
+            'Bénéficiaire': { bg: 'linear-gradient(135deg, #C69438 0%, #F9D27A 100%)', color: '#334E15' },
             'Organisation': { bg: 'linear-gradient(135deg, #4D8A3C 0%, #334E15 100%)', color: '#FFF' },
             'Équipe': { bg: 'linear-gradient(135deg, #334E15 0%, #4D8A3C 100%)', color: '#FFF' }
         };
@@ -303,7 +303,7 @@ export function SocialFeedSection() {
                                                     variant="link"
                                                     className="p-0 d-flex align-items-center gap-2"
                                                     style={{
-                                                        color: post.isLiked ? '#E4518C' : '#6B7280',
+                                                        color: post.isLiked ? '#C69438' : '#6B7280',
                                                         textDecoration: 'none',
                                                         fontSize: '0.9rem'
                                                     }}

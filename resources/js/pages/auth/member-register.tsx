@@ -14,7 +14,7 @@ import { InterestsSkillsSelector } from '@/components/auth/interests-skills-sele
 import { useTranslation } from '@/hooks/useTranslation';
 import { LanguageSelection } from '@/components/foundation/language-selection';
 
-interface MemberFormData {
+type MemberFormData = Record<string, any> & {
     // Account info
     email: string;
     password: string;
@@ -57,7 +57,7 @@ interface MemberFormData {
     
     // Type specific data
     type_specific_data: Record<string, any>;
-}
+};
 
 interface Props {
     memberTypes: Record<string, any>;
@@ -142,7 +142,7 @@ export default function MemberRegister({ memberTypes, availableInterests, availa
                         style={{
                             width: '300px',
                             height: '300px',
-                            background: 'rgba(228, 81, 140, 0.1)',
+                            background: 'rgba(198, 148, 56, 0.1)',
                             top: '10%',
                             right: '10%',
                             animation: 'float 6s ease-in-out infinite'
@@ -188,7 +188,7 @@ export default function MemberRegister({ memberTypes, availableInterests, availa
                             <span 
                                 className="badge rounded-pill me-2"
                                 style={{
-                                    background: 'linear-gradient(135deg, #E4518C 0%, #F5B4C6 100%)',
+                                    background: 'linear-gradient(135deg, #C69438 0%, #F9D27A 100%)',
                                     color: '#334E15'
                                 }}
                             >
@@ -914,7 +914,7 @@ export default function MemberRegister({ memberTypes, availableInterests, availa
                                             <div 
                                                 className="p-2 rounded-circle"
                                                 style={{
-                                                    background: 'linear-gradient(135deg, #E4518C 0%, #F5B4C6 100%)'
+                                                    background: 'linear-gradient(135deg, #C69438 0%, #F9D27A 100%)'
                                                 }}
                                             >
                                                 <i className="bi bi-globe" style={{ color: '#334E15', fontSize: '1.2rem' }}></i>

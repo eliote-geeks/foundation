@@ -1,24 +1,51 @@
-import InputError from '@/components/input-error';
-import AppLayout from '@/layouts/app-layout';
-import SettingsLayout from '@/layouts/settings/layout';
-import { type BreadcrumbItem } from '@/types';
-import { Transition } from '@headlessui/react';
-import { Head, useForm } from '@inertiajs/react';
+import { type SharedData } from '@/types';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
+import { ModernHeader } from '@/components/home/modern-header';
+import { ModernFooter } from '@/components/home/modern-footer';
 
-import HeadingSmall from '@/components/heading-small';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Password settings',
-        href: '/settings/password',
-    },
-];
+function SettingsSidebar({ active }: { active: string }) {
+    const { auth } = usePage<SharedData>().props;
+    const navItems = [
+        { href: '/settings/profile',    icon: 'bi-person',      label: 'Profil' },
+        { href: '/settings/password',   icon: 'bi-shield-lock', label: 'Mot de passe' },
+        { href: '/settings/appearance', icon: 'bi-palette',     label: 'Apparence' },
+    ];
+    return (
+        <div style={{ width: 200, flexShrink: 0 }}>
+            <div style={{ marginBottom: 8, padding: '0 8px 12px', borderBottom: '1px solid #E5E7EB' }}>
+                <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#111827' }}>{auth.user?.name}</div>
+                <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: 1 }}>{auth.user?.email}</div>
+            </div>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {navItems.map(item => {
+                    const isActive = item.href === active;
+                    return (
+                        <Link key={item.href} href={item.href}
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', borderRadius: 6, fontSize: '0.8125rem', fontWeight: isActive ? 500 : 400, color: isActive ? '#111827' : '#6B7280', background: isActive ? '#F3F4F6' : 'transparent', textDecoration: 'none', transition: 'background 0.1s ease' }}
+                            onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; } }}
+                            onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6B7280'; } }}
+                        >
+                            <i className={`bi ${item.icon}`} style={{ fontSize: '0.875rem', width: 16, textAlign: 'center' }}></i>
+                            {item.label}
+                        </Link>
+                    );
+                })}
+                <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #E5E7EB' }}>
+                    <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', borderRadius: 6, fontSize: '0.75rem', color: '#9CA3AF', textDecoration: 'none' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = '#6B7280'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF'; }}>
+                        <i className="bi bi-arrow-left" style={{ fontSize: '0.75rem' }}></i>
+                        Tableau de bord
+                    </Link>
+                </div>
+            </nav>
+        </div>
+    );
+}
 
 export default function Password() {
+    const { auth } = usePage<SharedData>().props;
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
@@ -30,99 +57,117 @@ export default function Password() {
 
     const updatePassword: FormEventHandler = (e) => {
         e.preventDefault();
-
         put(route('password.update'), {
             preserveScroll: true,
             onSuccess: () => reset(),
-            onError: (errors) => {
-                if (errors.password) {
-                    reset('password', 'password_confirmation');
-                    passwordInput.current?.focus();
-                }
-
-                if (errors.current_password) {
-                    reset('current_password');
-                    currentPasswordInput.current?.focus();
-                }
+            onError: (errs) => {
+                if (errs.password) { reset('password', 'password_confirmation'); passwordInput.current?.focus(); }
+                if (errs.current_password) { reset('current_password'); currentPasswordInput.current?.focus(); }
             },
         });
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Password settings" />
+        <>
+            <Head title="Mot de passe — Fondation TITI" />
+            <ModernHeader user={auth.user} />
 
-            <SettingsLayout>
-                <div className="space-y-6">
-                    <HeadingSmall title="Update password" description="Ensure your account is using a long, random password to stay secure" />
+            <div className="titi-page">
+                <div className="titi-content-wide">
+                    <div style={{ marginBottom: 24 }}>
+                        <h1 className="page-title">Paramètres</h1>
+                        <p className="page-sub">Gérez votre profil et vos préférences.</p>
+                    </div>
 
-                    <form onSubmit={updatePassword} className="space-y-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="current_password">Current password</Label>
+                    <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
+                        <SettingsSidebar active="/settings/password" />
 
-                            <Input
-                                id="current_password"
-                                ref={currentPasswordInput}
-                                value={data.current_password}
-                                onChange={(e) => setData('current_password', e.target.value)}
-                                type="password"
-                                className="mt-1 block w-full"
-                                autoComplete="current-password"
-                                placeholder="Current password"
-                            />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div className="titi-card">
+                                <div className="titi-section" style={{ borderBottom: 'none' }}>
+                                    <div className="titi-section-header">
+                                        <p className="titi-section-title">Modifier le mot de passe</p>
+                                        <p className="titi-section-desc">Utilisez un mot de passe long et unique (minimum 8 caractères).</p>
+                                    </div>
 
-                            <InputError message={errors.current_password} />
+                                    {recentlySuccessful && (
+                                        <div className="titi-notice success" style={{ marginBottom: 20 }}>
+                                            <i className="bi bi-check-circle" style={{ flexShrink: 0 }}></i>
+                                            Mot de passe mis à jour.
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={updatePassword}>
+                                        <div className="titi-field">
+                                            <label className="titi-label" htmlFor="current_password">
+                                                Mot de passe actuel
+                                            </label>
+                                            <input
+                                                id="current_password"
+                                                ref={currentPasswordInput}
+                                                type="password"
+                                                className={`titi-input${errors.current_password ? ' error' : ''}`}
+                                                value={data.current_password}
+                                                onChange={(e) => setData('current_password', e.target.value)}
+                                                autoComplete="current-password"
+                                                placeholder="••••••••"
+                                                style={{ maxWidth: 320 }}
+                                            />
+                                            {errors.current_password && <span className="titi-error">{errors.current_password}</span>}
+                                        </div>
+
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                                            <div className="titi-field" style={{ marginBottom: 0 }}>
+                                                <label className="titi-label" htmlFor="password">Nouveau mot de passe</label>
+                                                <input
+                                                    id="password"
+                                                    ref={passwordInput}
+                                                    type="password"
+                                                    className={`titi-input${errors.password ? ' error' : ''}`}
+                                                    value={data.password}
+                                                    onChange={(e) => setData('password', e.target.value)}
+                                                    autoComplete="new-password"
+                                                    placeholder="••••••••"
+                                                />
+                                                {errors.password && <span className="titi-error">{errors.password}</span>}
+                                            </div>
+                                            <div className="titi-field" style={{ marginBottom: 0 }}>
+                                                <label className="titi-label" htmlFor="password_confirmation">Confirmer</label>
+                                                <input
+                                                    id="password_confirmation"
+                                                    type="password"
+                                                    className={`titi-input${errors.password_confirmation ? ' error' : ''}`}
+                                                    value={data.password_confirmation}
+                                                    onChange={(e) => setData('password_confirmation', e.target.value)}
+                                                    autoComplete="new-password"
+                                                    placeholder="••••••••"
+                                                />
+                                                {errors.password_confirmation && <span className="titi-error">{errors.password_confirmation}</span>}
+                                            </div>
+                                        </div>
+
+                                        <div className="titi-notice info" style={{ marginBottom: 20 }}>
+                                            <i className="bi bi-info-circle" style={{ flexShrink: 0 }}></i>
+                                            Minimum 8 caractères. Mélangez lettres, chiffres et symboles pour plus de sécurité.
+                                        </div>
+
+                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                            <button type="submit" disabled={processing} className="btn-titi-primary">
+                                                {processing
+                                                    ? <><span className="spinner-border spinner-border-sm" style={{ width: 10, height: 10, borderWidth: 2 }}></span> Enregistrement…</>
+                                                    : 'Mettre à jour'
+                                                }
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">New password</Label>
-
-                            <Input
-                                id="password"
-                                ref={passwordInput}
-                                value={data.password}
-                                onChange={(e) => setData('password', e.target.value)}
-                                type="password"
-                                className="mt-1 block w-full"
-                                autoComplete="new-password"
-                                placeholder="New password"
-                            />
-
-                            <InputError message={errors.password} />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">Confirm password</Label>
-
-                            <Input
-                                id="password_confirmation"
-                                value={data.password_confirmation}
-                                onChange={(e) => setData('password_confirmation', e.target.value)}
-                                type="password"
-                                className="mt-1 block w-full"
-                                autoComplete="new-password"
-                                placeholder="Confirm password"
-                            />
-
-                            <InputError message={errors.password_confirmation} />
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Save password</Button>
-
-                            <Transition
-                                show={recentlySuccessful}
-                                enter="transition ease-in-out"
-                                enterFrom="opacity-0"
-                                leave="transition ease-in-out"
-                                leaveTo="opacity-0"
-                            >
-                                <p className="text-sm text-neutral-600">Saved</p>
-                            </Transition>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </SettingsLayout>
-        </AppLayout>
+            </div>
+
+            <ModernFooter />
+        </>
     );
 }

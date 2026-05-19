@@ -7,14 +7,14 @@ interface LoadingSpinnerProps {
 }
 
 export function LoadingSpinner({ size = 'md', variant = 'primary', text }: LoadingSpinnerProps) {
-    const sizeClasses = {
-        sm: 'width: 24px; height: 24px; border-width: 2px;',
-        md: 'width: 40px; height: 40px; border-width: 4px;',
-        lg: 'width: 60px; height: 60px; border-width: 6px;'
+    const sizeStyles: Record<NonNullable<LoadingSpinnerProps['size']>, React.CSSProperties> = {
+        sm: { width: 24, height: 24, borderWidth: 2 },
+        md: { width: 40, height: 40, borderWidth: 4 },
+        lg: { width: 60, height: 60, borderWidth: 6 }
     };
 
     const colors = {
-        primary: { border: 'rgba(102, 126, 234, 0.3)', top: '#667eea' },
+        primary: { border: 'rgba(102, 126, 234, 0.3)', top: '#4A8A2A' },
         secondary: { border: 'rgba(108, 117, 125, 0.3)', top: '#6c757d' },
         white: { border: 'rgba(255, 255, 255, 0.3)', top: '#ffffff' }
     };
@@ -24,11 +24,12 @@ export function LoadingSpinner({ size = 'md', variant = 'primary', text }: Loadi
             <div
                 className="loading-spinner rounded-circle"
                 style={{
-                    ...sizeClasses[size],
-                    border: `${colors[variant].border}`,
-                    borderTop: `${colors[variant].top}`,
+                    ...sizeStyles[size],
+                    borderStyle: 'solid',
+                    borderColor: colors[variant].border,
+                    borderTopColor: colors[variant].top,
                     animation: 'spin 1s linear infinite'
-                } as any}
+                }}
             />
             {text && (
                 <p className={`text-${variant === 'white' ? 'white' : 'muted'} mb-0 small`}>
@@ -53,7 +54,7 @@ export function PageLoader() {
                 <LoadingSpinner size="lg" text="Chargement..." />
                 <div className="mt-4">
                     <h5 style={{
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        background: 'linear-gradient(135deg, #4A8A2A 0%, #2D5016 100%)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text'

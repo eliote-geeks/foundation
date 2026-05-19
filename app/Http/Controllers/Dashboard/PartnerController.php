@@ -40,7 +40,7 @@ class PartnerController extends Controller
                 'value' => Partner::active()->where('status', 'active')->count(),
                 'change' => '+12%',
                 'positive' => true,
-                'color' => '#E4518C',
+                'color' => '#C69438',
                 'icon' => 'bi-handshake'
             ],
             [

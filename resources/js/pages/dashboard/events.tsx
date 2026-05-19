@@ -116,7 +116,7 @@ export default function Events({ user, events, stats }: EventsProps) {
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
-        const data = Object.fromEntries(formData);
+        const data = Object.fromEntries(formData) as Record<string, FormDataEntryValue | boolean | string>;
         
         // Conversion des données
         data.is_free = data.is_free === 'on';
@@ -132,7 +132,7 @@ export default function Events({ user, events, stats }: EventsProps) {
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
-        const data = Object.fromEntries(formData);
+        const data = Object.fromEntries(formData) as Record<string, FormDataEntryValue | boolean | string>;
         
         // Conversion des données
         data.is_free = data.is_free === 'on';

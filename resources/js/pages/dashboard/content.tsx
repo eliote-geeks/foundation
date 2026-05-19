@@ -19,8 +19,8 @@ export default function Content({ user, tab }: ContentProps) {
 
     const stats = [
         { title: 'Articles publiés', value: '127', change: '+15', positive: true, color: '#5FA145', icon: 'bi-journal-text' },
-        { title: 'Médias stockés', value: '843', change: '+42', positive: true, color: '#667eea', icon: 'bi-images' },
-        { title: 'Pages vues', value: '25.6K', change: '+8%', positive: true, color: '#E4518C', icon: 'bi-eye' },
+        { title: 'Médias stockés', value: '843', change: '+42', positive: true, color: '#4A8A2A', icon: 'bi-images' },
+        { title: 'Pages vues', value: '25.6K', change: '+8%', positive: true, color: '#C69438', icon: 'bi-eye' },
         { title: 'Engagement', value: '4.2%', change: '+1.1%', positive: true, color: '#C69438', icon: 'bi-heart' }
     ];
 

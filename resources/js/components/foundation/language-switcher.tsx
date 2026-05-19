@@ -32,6 +32,7 @@ interface LanguageSwitcherProps {
 export function LanguageSwitcher({ variant = 'default', size = 'sm' }: LanguageSwitcherProps) {
     const { currentLanguage, changeLanguage, t } = useTranslation();
     const [isChanging, setIsChanging] = useState(false);
+    const bootstrapSize: 'sm' | 'lg' | undefined = size === 'md' ? undefined : size;
 
     const currentLang = languages.find(lang => lang.code === currentLanguage) || languages[0];
 
@@ -56,7 +57,7 @@ export function LanguageSwitcher({ variant = 'default', size = 'sm' }: LanguageS
                     <Button
                         key={lang.code}
                         variant={currentLanguage === lang.code ? "primary" : "outline-secondary"}
-                        size={size}
+                        size={bootstrapSize}
                         onClick={() => handleLanguageChange(lang.code)}
                         disabled={isChanging}
                         className="p-2"
@@ -74,7 +75,7 @@ export function LanguageSwitcher({ variant = 'default', size = 'sm' }: LanguageS
             <Dropdown>
                 <Dropdown.Toggle
                     variant="outline-light" 
-                    size={size}
+                    size={bootstrapSize}
                     className="p-2 border-0"
                     style={{ minWidth: '40px', height: '32px' }}
                     disabled={isChanging}
@@ -112,7 +113,7 @@ export function LanguageSwitcher({ variant = 'default', size = 'sm' }: LanguageS
         <Dropdown>
             <Dropdown.Toggle
                 variant="outline-light" 
-                size={size}
+                size={bootstrapSize}
                 className="d-flex align-items-center gap-2 border-0"
                 disabled={isChanging}
             >

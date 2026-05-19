@@ -1,1 +1,0 @@
-import{j as t}from"./app-DjVC1cjc.js";function n(o){return t.jsx("img",{...o,src:"/logo foundation.jpg",alt:"Logo Fondation",className:`rounded-lg shadow-sm ${o.className||""}`,style:{objectFit:"contain",backgroundColor:"white",border:"1px solid rgba(255,255,255,0.1)"}})}export{n as A};

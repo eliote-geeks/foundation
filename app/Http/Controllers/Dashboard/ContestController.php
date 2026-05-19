@@ -43,7 +43,7 @@ class ContestController extends Controller
                 'value' => Vote::paid()->count(),
                 'change' => '+' . Vote::paid()->whereDate('created_at', '>=', now()->subWeek())->count(),
                 'positive' => true,
-                'color' => '#E4518C',
+                'color' => '#C69438',
                 'icon' => 'bi-hand-thumbs-up'
             ],
             [
@@ -51,7 +51,7 @@ class ContestController extends Controller
                 'value' => number_format(Contest::sum('total_revenue'), 0, ',', ' '),
                 'change' => '+' . number_format(Contest::whereDate('updated_at', '>=', now()->subWeek())->sum('total_revenue'), 0, ',', ' '),
                 'positive' => true,
-                'color' => '#667eea',
+                'color' => '#4A8A2A',
                 'icon' => 'bi-currency-exchange'
             ]
         ];

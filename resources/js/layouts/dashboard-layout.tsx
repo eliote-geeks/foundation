@@ -1,467 +1,256 @@
 import React, { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { Container, Row, Col, Navbar, Nav, Offcanvas, Button, Badge } from 'react-bootstrap';
-import { useTranslation } from '../hooks/useTranslation';
+import { Offcanvas } from 'react-bootstrap';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
     title?: string;
-    user?: {
-        name: string;
-        email: string;
-        avatar?: string;
-    };
+    user?: { name: string; email: string; avatar?: string };
 }
 
-interface SidebarItem {
+interface NavItem {
     key: string;
     label: string;
     icon: string;
     href: string;
-    badge?: string;
-    children?: SidebarItem[];
+    children?: NavItem[];
+}
+
+const NAV: NavItem[] = [
+    { key: 'dashboard', label: 'Vue d\'ensemble', icon: 'bi-speedometer2', href: '/dashboard' },
+    {
+        key: 'members', label: 'Membres', icon: 'bi-people', href: '/dashboard/members',
+        children: [
+            { key: 'adherents', label: 'Adhérents', icon: 'bi-person-check', href: '/dashboard/members?filter=adherent' },
+            { key: 'ambassadors', label: 'Ambassadeurs', icon: 'bi-star', href: '/dashboard/members?filter=ambassador' },
+            { key: 'volunteers', label: 'Bénévoles', icon: 'bi-heart', href: '/dashboard/members?filter=volunteer' },
+        ]
+    },
+    {
+        key: 'events', label: 'Événements', icon: 'bi-calendar-event', href: '/dashboard/events',
+        children: [
+            { key: 'events-list', label: 'Liste', icon: 'bi-list-ul', href: '/dashboard/events' },
+            { key: 'tickets', label: 'Billetterie', icon: 'bi-ticket-perforated', href: '/dashboard/events/tickets' },
+        ]
+    },
+    { key: 'contests', label: 'Concours', icon: 'bi-trophy', href: '/dashboard/contests' },
+    {
+        key: 'donations', label: 'Dons', icon: 'bi-heart-pulse', href: '/dashboard/donations',
+        children: [
+            { key: 'campaigns', label: 'Campagnes', icon: 'bi-megaphone', href: '/dashboard/donations/campaigns' },
+            { key: 'donors', label: 'Donateurs', icon: 'bi-person-heart', href: '/dashboard/donations/donors' },
+        ]
+    },
+    { key: 'partners', label: 'Partenaires', icon: 'bi-buildings', href: '/dashboard/partners' },
+    {
+        key: 'finances', label: 'Finances', icon: 'bi-graph-up-arrow', href: '/dashboard/finances',
+        children: [
+            { key: 'transactions', label: 'Transactions', icon: 'bi-receipt', href: '/dashboard/finances/transactions' },
+            { key: 'reports', label: 'Rapports', icon: 'bi-file-bar-graph', href: '/dashboard/finances/reports' },
+        ]
+    },
+    { key: 'settings', label: 'Paramètres', icon: 'bi-gear', href: '/settings/profile' },
+];
+
+function SidebarLink({ item, level = 0 }: { item: NavItem; level?: number }) {
+    const [open, setOpen] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return item.children?.some(c => window.location.pathname.startsWith(c.href.split('?')[0])) ?? false;
+    });
+    const isActive = typeof window !== 'undefined' && window.location.pathname === item.href;
+    const hasChildren = !!item.children?.length;
+
+    return (
+        <div>
+            {hasChildren ? (
+                <button
+                    onClick={() => setOpen(o => !o)}
+                    className="w-100 text-start d-flex align-items-center border-0 py-2 rounded-2 mb-1"
+                    style={{
+                        background: 'transparent',
+                        color: '#D4EDDA',
+                        paddingLeft: `${12 + level * 16}px`,
+                        paddingRight: 12,
+                        fontSize: '0.9rem',
+                        cursor: 'pointer',
+                    }}
+                >
+                    <i className={`bi ${item.icon} me-2`} style={{ width: 18, fontSize: '1rem', opacity: 0.8 }}></i>
+                    <span className="flex-grow-1">{item.label}</span>
+                    <i className={`bi bi-chevron-${open ? 'up' : 'down'}`} style={{ fontSize: '0.7rem', opacity: 0.6 }}></i>
+                </button>
+            ) : (
+                <Link
+                    href={item.href}
+                    className="d-flex align-items-center py-2 rounded-2 mb-1 text-decoration-none"
+                    style={{
+                        background: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
+                        borderLeft: isActive ? '3px solid #C69438' : '3px solid transparent',
+                        color: isActive ? '#FFFFFF' : '#B8D4B0',
+                        paddingLeft: `${12 + level * 16}px`,
+                        paddingRight: 12,
+                        fontSize: level > 0 ? '0.85rem' : '0.9rem',
+                        fontWeight: isActive ? 600 : 400,
+                        transition: 'all 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; }}
+                    onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.color = '#B8D4B0'; }}
+                >
+                    <i className={`bi ${item.icon} me-2`} style={{ width: 18, fontSize: level > 0 ? '0.9rem' : '1rem', opacity: isActive ? 1 : 0.75 }}></i>
+                    {item.label}
+                </Link>
+            )}
+            {hasChildren && open && (
+                <div style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', marginLeft: 24, paddingLeft: 4 }}>
+                    {item.children!.map(c => <SidebarLink key={c.key} item={c} level={level + 1} />)}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function SidebarContent({ user }: { user?: DashboardLayoutProps['user'] }) {
+    return (
+        <div className="d-flex flex-column h-100">
+            {/* Logo */}
+            <div className="p-3 pb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none mb-3">
+                    <img
+                        src="/logo foundation.jpg"
+                        alt="Fondation TITI"
+                        className="rounded-circle"
+                        style={{ width: 40, height: 40, objectFit: 'cover', border: '2px solid rgba(198,148,56,0.5)' }}
+                    />
+                    <div>
+                        <div className="fw-bold" style={{ color: '#FFFFFF', fontSize: '0.95rem', lineHeight: 1.2 }}>Fondation TITI</div>
+                        <div style={{ color: '#A8D5A2', fontSize: '0.7rem' }}>Administration</div>
+                    </div>
+                </Link>
+                {/* Retour site public */}
+                <Link
+                    href="/"
+                    className="d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded-2"
+                    style={{ color: '#A8D5A2', fontSize: '0.78rem', background: 'rgba(255,255,255,0.05)' }}
+                >
+                    <i className="bi bi-arrow-left" style={{ fontSize: '0.75rem' }}></i>
+                    Retour au site public
+                </Link>
+            </div>
+
+            {/* Nav */}
+            <nav className="flex-grow-1 p-2" style={{ overflowY: 'auto' }}>
+                {NAV.map(item => <SidebarLink key={item.key} item={item} />)}
+            </nav>
+
+            {/* User footer */}
+            <div className="p-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                <Link href="/settings/profile" className="d-flex align-items-center gap-2 text-decoration-none">
+                    <div
+                        className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                        style={{ width: 34, height: 34, background: 'rgba(198,148,56,0.25)', color: '#F9D27A', fontSize: '0.9rem' }}
+                    >
+                        <i className="bi bi-person-fill"></i>
+                    </div>
+                    <div style={{ overflow: 'hidden' }}>
+                        <div className="fw-semibold text-truncate" style={{ color: '#FFFFFF', fontSize: '0.82rem' }}>{user?.name || 'Utilisateur'}</div>
+                        <div className="text-truncate" style={{ color: '#A8D5A2', fontSize: '0.7rem' }}>{user?.email}</div>
+                    </div>
+                </Link>
+            </div>
+        </div>
+    );
 }
 
 export default function DashboardLayout({ children, title = 'Dashboard', user }: DashboardLayoutProps) {
-    const { t } = useTranslation();
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-
-    const sidebarItems: SidebarItem[] = [
-        {
-            key: 'dashboard',
-            label: t('dashboard', 'Dashboard'),
-            icon: 'bi-house-door',
-            href: '/dashboard'
-        },
-        {
-            key: 'members',
-            label: t('members', 'Membres'),
-            icon: 'bi-people',
-            href: '/dashboard/members',
-            badge: '342',
-            children: [
-                {
-                    key: 'adherents',
-                    label: t('adherents', 'Adhérents'),
-                    icon: 'bi-person-check',
-                    href: '/dashboard/members/adherents'
-                },
-                {
-                    key: 'ambassadors',
-                    label: t('ambassadors', 'Ambassadeurs'),
-                    icon: 'bi-star',
-                    href: '/dashboard/members/ambassadors'
-                },
-                {
-                    key: 'volunteers',
-                    label: t('volunteers', 'Bénévoles'),
-                    icon: 'bi-hand-thumbs-up',
-                    href: '/dashboard/members/volunteers'
-                }
-            ]
-        },
-        {
-            key: 'events',
-            label: t('events', 'Événements'),
-            icon: 'bi-calendar-event',
-            href: '/dashboard/events',
-            badge: '12',
-            children: [
-                {
-                    key: 'events-list',
-                    label: t('eventsList', 'Liste des événements'),
-                    icon: 'bi-list-ul',
-                    href: '/dashboard/events'
-                },
-                {
-                    key: 'tickets',
-                    label: t('tickets', 'Billetterie'),
-                    icon: 'bi-ticket-perforated',
-                    href: '/dashboard/events/tickets'
-                }
-            ]
-        },
-        {
-            key: 'contests',
-            label: t('contests', 'Concours'),
-            icon: 'bi-trophy',
-            href: '/dashboard/contests',
-            badge: '7'
-        },
-        {
-            key: 'donations',
-            label: t('donations', 'Dons'),
-            icon: 'bi-heart',
-            href: '/dashboard/donations',
-            children: [
-                {
-                    key: 'donation-campaigns',
-                    label: t('campaigns', 'Campagnes'),
-                    icon: 'bi-megaphone',
-                    href: '/dashboard/donations/campaigns'
-                },
-                {
-                    key: 'donors',
-                    label: t('donors', 'Donateurs'),
-                    icon: 'bi-person-hearts',
-                    href: '/dashboard/donations/donors'
-                }
-            ]
-        },
-        {
-            key: 'projects',
-            label: t('projects', 'Projets'),
-            icon: 'bi-diagram-3',
-            href: '/dashboard/projects',
-            children: [
-                {
-                    key: 'active-projects',
-                    label: t('activeProjects', 'Projets actifs'),
-                    icon: 'bi-play-circle',
-                    href: '/dashboard/projects/active'
-                },
-                {
-                    key: 'completed-projects',
-                    label: t('completedProjects', 'Projets terminés'),
-                    icon: 'bi-check-circle',
-                    href: '/dashboard/projects/completed'
-                }
-            ]
-        },
-        {
-            key: 'communications',
-            label: t('communications', 'Communications'),
-            icon: 'bi-chat-dots',
-            href: '/dashboard/communications',
-            children: [
-                {
-                    key: 'newsletters',
-                    label: t('newsletters', 'Newsletters'),
-                    icon: 'bi-newspaper',
-                    href: '/dashboard/communications/newsletters'
-                },
-                {
-                    key: 'social-media',
-                    label: t('socialMedia', 'Réseaux sociaux'),
-                    icon: 'bi-share',
-                    href: '/dashboard/communications/social-media'
-                }
-            ]
-        },
-        {
-            key: 'finances',
-            label: t('finances', 'Finances'),
-            icon: 'bi-graph-up-arrow',
-            href: '/dashboard/finances',
-            children: [
-                {
-                    key: 'budget',
-                    label: t('budget', 'Budget'),
-                    icon: 'bi-pie-chart',
-                    href: '/dashboard/finances/budget'
-                },
-                {
-                    key: 'transactions',
-                    label: t('transactions', 'Transactions'),
-                    icon: 'bi-receipt',
-                    href: '/dashboard/finances/transactions'
-                },
-                {
-                    key: 'reports',
-                    label: t('reports', 'Rapports'),
-                    icon: 'bi-file-text',
-                    href: '/dashboard/finances/reports'
-                }
-            ]
-        },
-        {
-            key: 'partners',
-            label: t('partners', 'Partenaires'),
-            icon: 'bi-building',
-            href: '/dashboard/partners'
-        },
-        {
-            key: 'content',
-            label: t('content', 'Contenu'),
-            icon: 'bi-file-richtext',
-            href: '/dashboard/content',
-            children: [
-                {
-                    key: 'articles',
-                    label: t('articles', 'Articles'),
-                    icon: 'bi-journal-text',
-                    href: '/dashboard/content/articles'
-                },
-                {
-                    key: 'media',
-                    label: t('media', 'Médias'),
-                    icon: 'bi-images',
-                    href: '/dashboard/content/media'
-                }
-            ]
-        },
-        {
-            key: 'analytics',
-            label: t('analytics', 'Analytics'),
-            icon: 'bi-bar-chart-line',
-            href: '/dashboard/analytics'
-        },
-        {
-            key: 'settings',
-            label: t('settings', 'Paramètres'),
-            icon: 'bi-gear',
-            href: '/dashboard/settings',
-            children: [
-                {
-                    key: 'general',
-                    label: t('general', 'Général'),
-                    icon: 'bi-sliders',
-                    href: '/dashboard/settings/general'
-                },
-                {
-                    key: 'notifications',
-                    label: t('notifications', 'Notifications'),
-                    icon: 'bi-bell',
-                    href: '/dashboard/settings/notifications'
-                },
-                {
-                    key: 'security',
-                    label: t('security', 'Sécurité'),
-                    icon: 'bi-shield-check',
-                    href: '/dashboard/settings/security'
-                }
-            ]
-        }
-    ];
-
-    const renderSidebarItem = (item: SidebarItem, level: number = 0) => {
-        const isActive = window.location.pathname === item.href;
-        const hasChildren = item.children && item.children.length > 0;
-
-        return (
-            <div key={item.key} className={`sidebar-item level-${level}`}>
-                <Link
-                    href={item.href}
-                    className={`sidebar-link d-flex align-items-center text-decoration-none py-2 px-3 rounded-2 mb-1 ${
-                        isActive ? 'active' : ''
-                    }`}
-                    style={{
-                        color: isActive ? '#FFFFFF' : '#E8F5E8',
-                        backgroundColor: isActive ? 'rgba(95, 161, 69, 0.8)' : 'transparent',
-                        marginLeft: `${level * 1}rem`,
-                        transition: 'all 0.2s ease',
-                        boxShadow: isActive ? '0 4px 12px rgba(95, 161, 69, 0.3)' : 'none'
-                    }}
-                    onMouseEnter={(e) => {
-                        if (!isActive) {
-                            e.currentTarget.style.backgroundColor = 'rgba(232, 245, 232, 0.1)';
-                        }
-                    }}
-                    onMouseLeave={(e) => {
-                        if (!isActive) {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                        }
-                    }}
-                >
-                    <i className={`${item.icon} me-3`} style={{ fontSize: '1.1rem', width: '20px' }}></i>
-                    <span className="flex-grow-1">{item.label}</span>
-                    {item.badge && (
-                        <Badge 
-                            pill
-                            style={{ 
-                                backgroundColor: '#C69438',
-                                color: '#334E15',
-                                fontSize: '0.7rem'
-                            }}
-                        >
-                            {item.badge}
-                        </Badge>
-                    )}
-                </Link>
-                {hasChildren && (
-                    <div className="sidebar-children">
-                        {item.children!.map(child => renderSidebarItem(child, level + 1))}
-                    </div>
-                )}
-            </div>
-        );
-    };
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const SIDEBAR_W = 256;
 
     return (
         <>
-            <Head title={`${title} - Dashboard - Fondation TITI`} />
-            
-            <div className="dashboard-layout d-flex" style={{ minHeight: '100vh' }}>
-                <div 
-                    className="sidebar d-none d-lg-flex flex-column position-fixed h-100"
-                    style={{
-                        width: '280px',
-                        background: 'linear-gradient(180deg, #334E15 0%, #4D8A3C 100%)',
-                        borderRight: '1px solid rgba(232, 245, 232, 0.1)',
-                        zIndex: 1000
-                    }}
+            <Head title={`${title} — Fondation TITI`} />
+
+            <div className="d-flex" style={{ minHeight: '100vh', background: '#F4F6F4' }}>
+                {/* Desktop sidebar */}
+                <div
+                    className="d-none d-lg-flex flex-column position-fixed top-0 start-0 h-100"
+                    style={{ width: SIDEBAR_W, background: 'linear-gradient(180deg, #1A3209 0%, #2D5016 60%, #3D7020 100%)', zIndex: 1040 }}
                 >
-                    <div className="sidebar-header p-4">
-                        <Link href="/" className="d-flex align-items-center text-decoration-none">
-                            <div 
-                                className="me-3 d-flex align-items-center justify-content-center rounded-circle"
-                                style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                                }}
-                            >
-                                <i className="bi bi-heart-fill text-white fs-5"></i>
-                            </div>
-                            <div>
-                                <div className="fw-bold text-white mb-0" style={{ fontSize: '1.1rem' }}>
-                                    Fondation TITI
-                                </div>
-                                <div className="text-white-50" style={{ fontSize: '0.75rem' }}>
-                                    Dashboard
-                                </div>
-                            </div>
-                        </Link>
-                    </div>
-
-                    <div className="sidebar-nav flex-grow-1 px-3" style={{ overflowY: 'auto' }}>
-                        {sidebarItems.map(item => renderSidebarItem(item))}
-                    </div>
-
-                    <div className="sidebar-footer p-3" style={{ borderTop: '1px solid rgba(232, 245, 232, 0.1)' }}>
-                        <div className="d-flex align-items-center">
-                            <div 
-                                className="rounded-circle d-flex align-items-center justify-content-center me-3"
-                                style={{ 
-                                    width: '40px', 
-                                    height: '40px', 
-                                    backgroundColor: 'rgba(232, 245, 232, 0.2)',
-                                    color: '#E8F5E8'
-                                }}
-                            >
-                                {user?.avatar ? (
-                                    <img 
-                                        src={user.avatar} 
-                                        alt={user?.name} 
-                                        className="rounded-circle"
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                ) : (
-                                    <i className="bi bi-person-fill"></i>
-                                )}
-                            </div>
-                            <div className="flex-grow-1">
-                                <div className="fw-semibold text-white" style={{ fontSize: '0.9rem' }}>
-                                    {user?.name || 'Utilisateur'}
-                                </div>
-                                <div className="text-white-50" style={{ fontSize: '0.75rem' }}>
-                                    Membre
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <SidebarContent user={user} />
                 </div>
 
-                <Offcanvas 
-                    show={sidebarOpen} 
-                    onHide={() => setSidebarOpen(false)} 
+                {/* Mobile offcanvas */}
+                <Offcanvas
+                    show={mobileOpen}
+                    onHide={() => setMobileOpen(false)}
                     placement="start"
-                    style={{ background: 'linear-gradient(180deg, #334E15 0%, #4D8A3C 100%)' }}
+                    style={{ width: SIDEBAR_W, background: 'linear-gradient(180deg, #1A3209 0%, #2D5016 60%, #3D7020 100%)' }}
                 >
-                    <Offcanvas.Header closeButton className="text-white">
-                        <Offcanvas.Title className="d-flex align-items-center">
-                            <div 
-                                className="me-2 d-flex align-items-center justify-content-center rounded-circle"
-                                style={{
-                                    width: '30px',
-                                    height: '30px',
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                                }}
-                            >
-                                <i className="bi bi-heart-fill text-white"></i>
-                            </div>
-                            Fondation TITI
-                        </Offcanvas.Title>
-                    </Offcanvas.Header>
-                    <Offcanvas.Body>
-                        <div className="sidebar-nav">
-                            {sidebarItems.map(item => renderSidebarItem(item))}
-                        </div>
+                    <Offcanvas.Body className="p-0 h-100">
+                        <SidebarContent user={user} />
                     </Offcanvas.Body>
                 </Offcanvas>
 
-                <div className="main-content flex-grow-1" style={{ marginLeft: '280px' }}>
-                    <Navbar 
-                        className="top-bar px-4 py-3 d-flex justify-content-between align-items-center"
-                        style={{ 
-                            backgroundColor: '#FFFFFF',
-                            borderBottom: '1px solid #E5E7EB',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                            marginLeft: '-280px',
-                            paddingLeft: '320px'
+                {/* Main area */}
+                <div className="flex-grow-1 d-flex flex-column" style={{ marginLeft: 0 }} data-sidebar-offset>
+                    {/* Topbar */}
+                    <header
+                        className="d-flex align-items-center justify-content-between px-4"
+                        style={{
+                            height: 60,
+                            background: '#FFFFFF',
+                            borderBottom: '1px solid #E5E9E5',
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 1030,
+                            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
                         }}
                     >
-                        <div className="d-flex align-items-center">
-                            <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                className="d-lg-none me-3"
-                                onClick={() => setSidebarOpen(true)}
+                        <div className="d-flex align-items-center gap-3">
+                            <button
+                                className="btn btn-sm btn-light d-lg-none border-0"
+                                onClick={() => setMobileOpen(true)}
+                                style={{ color: '#4A8A2A' }}
                             >
-                                <i className="bi bi-list"></i>
-                            </Button>
-                            <h1 className="h4 mb-0 fw-bold" style={{ color: '#1F2937' }}>
+                                <i className="bi bi-list fs-5"></i>
+                            </button>
+                            <h1 className="mb-0 fw-bold" style={{ color: '#1A3209', fontSize: '1.1rem' }}>
                                 {title}
                             </h1>
                         </div>
-                        
-                        <div className="d-flex align-items-center gap-3">
-                            <Button variant="outline-secondary" size="sm" className="position-relative">
-                                <i className="bi bi-bell"></i>
-                                <span 
-                                    className="position-absolute top-0 start-100 translate-middle badge rounded-pill"
-                                    style={{ backgroundColor: '#E4518C', fontSize: '0.6rem' }}
-                                >
-                                    5
-                                </span>
-                            </Button>
-                            
-                            <Link 
-                                href="/profile" 
-                                className="d-flex align-items-center text-decoration-none"
-                                style={{ color: '#374151' }}
+
+                        <div className="d-flex align-items-center gap-2">
+                            <button className="btn btn-sm btn-light border-0 position-relative" style={{ borderRadius: 8 }}>
+                                <i className="bi bi-bell" style={{ color: '#6B7280' }}></i>
+                            </button>
+                            <Link
+                                href="/settings/profile"
+                                className="d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded-2"
+                                style={{ color: '#1A3209' }}
                             >
-                                <div 
-                                    className="rounded-circle d-flex align-items-center justify-content-center me-2"
-                                    style={{ 
-                                        width: '32px', 
-                                        height: '32px', 
-                                        backgroundColor: '#5FA145',
-                                        color: '#FFFFFF'
-                                    }}
+                                <div
+                                    className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                    style={{ width: 32, height: 32, background: '#EAF5E5', color: '#4A8A2A', fontWeight: 700, fontSize: '0.8rem' }}
                                 >
-                                    {user?.avatar ? (
-                                        <img 
-                                            src={user.avatar} 
-                                            alt={user?.name} 
-                                            className="rounded-circle"
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                        />
-                                    ) : (
-                                        <i className="bi bi-person-fill"></i>
-                                    )}
+                                    {user?.name?.charAt(0).toUpperCase() || 'U'}
                                 </div>
-                                <span className="fw-medium">{user?.name || 'Utilisateur'}</span>
+                                <span className="d-none d-md-inline fw-medium" style={{ fontSize: '0.88rem' }}>{user?.name}</span>
                             </Link>
                         </div>
-                    </Navbar>
+                    </header>
 
-                    <div className="page-content p-4" style={{ backgroundColor: '#F9FAFB', minHeight: 'calc(100vh - 73px)' }}>
+                    {/* Page content */}
+                    <main className="flex-grow-1 p-4" style={{ background: '#F4F6F4' }}>
                         {children}
-                    </div>
+                    </main>
                 </div>
             </div>
 
+            {/* Fix desktop sidebar offset via CSS */}
+            <style>{`
+                @media (min-width: 992px) {
+                    [data-sidebar-offset] { margin-left: ${SIDEBAR_W}px !important; }
+                }
+            `}</style>
         </>
     );
 }

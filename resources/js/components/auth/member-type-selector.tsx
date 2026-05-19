@@ -58,14 +58,14 @@ export function MemberTypeSelector({
                     boxShadow: '0 15px 40px rgba(95, 161, 69, 0.4)'
                 },
                 'purple': {
-                    background: 'linear-gradient(135deg, #E4518C 0%, #F5B4C6 100%)',
-                    borderColor: '#E4518C',
-                    boxShadow: '0 15px 40px rgba(228, 81, 140, 0.4)'
+                    background: 'linear-gradient(135deg, #C69438 0%, #F9D27A 100%)',
+                    borderColor: '#C69438',
+                    boxShadow: '0 15px 40px rgba(198, 148, 56, 0.4)'
                 },
                 'red': {
-                    background: 'linear-gradient(135deg, #E4518C 0%, #C69438 100%)',
-                    borderColor: '#E4518C',
-                    boxShadow: '0 15px 40px rgba(228, 81, 140, 0.4)'
+                    background: 'linear-gradient(135deg, #C69438 0%, #C69438 100%)',
+                    borderColor: '#C69438',
+                    boxShadow: '0 15px 40px rgba(198, 148, 56, 0.4)'
                 },
                 'cyan': {
                     background: 'linear-gradient(135deg, #4D8A3C 0%, #334E15 100%)',

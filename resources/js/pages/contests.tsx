@@ -1,6 +1,5 @@
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
-import { Container, Row, Col, Card, Button, Form, InputGroup, Badge } from 'react-bootstrap';
 import { ModernHeader } from '../components/home/modern-header';
 import { ModernFooter } from '../components/home/modern-footer';
 
@@ -8,539 +7,208 @@ interface Contest {
     id: number;
     title: string;
     description: string;
-    image: string;
+    icon: string;
     category: string;
-    endDate: string;
+    endDate: string | null;
     votes: number;
     status: 'active' | 'ended' | 'upcoming';
-    prize: string;
+    prize: string | null;
 }
 
 interface ContestsProps {
-    user?: {
-        name: string;
-        email: string;
-    };
+    user?: { name: string; email: string };
+    contests?: Contest[];
 }
 
-export default function Contests({ user }: ContestsProps) {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('all');
-    const [votedContests, setVotedContests] = useState<number[]>([]);
+const STATUS_STYLES: Record<Contest['status'], { label: string; color: string; bg: string }> = {
+    active:   { label: 'Actif',    color: '#15803D', bg: '#F0FDF4' },
+    ended:    { label: 'Terminé',  color: '#6B7280', bg: '#F9FAFB' },
+    upcoming: { label: 'À venir',  color: '#92400E', bg: '#FFFBEB' },
+};
 
-    // Données de concours exemples
-    const contests: Contest[] = [
-        {
-            id: 1,
-            title: "Innovation Sociale 2025",
-            description: "Proposez votre projet d'innovation sociale pour transformer votre communauté et gagner un financement de 5M FCFA.",
-            image: "🚀",
-            category: "innovation",
-            endDate: "2025-03-15",
-            votes: 342,
-            status: 'active',
-            prize: "5M FCFA"
-        },
-        {
-            id: 2,
-            title: "Entrepreneuriat Vert",
-            description: "Concours dédié aux projets environnementaux durables avec un impact positif sur l'écosystème.",
-            image: "🌱",
-            category: "environnement",
-            endDate: "2025-04-20",
-            votes: 256,
-            status: 'active',
-            prize: "3M FCFA"
-        },
-        {
-            id: 3,
-            title: "Éducation Numérique",
-            description: "Développez des solutions éducatives numériques pour améliorer l'apprentissage des jeunes.",
-            image: "📚",
-            category: "education",
-            endDate: "2025-05-10",
-            votes: 189,
-            status: 'active',
-            prize: "4M FCFA"
-        },
-        {
-            id: 4,
-            title: "Santé Communautaire",
-            description: "Initiatives pour améliorer l'accès aux soins de santé dans les communautés rurales.",
-            image: "⚕️",
-            category: "sante",
-            endDate: "2025-02-28",
-            votes: 423,
-            status: 'active',
-            prize: "6M FCFA"
-        },
-        {
-            id: 5,
-            title: "Art & Culture",
-            description: "Valorisez le patrimoine culturel local à travers des projets artistiques innovants.",
-            image: "🎨",
-            category: "culture",
-            endDate: "2025-01-30",
-            votes: 178,
-            status: 'ended',
-            prize: "2M FCFA"
-        },
-        {
-            id: 6,
-            title: "Tech for Good",
-            description: "Solutions technologiques au service du bien commun et de l'inclusion sociale.",
-            image: "💻",
-            category: "innovation",
-            endDate: "2025-06-15",
-            votes: 95,
-            status: 'upcoming',
-            prize: "7M FCFA"
-        }
-    ];
+const CATEGORY_COLORS: Record<string, string> = {
+    innovation:    '#16A34A',
+    environnement: '#0D9488',
+    education:     '#2563EB',
+    sante:         '#DC2626',
+    culture:       '#7C3AED',
+};
+
+const STEPS = [
+    { icon: 'bi-pencil-square', title: 'Inscrivez-vous',       desc: 'Créez votre compte sur notre plateforme' },
+    { icon: 'bi-lightbulb',     title: 'Soumettez votre projet', desc: 'Présentez votre idée avec tous les détails' },
+    { icon: 'bi-hand-thumbs-up', title: 'Vote du public',       desc: 'La communauté vote pour les meilleurs projets' },
+    { icon: 'bi-trophy',         title: 'Remportez le prix',    desc: 'Les gagnants reçoivent financement et accompagnement' },
+];
+
+export default function Contests({ user, contests: dbContests = [] }: ContestsProps) {
+    const [search, setSearch] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [voted, setVoted] = useState<number[]>([]);
 
     const categories = [
-        { value: 'all', label: 'Toutes les catégories' },
-        { value: 'innovation', label: 'Innovation' },
+        { value: 'all',           label: 'Toutes les catégories' },
+        { value: 'innovation',    label: 'Innovation' },
         { value: 'environnement', label: 'Environnement' },
-        { value: 'education', label: 'Éducation' },
-        { value: 'sante', label: 'Santé' },
-        { value: 'culture', label: 'Culture' }
+        { value: 'education',     label: 'Éducation' },
+        { value: 'sante',         label: 'Santé' },
+        { value: 'culture',       label: 'Culture' },
     ];
 
-    const filteredContests = contests.filter(contest => {
-        const matchesSearch = contest.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             contest.description.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = selectedCategory === 'all' || contest.category === selectedCategory;
-        return matchesSearch && matchesCategory;
+    const filtered = dbContests.filter(c => {
+        const q = search.toLowerCase();
+        const matchSearch = c.title.toLowerCase().includes(q) || c.description.toLowerCase().includes(q);
+        const matchCat    = selectedCategory === 'all' || c.category === selectedCategory;
+        return matchSearch && matchCat;
     });
-
-    const handleVote = (contestId: number) => {
-        if (!votedContests.includes(contestId)) {
-            setVotedContests([...votedContests, contestId]);
-            // Ici, vous ajouteriez l'appel API pour enregistrer le vote
-        }
-    };
-
-    const getStatusBadge = (status: Contest['status']) => {
-        const badgeStyles = {
-            active: { bg: '#5FA145', text: 'Actif' },
-            ended: { bg: '#6B7280', text: 'Terminé' },
-            upcoming: { bg: '#C69438', text: 'À venir' }
-        };
-        
-        return (
-            <Badge 
-                style={{ 
-                    backgroundColor: badgeStyles[status].bg,
-                    color: '#FFFFFF',
-                    fontSize: '0.75rem',
-                    padding: '4px 8px'
-                }}
-            >
-                {badgeStyles[status].text}
-            </Badge>
-        );
-    };
-
-    const participationSteps = [
-        {
-            icon: '📝',
-            title: 'Inscrivez-vous',
-            description: 'Créez votre compte sur notre plateforme'
-        },
-        {
-            icon: '💡',
-            title: 'Soumettez votre projet',
-            description: 'Présentez votre idée avec tous les détails'
-        },
-        {
-            icon: '🗳️',
-            title: 'Vote du public',
-            description: 'La communauté vote pour les meilleurs projets'
-        },
-        {
-            icon: '🏆',
-            title: 'Remportez le prix',
-            description: 'Les gagnants reçoivent financement et accompagnement'
-        }
-    ];
 
     return (
         <>
             <Head>
-                <title>Concours - Fondation TITI</title>
-                <meta name="description" content="Participez aux concours de la Fondation TITI et votez pour les projets qui transforment nos communautés." />
+                <title>Concours — Fondation TITI</title>
+                <meta name="description" content="Participez aux concours de la Fondation TITI et votez pour les projets innovants." />
             </Head>
 
-            <div className="contests-page">
-                <ModernHeader user={user} />
-                
-                {/* Section Hero */}
-                <section 
-                    className="hero-section py-5"
-                    style={{
-                        background: 'linear-gradient(135deg, #334E15 0%, #4D8A3C 50%, #5FA145 100%)',
-                        marginTop: '70px',
-                        minHeight: '300px'
-                    }}
-                >
-                    <Container>
-                        <Row className="align-items-center">
-                            <Col lg={8} className="text-center mx-auto">
-                                <div className="hero-content py-5">
-                                    <h1 
-                                        className="display-4 fw-bold mb-4"
-                                        style={{ color: '#FFFFFF', textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}
-                                    >
-                                        Concours & Innovation
-                                    </h1>
-                                    <p 
-                                        className="lead mb-4"
-                                        style={{ color: '#FFFFFF', opacity: 0.9, fontSize: '1.2rem' }}
-                                    >
-                                        Découvrez les projets innovants de notre communauté et votez pour ceux qui vous inspirent le plus.
-                                        Ensemble, soutenons les idées qui transforment nos sociétés.
-                                    </p>
-                                    <div 
-                                        className="stats-row d-flex justify-content-center gap-4 flex-wrap"
-                                        style={{ marginTop: '2rem' }}
-                                    >
-                                        <div className="text-center">
-                                            <div className="h3 fw-bold mb-1" style={{ color: '#C69438' }}>12</div>
-                                            <div style={{ color: '#FFFFFF', fontSize: '0.9rem' }}>Concours actifs</div>
-                                        </div>
-                                        <div className="text-center">
-                                            <div className="h3 fw-bold mb-1" style={{ color: '#E4518C' }}>2,450</div>
-                                            <div style={{ color: '#FFFFFF', fontSize: '0.9rem' }}>Votes exprimés</div>
-                                        </div>
-                                        <div className="text-center">
-                                            <div className="h3 fw-bold mb-1" style={{ color: '#F5B4C6' }}>45</div>
-                                            <div style={{ color: '#FFFFFF', fontSize: '0.9rem' }}>Projets soutenus</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Container>
-                </section>
+            <ModernHeader user={user} />
 
-                {/* Barre de recherche et filtres */}
-                <section className="py-4" style={{ backgroundColor: '#F8F9FA' }}>
-                    <Container>
-                        <Row className="g-3 align-items-end">
-                            <Col md={6}>
-                                <Form.Label className="fw-semibold mb-2">Rechercher un concours</Form.Label>
-                                <InputGroup>
-                                    <InputGroup.Text style={{ backgroundColor: '#FFFFFF', borderColor: '#D1D5DB' }}>
-                                        <i className="bi bi-search text-muted"></i>
-                                    </InputGroup.Text>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Titre, description, catégorie..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        style={{ borderColor: '#D1D5DB' }}
+            <div style={{ background: '#F9FAFB', minHeight: '100vh', paddingTop: 66 }}>
+                {/* Page header */}
+                <div style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: '32px 0' }}>
+                    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+                            <div>
+                                <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#16A34A', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
+                                    <i className="bi bi-trophy me-2" />Concours
+                                </p>
+                                <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#111827', margin: 0 }}>Concours & Innovation</h1>
+                                <p style={{ color: '#6B7280', marginTop: 6, marginBottom: 0, fontSize: '0.9375rem' }}>
+                                    Découvrez les projets innovants et votez pour ceux qui vous inspirent.
+                                </p>
+                            </div>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                <div style={{ position: 'relative' }}>
+                                    <i className="bi bi-search" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '0.875rem' }} />
+                                    <input
+                                        value={search}
+                                        onChange={e => setSearch(e.target.value)}
+                                        placeholder="Rechercher…"
+                                        style={{ height: 36, paddingLeft: 30, paddingRight: 10, border: '1px solid #D1D5DB', borderRadius: 6, fontSize: '0.875rem', width: 200, outline: 'none', background: '#fff' }}
                                     />
-                                </InputGroup>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Label className="fw-semibold mb-2">Catégorie</Form.Label>
-                                <Form.Select
-                                    value={selectedCategory}
-                                    onChange={(e) => setSelectedCategory(e.target.value)}
-                                    style={{ borderColor: '#D1D5DB' }}
-                                >
-                                    {categories.map(category => (
-                                        <option key={category.value} value={category.value}>
-                                            {category.label}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            </Col>
-                            <Col md={2}>
-                                <div className="text-muted small">
-                                    {filteredContests.length} résultat{filteredContests.length > 1 ? 's' : ''}
                                 </div>
-                            </Col>
-                        </Row>
-                    </Container>
-                </section>
+                                <select
+                                    value={selectedCategory}
+                                    onChange={e => setSelectedCategory(e.target.value)}
+                                    style={{ height: 36, padding: '0 10px', border: '1px solid #D1D5DB', borderRadius: 6, fontSize: '0.875rem', background: '#fff' }}
+                                >
+                                    {categories.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                {/* Grille des concours */}
-                <section className="py-5">
-                    <Container>
-                        <Row className="g-4">
-                            {filteredContests.map(contest => (
-                                <Col lg={4} md={6} key={contest.id}>
-                                    <Card 
-                                        className="contest-card h-100 border-0 shadow-sm"
-                                        style={{
-                                            borderRadius: '16px',
-                                            transition: 'all 0.3s ease',
-                                            overflow: 'hidden'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.transform = 'translateY(-8px)';
-                                            e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.transform = 'translateY(0)';
-                                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
-                                        }}
-                                    >
-                                        <div 
-                                            className="card-image-header text-center py-4"
-                                            style={{
-                                                background: `linear-gradient(135deg, ${
-                                                    contest.category === 'innovation' ? '#5FA145' :
-                                                    contest.category === 'environnement' ? '#4D8A3C' :
-                                                    contest.category === 'education' ? '#C69438' :
-                                                    contest.category === 'sante' ? '#E4518C' :
-                                                    contest.category === 'culture' ? '#F5B4C6' : '#334E15'
-                                                } 0%, rgba(255,255,255,0.1) 100%)`
-                                            }}
-                                        >
-                                            <div style={{ fontSize: '3rem' }}>{contest.image}</div>
-                                        </div>
-                                        <Card.Body className="p-4">
-                                            <div className="d-flex justify-content-between align-items-start mb-3">
-                                                <h5 className="card-title fw-bold mb-0" style={{ color: '#1F2937' }}>
-                                                    {contest.title}
-                                                </h5>
-                                                {getStatusBadge(contest.status)}
-                                            </div>
-                                            
-                                            <p className="card-text text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
-                                                {contest.description}
-                                            </p>
-
-                                            <div className="contest-meta mb-3">
-                                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                                    <small className="text-muted">
-                                                        <i className="bi bi-calendar me-1"></i>
-                                                        Fin: {new Date(contest.endDate).toLocaleDateString('fr-FR')}
-                                                    </small>
-                                                    <small className="fw-semibold" style={{ color: '#C69438' }}>
-                                                        Prix: {contest.prize}
-                                                    </small>
-                                                </div>
-                                                <div className="d-flex align-items-center">
-                                                    <small className="text-muted">
-                                                        <i className="bi bi-hand-thumbs-up me-1"></i>
-                                                        {contest.votes} votes
-                                                    </small>
-                                                </div>
-                                            </div>
-
-                                            <Button
-                                                className="w-100 fw-semibold"
-                                                disabled={contest.status === 'ended' || votedContests.includes(contest.id)}
-                                                onClick={() => handleVote(contest.id)}
-                                                style={{
-                                                    backgroundColor: votedContests.includes(contest.id) ? '#6B7280' : 
-                                                                   contest.status === 'ended' ? '#9CA3AF' : '#5FA145',
-                                                    borderColor: 'transparent',
-                                                    borderRadius: '8px',
-                                                    padding: '12px',
-                                                    transition: 'all 0.3s ease'
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    if (!votedContests.includes(contest.id) && contest.status === 'active') {
-                                                        e.currentTarget.style.backgroundColor = '#4D8A3C';
-                                                        e.currentTarget.style.transform = 'translateY(-2px)';
-                                                    }
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    if (!votedContests.includes(contest.id) && contest.status === 'active') {
-                                                        e.currentTarget.style.backgroundColor = '#5FA145';
-                                                        e.currentTarget.style.transform = 'translateY(0)';
-                                                    }
-                                                }}
-                                            >
-                                                <i className={`bi ${
-                                                    votedContests.includes(contest.id) ? 'bi-check-circle' :
-                                                    contest.status === 'ended' ? 'bi-lock' :
-                                                    contest.status === 'upcoming' ? 'bi-clock' : 'bi-hand-thumbs-up'
-                                                } me-2`}></i>
-                                                {votedContests.includes(contest.id) ? 'Voté !' :
-                                                 contest.status === 'ended' ? 'Concours terminé' :
-                                                 contest.status === 'upcoming' ? 'Bientôt disponible' : 'Voter pour ce projet'}
-                                            </Button>
-                                        </Card.Body>
-                                    </Card>
-                                </Col>
-                            ))}
-                        </Row>
-                    </Container>
-                </section>
-
-                {/* Section Comment participer */}
-                <section 
-                    className="py-5"
-                    style={{
-                        background: 'linear-gradient(135deg, #F8F9FA 0%, #E5E7EB 100%)'
-                    }}
-                >
-                    <Container>
-                        <div className="text-center mb-5">
-                            <h2 className="display-5 fw-bold mb-4" style={{ color: '#1F2937' }}>
-                                Comment participer ?
-                            </h2>
-                            <p className="lead mx-auto" style={{ color: '#6B7280', maxWidth: '600px' }}>
-                                Suivez ces 4 étapes simples pour participer à nos concours et donner vie à vos projets innovants.
+                <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px' }}>
+                    {/* Grid des concours */}
+                    {filtered.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '64px 0', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10 }}>
+                            <i className="bi bi-trophy" style={{ fontSize: '2rem', color: '#D1D5DB' }} />
+                            <p style={{ marginTop: 12, color: '#6B7280', fontWeight: 500 }}>
+                                {dbContests.length === 0 ? 'Aucun concours disponible pour le moment.' : 'Aucun concours ne correspond à votre recherche.'}
                             </p>
                         </div>
+                    ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+                            {filtered.map(contest => {
+                                const st = STATUS_STYLES[contest.status];
+                                const catColor = CATEGORY_COLORS[contest.category] ?? '#6B7280';
+                                const hasVoted = voted.includes(contest.id);
+                                return (
+                                    <div key={contest.id} style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                                        {/* Colored accent bar */}
+                                        <div style={{ height: 4, background: catColor }} />
 
-                        <Row className="g-4">
-                            {participationSteps.map((step, index) => (
-                                <Col lg={3} md={6} key={index} className="text-center">
-                                    <div 
-                                        className="step-card p-4 h-100 rounded-4 position-relative"
-                                        style={{
-                                            background: '#FFFFFF',
-                                            border: '2px solid transparent',
-                                            boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
-                                            transition: 'all 0.3s ease'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.borderColor = '#5FA145';
-                                            e.currentTarget.style.transform = 'translateY(-8px)';
-                                            e.currentTarget.style.boxShadow = '0 12px 30px rgba(95, 161, 69, 0.2)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.borderColor = 'transparent';
-                                            e.currentTarget.style.transform = 'translateY(0)';
-                                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.08)';
-                                        }}
-                                    >
-                                        {/* Numéro d'étape */}
-                                        <div 
-                                            className="step-number position-absolute rounded-circle d-flex align-items-center justify-content-center fw-bold"
-                                            style={{
-                                                width: '32px',
-                                                height: '32px',
-                                                backgroundColor: '#5FA145',
-                                                color: '#FFFFFF',
-                                                top: '-16px',
-                                                left: '20px',
-                                                fontSize: '0.875rem',
-                                                boxShadow: '0 4px 10px rgba(95, 161, 69, 0.3)'
-                                            }}
-                                        >
-                                            {index + 1}
+                                        <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                            {/* Icon + status */}
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <div style={{ width: 44, height: 44, borderRadius: 10, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <i className={`bi ${contest.icon}`} style={{ fontSize: '1.25rem', color: catColor }} />
+                                                </div>
+                                                <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '3px 8px', borderRadius: 4, background: st.bg, color: st.color }}>
+                                                    {st.label}
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#111827', margin: '0 0 6px' }}>{contest.title}</h3>
+                                                <p style={{ fontSize: '0.875rem', color: '#6B7280', margin: 0, lineHeight: 1.5 }}>{contest.description}</p>
+                                            </div>
+
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: '#6B7280' }}>
+                                                <span><i className="bi bi-calendar me-1" />Fin : {contest.endDate ? new Date(contest.endDate).toLocaleDateString('fr-FR') : '—'}</span>
+                                                <span><i className="bi bi-hand-thumbs-up me-1" />{contest.votes} votes</span>
+                                            </div>
+
+                                            {contest.prize && (
+                                                <div style={{ fontSize: '0.8125rem', color: '#92400E', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 6, padding: '6px 10px' }}>
+                                                    <i className="bi bi-award me-1" />Prix : {contest.prize}
+                                                </div>
+                                            )}
+
+                                            <div style={{ marginTop: 'auto', paddingTop: 4 }}>
+                                                <button
+                                                    disabled={contest.status === 'ended' || hasVoted}
+                                                    onClick={() => !hasVoted && contest.status === 'active' && setVoted(v => [...v, contest.id])}
+                                                    style={{
+                                                        width: '100%', height: 34, border: 'none', borderRadius: 6,
+                                                        fontSize: '0.8125rem', fontWeight: 500, cursor: contest.status === 'ended' || hasVoted ? 'default' : 'pointer',
+                                                        background: hasVoted ? '#F3F4F6' : contest.status === 'ended' ? '#F3F4F6' : '#16A34A',
+                                                        color: hasVoted || contest.status === 'ended' ? '#9CA3AF' : '#fff',
+                                                    }}
+                                                >
+                                                    <i className={`bi ${hasVoted ? 'bi-check-circle' : contest.status === 'ended' ? 'bi-lock' : contest.status === 'upcoming' ? 'bi-clock' : 'bi-hand-thumbs-up'} me-1`} />
+                                                    {hasVoted ? 'Voté !'
+                                                        : contest.status === 'ended' ? 'Concours terminé'
+                                                        : contest.status === 'upcoming' ? 'Bientôt disponible'
+                                                        : 'Voter pour ce projet'}
+                                                </button>
+                                            </div>
                                         </div>
-
-                                        {/* Icône */}
-                                        <div 
-                                            className="step-icon mb-3"
-                                            style={{ fontSize: '3rem', marginTop: '1rem' }}
-                                        >
-                                            {step.icon}
-                                        </div>
-
-                                        {/* Titre */}
-                                        <h4 className="fw-bold mb-3" style={{ color: '#1F2937' }}>
-                                            {step.title}
-                                        </h4>
-
-                                        {/* Description */}
-                                        <p className="text-muted mb-0" style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>
-                                            {step.description}
-                                        </p>
                                     </div>
-                                </Col>
-                            ))}
-                        </Row>
-
-                        {/* Bouton CTA */}
-                        <div className="text-center mt-5">
-                            <Button
-                                size="lg"
-                                className="px-5 py-3 fw-semibold"
-                                style={{
-                                    background: 'linear-gradient(135deg, #5FA145 0%, #C69438 100%)',
-                                    border: 'none',
-                                    borderRadius: '50px',
-                                    color: '#FFFFFF',
-                                    fontSize: '1.1rem',
-                                    boxShadow: '0 8px 25px rgba(95, 161, 69, 0.3)',
-                                    transition: 'all 0.3s ease'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
-                                    e.currentTarget.style.boxShadow = '0 12px 35px rgba(95, 161, 69, 0.4)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(95, 161, 69, 0.3)';
-                                }}
-                            >
-                                <i className="bi bi-rocket-takeoff me-2"></i>
-                                Commencer maintenant
-                            </Button>
+                                );
+                            })}
                         </div>
-                    </Container>
-                </section>
+                    )}
 
-                {/* Section statistiques */}
-                <section 
-                    className="py-5"
-                    style={{
-                        background: 'linear-gradient(135deg, #334E15 0%, #4D8A3C 100%)'
-                    }}
-                >
-                    <Container>
-                        <Row className="text-center text-white">
-                            <Col md={3} className="mb-4">
-                                <div className="stat-item">
-                                    <div 
-                                        className="stat-number display-4 fw-bold mb-2"
-                                        style={{ color: '#C69438' }}
-                                    >
-                                        156
-                                    </div>
-                                    <div className="stat-label">Projets soumis</div>
+                    {/* Comment participer */}
+                    <div style={{ marginTop: 48 }}>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#111827', marginBottom: 4 }}>Comment participer ?</h2>
+                        <p style={{ color: '#6B7280', marginBottom: 24, fontSize: '0.9375rem' }}>Suivez ces 4 étapes pour donner vie à vos projets.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+                            {STEPS.map((step, i) => (
+                                <div key={i} style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '20px', position: 'relative' }}>
+                                    <div style={{ position: 'absolute', top: 16, right: 16, width: 24, height: 24, borderRadius: '50%', background: '#16A34A', color: '#fff', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
+                                    <i className={`bi ${step.icon}`} style={{ fontSize: '1.5rem', color: '#16A34A', display: 'block', marginBottom: 12 }} />
+                                    <p style={{ fontWeight: 600, color: '#111827', margin: '0 0 6px', fontSize: '0.9375rem' }}>{step.title}</p>
+                                    <p style={{ color: '#6B7280', margin: 0, fontSize: '0.875rem', lineHeight: 1.5 }}>{step.desc}</p>
                                 </div>
-                            </Col>
-                            <Col md={3} className="mb-4">
-                                <div className="stat-item">
-                                    <div 
-                                        className="stat-number display-4 fw-bold mb-2"
-                                        style={{ color: '#E4518C' }}
-                                    >
-                                        23M
-                                    </div>
-                                    <div className="stat-label">FCFA distribués</div>
-                                </div>
-                            </Col>
-                            <Col md={3} className="mb-4">
-                                <div className="stat-item">
-                                    <div 
-                                        className="stat-number display-4 fw-bold mb-2"
-                                        style={{ color: '#F5B4C6' }}
-                                    >
-                                        89%
-                                    </div>
-                                    <div className="stat-label">Taux de réussite</div>
-                                </div>
-                            </Col>
-                            <Col md={3} className="mb-4">
-                                <div className="stat-item">
-                                    <div 
-                                        className="stat-number display-4 fw-bold mb-2"
-                                        style={{ color: '#5FA145' }}
-                                    >
-                                        1.2K
-                                    </div>
-                                    <div className="stat-label">Participants actifs</div>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Container>
-                </section>
+                            ))}
+                        </div>
+                    </div>
 
-                <ModernFooter />
+                    {/* CTA */}
+                    <div style={{ marginTop: 32, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '24px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+                        <div>
+                            <p style={{ fontWeight: 600, color: '#111827', margin: 0 }}>Prêt à soumettre votre projet ?</p>
+                            <p style={{ color: '#6B7280', margin: '4px 0 0', fontSize: '0.875rem' }}>Créez un compte et participez à notre prochain concours.</p>
+                        </div>
+                        <a href="/register" style={{ height: 34, padding: '0 14px', lineHeight: '34px', background: '#16A34A', color: '#fff', borderRadius: 6, fontSize: '0.8125rem', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                            <i className="bi bi-rocket-takeoff me-1" />Commencer maintenant
+                        </a>
+                    </div>
+                </div>
             </div>
+
+            <ModernFooter />
         </>
     );
 }

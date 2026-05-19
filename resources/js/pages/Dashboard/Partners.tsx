@@ -78,7 +78,7 @@ export default function DashboardPartners({ user, stats, partners, recentRequest
         const styles = {
             active: { bg: '#5FA145', color: '#FFF' },
             pending: { bg: '#C69438', color: '#FFF' },
-            suspended: { bg: '#E4518C', color: '#FFF' },
+            suspended: { bg: '#C69438', color: '#FFF' },
             inactive: { bg: '#6B7280', color: '#FFF' }
         };
         return styles[status as keyof typeof styles] || styles.inactive;
@@ -317,7 +317,7 @@ export default function DashboardPartners({ user, stats, partners, recentRequest
                                                                     <Dropdown.Item href="#" style={{ fontSize: '0.9rem' }}>
                                                                         <i className="bi bi-pencil me-2"></i>Modifier
                                                                     </Dropdown.Item>
-                                                                    <Dropdown.Item href="#" style={{ fontSize: '0.9rem', color: '#E4518C' }}>
+                                                                    <Dropdown.Item href="#" style={{ fontSize: '0.9rem', color: '#C69438' }}>
                                                                         <i className="bi bi-pause me-2"></i>Suspendre
                                                                     </Dropdown.Item>
                                                                 </Dropdown.Menu>
@@ -512,7 +512,7 @@ export default function DashboardPartners({ user, stats, partners, recentRequest
                                                                     <i className="bi bi-telephone me-2"></i>Marquer contact
                                                                 </Dropdown.Item>
                                                                 <Dropdown.Divider />
-                                                                <Dropdown.Item href="#" style={{ fontSize: '0.9rem', color: '#E4518C' }}>
+                                                                <Dropdown.Item href="#" style={{ fontSize: '0.9rem', color: '#C69438' }}>
                                                                     <i className="bi bi-pause me-2"></i>Suspendre
                                                                 </Dropdown.Item>
                                                                 <Dropdown.Item href="#" style={{ fontSize: '0.9rem', color: '#DC2626' }}>

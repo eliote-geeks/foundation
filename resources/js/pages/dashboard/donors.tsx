@@ -95,7 +95,7 @@ export default function Donors({ stats, donors, topDonors, donorsByLocation, don
     const getDonorTypeIcon = (donor: Donor) => {
         if (donor.is_major_donor) return { icon: 'bi-star-fill', color: '#C69438', label: 'Donateur majeur' };
         if (donor.is_regular_donor) return { icon: 'bi-arrow-repeat', color: '#5FA145', label: 'Donateur régulier' };
-        return { icon: 'bi-person', color: '#667eea', label: 'Donateur' };
+        return { icon: 'bi-person', color: '#4A8A2A', label: 'Donateur' };
     };
 
     return (
@@ -176,7 +176,7 @@ export default function Donors({ stats, donors, topDonors, donorsByLocation, don
                                             <Button
                                                 onClick={handleSearch}
                                                 style={{
-                                                    background: '#667eea',
+                                                    background: '#4A8A2A',
                                                     border: 'none',
                                                     borderRadius: '0 12px 12px 0'
                                                 }}
@@ -198,7 +198,7 @@ export default function Donors({ stats, donors, topDonors, donorsByLocation, don
                                                         active={type === item.key}
                                                         onClick={() => handleTypeFilter(item.key)}
                                                         style={{
-                                                            backgroundColor: type === item.key ? '#667eea' : 'transparent',
+                                                            backgroundColor: type === item.key ? '#4A8A2A' : 'transparent',
                                                             color: type === item.key ? '#FFF' : '#6B7280',
                                                             borderRadius: '10px'
                                                         }}
@@ -289,7 +289,7 @@ export default function Donors({ stats, donors, topDonors, donorsByLocation, don
                                                             </small>
                                                         </td>
                                                         <td className="py-3">
-                                                            <span className="fw-semibold" style={{ color: '#667eea' }}>
+                                                            <span className="fw-semibold" style={{ color: '#4A8A2A' }}>
                                                                 {donor.total_donations}
                                                             </span>
                                                         </td>
@@ -374,8 +374,8 @@ export default function Donors({ stats, donors, topDonors, donorsByLocation, don
                                             style={{
                                                 width: '35px',
                                                 height: '35px',
-                                                background: index < 3 ? '#C6943815' : '#667eea15',
-                                                color: index < 3 ? '#C69438' : '#667eea'
+                                                background: index < 3 ? '#C6943815' : '#4A8A2A15',
+                                                color: index < 3 ? '#C69438' : '#4A8A2A'
                                             }}
                                         >
                                             {index < 3 ? (
@@ -461,8 +461,8 @@ export default function Donors({ stats, donors, topDonors, donorsByLocation, don
                                         style={{
                                             width: '50px',
                                             height: '50px',
-                                            background: '#667eea15',
-                                            color: '#667eea'
+                                            background: '#4A8A2A15',
+                                            color: '#4A8A2A'
                                         }}
                                     >
                                         <i className="bi bi-person"></i>
@@ -502,7 +502,7 @@ export default function Donors({ stats, donors, topDonors, donorsByLocation, don
                                         <Button
                                             type="submit"
                                             style={{
-                                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                background: 'linear-gradient(135deg, #4A8A2A 0%, #2D5016 100%)',
                                                 border: 'none',
                                                 borderRadius: '8px'
                                             }}

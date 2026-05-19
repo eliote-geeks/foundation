@@ -61,8 +61,8 @@ export function ModulesShowcaseSection() {
             title: 'Espace Membres',
             description: 'Communauté segmentée avec adhérents, ambassadeurs et anciens challengers. Notifications ciblées et engagement.',
             icon: 'bi-people-fill',
-            color: '#E4518C',
-            gradient: 'linear-gradient(135deg, #E4518C 0%, #F5B4C6 100%)',
+            color: '#C69438',
+            gradient: 'linear-gradient(135deg, #C69438 0%, #F9D27A 100%)',
             features: [
                 'Profils personnalisés',
                 'Segmentation avancée',
@@ -72,7 +72,7 @@ export function ModulesShowcaseSection() {
             ],
             status: 'active',
             ctaText: 'Rejoindre la communauté',
-            ctaHref: '/simple-register'
+            ctaHref: '/register'
         },
         {
             id: 'programs',
@@ -134,7 +134,7 @@ export function ModulesShowcaseSection() {
         const statusConfig = {
             'active': { bg: '#5FA145', text: 'Actif', icon: 'bi-check-circle-fill' },
             'beta': { bg: '#C69438', text: 'Bêta', icon: 'bi-wrench' },
-            'coming-soon': { bg: '#E4518C', text: 'Bientôt', icon: 'bi-clock-fill' }
+            'coming-soon': { bg: '#C69438', text: 'Bientôt', icon: 'bi-clock-fill' }
         };
         const config = statusConfig[status as keyof typeof statusConfig];
         return (
@@ -415,7 +415,7 @@ export function ModulesShowcaseSection() {
                         <div 
                             className="p-5 rounded-4"
                             style={{
-                                background: 'linear-gradient(135deg, rgba(95, 161, 69, 0.1) 0%, rgba(228, 81, 140, 0.1) 100%)',
+                                background: 'linear-gradient(135deg, rgba(95, 161, 69, 0.1) 0%, rgba(198, 148, 56, 0.1) 100%)',
                                 border: '1px solid rgba(95, 161, 69, 0.2)',
                                 color: '#334E15'
                             }}
@@ -428,7 +428,7 @@ export function ModulesShowcaseSection() {
                             </p>
                             <div className="d-flex flex-column flex-sm-row justify-content-center gap-2">
                                 <Button
-                                    href="/simple-register"
+                                    href="/register"
                                     size="sm"
                                     className="px-4 py-2"
                                     style={{

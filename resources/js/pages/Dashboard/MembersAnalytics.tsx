@@ -51,8 +51,8 @@ export default function MembersAnalytics({
 
     const getTypeColor = (type: string) => {
         const colors = {
-            'Adhérents': '#667eea',
-            'Ambassadeurs': '#E4518C',
+            'Adhérents': '#4A8A2A',
+            'Ambassadeurs': '#C69438',
             'Bénévoles': '#C69438',
             'Anciens Challengers': '#5FA145',
             'Partenaires': '#4D8A3C',
@@ -64,8 +64,8 @@ export default function MembersAnalytics({
     const getEngagementColor = (score: number) => {
         if (score >= 1000) return '#5FA145';
         if (score >= 500) return '#C69438';
-        if (score >= 200) return '#E4518C';
-        if (score >= 50) return '#667eea';
+        if (score >= 200) return '#C69438';
+        if (score >= 50) return '#4A8A2A';
         return '#9CA3AF';
     };
 
@@ -133,7 +133,7 @@ export default function MembersAnalytics({
                         style={{
                             borderRadius: '15px',
                             boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                            background: 'linear-gradient(135deg, #667eea 0%, #5a67d8 100%)'
+                            background: 'linear-gradient(135deg, #4A8A2A 0%, #5a67d8 100%)'
                         }}
                     >
                         <Card.Body className="p-4 text-white">
@@ -173,7 +173,7 @@ export default function MembersAnalytics({
                         style={{
                             borderRadius: '15px',
                             boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                            background: 'linear-gradient(135deg, #E4518C 0%, #d53f8c 100%)'
+                            background: 'linear-gradient(135deg, #C69438 0%, #d53f8c 100%)'
                         }}
                     >
                         <Card.Body className="p-4 text-white">
@@ -281,7 +281,7 @@ export default function MembersAnalytics({
                                 {Object.entries(engagementDistribution).map(([level, count]) => {
                                     const percentage = Math.round((count / totalMembers) * 100);
                                     const colors = [
-                                        '#5FA145', '#C69438', '#E4518C', '#667eea', '#9CA3AF'
+                                        '#5FA145', '#C69438', '#C69438', '#4A8A2A', '#9CA3AF'
                                     ];
                                     const colorIndex = Object.keys(engagementDistribution).indexOf(level);
                                     const color = colors[colorIndex] || '#9CA3AF';

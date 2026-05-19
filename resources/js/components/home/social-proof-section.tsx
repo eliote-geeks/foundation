@@ -1,0 +1,265 @@
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import { useState } from 'react';
+
+const TESTIMONIALS = [
+    {
+        name: 'Marie Nkomo',
+        role: 'Adhérente',
+        company: 'Yaoundé',
+        content: "La réservation était ultra simple — j'ai payé par MTN Money en moins de 2 minutes et reçu mon billet QR sur WhatsApp immédiatement. Événement parfaitement organisé !",
+        icon: 'bi-person-fill',
+        iconColor: '#5FA145',
+        iconBg: '#EAF5E5',
+        rating: 5,
+    },
+    {
+        name: 'Jean-Baptiste Mbarga',
+        role: 'Partenaire',
+        company: 'Douala',
+        content: "Nos collaborations avec la Fondation TITI ont généré un impact réel sur nos bénéficiaires. La plateforme est fiable, transparente et l'équipe est très professionnelle.",
+        icon: 'bi-briefcase-fill',
+        iconColor: '#C69438',
+        iconBg: '#FDF4E3',
+        rating: 5,
+    },
+    {
+        name: 'Sylvie Atangana',
+        role: 'Bénévole',
+        company: 'Bafoussam',
+        content: "En tant que bénévole, j'accède à mon espace facilement. Je vois les événements auxquels j'ai participé et les points d'engagement accumulés. Très motivant !",
+        icon: 'bi-heart-fill',
+        iconColor: '#C69438',
+        iconBg: '#FDF4E3',
+        rating: 5,
+    },
+];
+
+const FAQ = [
+    {
+        q: 'Comment réserver un billet ?',
+        a: 'Rendez-vous sur la page Événements, choisissez l\'événement qui vous intéresse, sélectionnez votre type de billet et payez en ligne. Votre billet QR vous est envoyé automatiquement.',
+    },
+    {
+        q: 'Quels moyens de paiement acceptez-vous ?',
+        a: 'Nous acceptons MTN Mobile Money, Orange Money et les cartes bancaires (Visa, Mastercard). Le paiement est sécurisé et validé en temps réel.',
+    },
+    {
+        q: 'Puis-je obtenir un remboursement ?',
+        a: 'Les demandes de remboursement sont acceptées jusqu\'à 48 h avant la date de l\'événement. Contactez-nous à info@fondation-titi.org avec votre numéro de billet.',
+    },
+    {
+        q: 'Comment rejoindre la communauté ?',
+        a: 'Créez un compte gratuit sur la plateforme. Vous accéderez à votre espace membre, votre historique, vos billets, et aux actualités de la fondation.',
+    },
+    {
+        q: 'Comment devenir partenaire ou sponsor ?',
+        a: 'Visitez notre page Partenaires et soumettez une demande. Notre équipe vous répondra dans les 48 h avec une proposition adaptée à vos objectifs.',
+    },
+];
+
+export function SocialProofSection() {
+    const [currentTestimonial, setCurrentTestimonial] = useState(0);
+    const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+    return (
+        <section className="py-5" style={{ background: '#FFFFFF' }}>
+            <Container>
+                {/* ── Testimonials ── */}
+                <div className="text-center mb-5">
+                    <span
+                        className="d-inline-block px-3 py-1 rounded-pill mb-3 small fw-semibold"
+                        style={{ background: '#FDF4E3', color: '#C69438' }}
+                    >
+                        Témoignages
+                    </span>
+                    <h2 className="fw-bold mb-3" style={{ color: '#1A3209', fontSize: 'clamp(1.7rem, 3vw, 2.4rem)' }}>
+                        Ils ont participé, ils témoignent
+                    </h2>
+                </div>
+
+                <Row className="justify-content-center mb-5">
+                    <Col lg={8}>
+                        {/* Testimonial card */}
+                        <div
+                            className="p-4 p-md-5 rounded-4 text-center mb-4"
+                            style={{
+                                background: '#F9FAFB',
+                                border: '1px solid #E5E7EB',
+                                minHeight: 260,
+                            }}
+                        >
+                            <div
+                                className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                                style={{
+                                    width: 72,
+                                    height: 72,
+                                    background: TESTIMONIALS[currentTestimonial].iconBg,
+                                    border: `2px solid ${TESTIMONIALS[currentTestimonial].iconColor}30`,
+                                }}
+                            >
+                                <i
+                                    className={TESTIMONIALS[currentTestimonial].icon}
+                                    style={{ color: TESTIMONIALS[currentTestimonial].iconColor, fontSize: '1.8rem' }}
+                                ></i>
+                            </div>
+                            <div className="mb-3">
+                                {Array.from({ length: TESTIMONIALS[currentTestimonial].rating }).map((_, i) => (
+                                    <i key={i} className="bi bi-star-fill me-1" style={{ color: '#C69438', fontSize: '0.9rem' }}></i>
+                                ))}
+                            </div>
+                            <blockquote
+                                className="mb-4 fst-italic"
+                                style={{ color: '#2D4A1A', fontSize: '1.1rem', lineHeight: 1.7 }}
+                            >
+                                "{TESTIMONIALS[currentTestimonial].content}"
+                            </blockquote>
+                            <div className="fw-bold" style={{ color: '#5FA145' }}>{TESTIMONIALS[currentTestimonial].name}</div>
+                            <div className="small text-muted">
+                                {TESTIMONIALS[currentTestimonial].role} — {TESTIMONIALS[currentTestimonial].company}
+                            </div>
+                        </div>
+
+                        {/* Dots */}
+                        <div className="d-flex justify-content-center gap-2">
+                            {TESTIMONIALS.map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentTestimonial(i)}
+                                    style={{
+                                        width: i === currentTestimonial ? 32 : 10,
+                                        height: 10,
+                                        borderRadius: 5,
+                                        background: i === currentTestimonial ? '#5FA145' : '#D0E6D0',
+                                        border: 'none',
+                                        transition: 'all 0.3s ease',
+                                        cursor: 'pointer',
+                                        padding: 0,
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </Col>
+                </Row>
+
+                {/* ── FAQ ── */}
+                <Row className="g-4 g-lg-5 align-items-start">
+                    <Col lg={6}>
+                        <span
+                            className="d-inline-block px-3 py-1 rounded-pill mb-3 small fw-semibold"
+                            style={{ background: '#E8F5E8', color: '#3D7020' }}
+                        >
+                            FAQ
+                        </span>
+                        <h3 className="fw-bold mb-4" style={{ color: '#1A3209' }}>Questions fréquentes</h3>
+
+                        {FAQ.map((item, i) => (
+                            <div
+                                key={i}
+                                className="mb-3 rounded-3 overflow-hidden"
+                                style={{ border: '1px solid #D8EDD8' }}
+                            >
+                                <button
+                                    className="w-100 text-start d-flex justify-content-between align-items-center p-3 fw-semibold"
+                                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                                    style={{
+                                        background: openFaq === i ? '#EAF5E5' : '#FFFFFF',
+                                        border: 'none',
+                                        color: '#1A3209',
+                                        fontSize: '0.95rem',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {item.q}
+                                    <i
+                                        className={`bi bi-chevron-${openFaq === i ? 'up' : 'down'} ms-3 flex-shrink-0`}
+                                        style={{ color: '#5FA145', fontSize: '0.85rem' }}
+                                    ></i>
+                                </button>
+                                {openFaq === i && (
+                                    <div className="px-3 pb-3" style={{ color: '#4B6B3A', fontSize: '0.9rem', lineHeight: 1.65, background: '#FAFFFE' }}>
+                                        {item.a}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </Col>
+
+                    {/* ── Contact ── */}
+                    <Col lg={6}>
+                        <span
+                            className="d-inline-block px-3 py-1 rounded-pill mb-3 small fw-semibold"
+                            style={{ background: '#FDF4E3', color: '#C69438' }}
+                        >
+                            Contact
+                        </span>
+                        <h3 className="fw-bold mb-4" style={{ color: '#1A3209' }}>Une question ? Écrivez-nous</h3>
+
+                        <div className="d-flex flex-column gap-3 mb-4">
+                            {[
+                                { icon: 'bi-envelope', label: 'Email', value: 'info@fondation-titi.org', href: 'mailto:info@fondation-titi.org' },
+                                { icon: 'bi-whatsapp', label: 'WhatsApp', value: '+237 6XX XXX XXX', href: '#' },
+                                { icon: 'bi-geo-alt', label: 'Adresse', value: 'Yaoundé, Cameroun', href: '#' },
+                            ].map((c, i) => (
+                                <a
+                                    key={i}
+                                    href={c.href}
+                                    className="d-flex align-items-center gap-3 text-decoration-none p-3 rounded-3"
+                                    style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', color: '#111827' }}
+                                >
+                                    <div
+                                        className="d-flex align-items-center justify-content-center rounded-2 flex-shrink-0"
+                                        style={{ width: 40, height: 40, background: '#EAF5E5' }}
+                                    >
+                                        <i className={c.icon} style={{ color: '#5FA145', fontSize: '1.1rem' }}></i>
+                                    </div>
+                                    <div>
+                                        <div className="small text-muted">{c.label}</div>
+                                        <div className="fw-semibold">{c.value}</div>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+
+                        {/* Social networks */}
+                        <div className="d-flex gap-2 mb-4">
+                            {[
+                                { icon: 'bi-facebook', color: '#1877F2', href: '#' },
+                                { icon: 'bi-instagram', color: '#E1306C', href: '#' },
+                                { icon: 'bi-twitter-x', color: '#000000', href: '#' },
+                                { icon: 'bi-linkedin', color: '#0A66C2', href: '#' },
+                                { icon: 'bi-youtube', color: '#FF0000', href: '#' },
+                            ].map((s, i) => (
+                                <a
+                                    key={i}
+                                    href={s.href}
+                                    className="d-flex align-items-center justify-content-center rounded-circle text-decoration-none"
+                                    style={{
+                                        width: 40,
+                                        height: 40,
+                                        background: '#F0F0F0',
+                                        color: s.color,
+                                        fontSize: '1.05rem',
+                                        transition: 'background 0.2s ease, transform 0.2s ease',
+                                    }}
+                                    onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = s.color; (e.currentTarget as HTMLAnchorElement).style.color = '#FFFFFF'; (e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1.1)'; }}
+                                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#F0F0F0'; (e.currentTarget as HTMLAnchorElement).style.color = s.color; (e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1)'; }}
+                                >
+                                    <i className={s.icon}></i>
+                                </a>
+                            ))}
+                        </div>
+
+                        <Button
+                            href="/register"
+                            className="w-100"
+                            style={{ background: '#16A34A', border: 'none', borderRadius: 6, fontWeight: 500, padding: '10px', fontSize: '0.9375rem' }}
+                        >
+                            <i className="bi bi-person-plus me-2"></i>
+                            Rejoindre la communauté gratuitement
+                        </Button>
+                    </Col>
+                </Row>
+            </Container>
+        </section>
+    );
+}

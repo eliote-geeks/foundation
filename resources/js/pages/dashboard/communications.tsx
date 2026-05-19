@@ -30,7 +30,7 @@ export default function Communications({ user }: CommunicationsProps) {
             value: '2,847',
             change: '+12%',
             positive: true,
-            color: '#667eea',
+            color: '#4A8A2A',
             icon: 'bi-people-fill'
         },
         {
@@ -38,7 +38,7 @@ export default function Communications({ user }: CommunicationsProps) {
             value: '68.4%',
             change: '+5.2%',
             positive: true,
-            color: '#E4518C',
+            color: '#C69438',
             icon: 'bi-eye-fill'
         },
         {
@@ -361,7 +361,7 @@ export default function Communications({ user }: CommunicationsProps) {
                                                 </div>
                                             </td>
                                             <td className="py-3">
-                                                <div className="fw-medium" style={{ color: '#E4518C' }}>
+                                                <div className="fw-medium" style={{ color: '#C69438' }}>
                                                     {newsletter.clickRate > 0 ? `${newsletter.clickRate}%` : '-'}
                                                 </div>
                                             </td>
@@ -424,7 +424,7 @@ export default function Communications({ user }: CommunicationsProps) {
                                             </Col>
                                             <Col xs={6}>
                                                 <div className="text-center">
-                                                    <div className="fw-bold" style={{ color: '#E4518C' }}>
+                                                    <div className="fw-bold" style={{ color: '#C69438' }}>
                                                         {campaign.frequency}
                                                     </div>
                                                     <div className="text-muted small">Fréquence</div>
@@ -490,7 +490,7 @@ export default function Communications({ user }: CommunicationsProps) {
                                             <div className="mb-3">
                                                 <div className="d-flex justify-content-around text-center">
                                                     <div>
-                                                        <div className="fw-bold" style={{ color: '#E4518C' }}>
+                                                        <div className="fw-bold" style={{ color: '#C69438' }}>
                                                             {post.engagement.likes}
                                                         </div>
                                                         <div className="text-muted small">J'aime</div>
@@ -502,7 +502,7 @@ export default function Communications({ user }: CommunicationsProps) {
                                                         <div className="text-muted small">Partages</div>
                                                     </div>
                                                     <div>
-                                                        <div className="fw-bold" style={{ color: '#667eea' }}>
+                                                        <div className="fw-bold" style={{ color: '#4A8A2A' }}>
                                                             {post.engagement.comments}
                                                         </div>
                                                         <div className="text-muted small">Commentaires</div>

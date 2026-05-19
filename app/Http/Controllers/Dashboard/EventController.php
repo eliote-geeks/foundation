@@ -35,7 +35,7 @@ class EventController extends Controller
                 'value' => Event::published()->upcoming()->count(),
                 'change' => '+' . Event::published()->upcoming()->whereDate('created_at', '>=', now()->subWeek())->count(),
                 'positive' => true,
-                'color' => '#667eea',
+                'color' => '#4A8A2A',
                 'icon' => 'bi-calendar-check'
             ],
             [
@@ -43,7 +43,7 @@ class EventController extends Controller
                 'value' => Ticket::confirmed()->count(),
                 'change' => '+' . Ticket::confirmed()->whereDate('created_at', '>=', now()->subWeek())->count(),
                 'positive' => true,
-                'color' => '#E4518C',
+                'color' => '#C69438',
                 'icon' => 'bi-ticket-perforated'
             ],
             [
@@ -162,7 +162,7 @@ class EventController extends Controller
                 'value' => Ticket::confirmed()->count(),
                 'change' => '+' . Ticket::confirmed()->whereDate('created_at', '>=', now()->subWeek())->count(),
                 'positive' => true,
-                'color' => '#667eea',
+                'color' => '#4A8A2A',
                 'icon' => 'bi-check-circle'
             ],
             [
@@ -170,7 +170,7 @@ class EventController extends Controller
                 'value' => Ticket::whereNotNull('checked_in_at')->count(),
                 'change' => '+' . Ticket::whereNotNull('checked_in_at')->whereDate('checked_in_at', '>=', now()->subWeek())->count(),
                 'positive' => true,
-                'color' => '#E4518C',
+                'color' => '#C69438',
                 'icon' => 'bi-person-check'
             ],
             [

@@ -1,569 +1,332 @@
-import { Container, Row, Col, Button, Card } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
-import { useTranslation } from '../../hooks/useTranslation';
+import { useState, useEffect, useRef } from 'react';
 
-interface User {
-    name: string;
-    email: string;
+interface HomeStats {
+    totalEvents: number;
+    totalMembers: number;
+    ticketsSold: number;
+    totalRaised: string;
 }
 
-interface ProfessionalHeroProps {
-    user?: User;
+interface Props {
+    user?: { name: string; email: string };
+    stats: HomeStats;
 }
 
-export function ProfessionalHeroSection({ user }: ProfessionalHeroProps) {
-    const { t } = useTranslation();
-    const [currentMetric, setCurrentMetric] = useState(0);
-    const [currentMilestoneIndex, setCurrentMilestoneIndex] = useState(0);
-    
-    const keyMetrics = [
-        {
-            icon: 'bi-people-fill',
-            number: '2,850+',
-            label: 'Membres Actifs',
-            description: 'Professionnels engagés',
-            color: '#5FA145',
-            trend: '+15%'
-        },
-        {
-            icon: 'bi-trophy-fill',
-            number: '147',
-            label: 'Projets Financés',
-            description: 'Impact mesurable',
-            color: '#C69438',
-            trend: '+23%'
-        },
-        {
-            icon: 'bi-graph-up-arrow',
-            number: '1.2B FCFA',
-            label: 'Fonds Distribués',
-            description: 'Depuis 2020',
-            color: '#E4518C',
-            trend: '+67%'
-        },
-        {
-            icon: 'bi-award-fill',
-            number: '4.9/5',
-            label: 'Note de Satisfaction',
-            description: 'Par nos membres',
-            color: '#4D8A3C',
-            trend: 'Excellent'
-        }
-    ];
+function useCountUp(target: number, duration = 1800, start = false) {
+    const [value, setValue] = useState(0);
+    useEffect(() => {
+        if (!start || target === 0) return;
+        const startTime = performance.now();
+        const tick = (now: number) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setValue(Math.round(eased * target));
+            if (progress < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    }, [target, duration, start]);
+    return value;
+}
 
-    const recentMilestones = [
-        {
-            title: 'Nouveau Partenariat',
-            description: 'Accord signé avec le Gouvernement Camerounais',
-            time: '2 jours',
-            type: 'partnership',
-            importance: 'high'
-        },
-        {
-            title: 'Programme Lancé',
-            description: 'Initiative Entrepreneuriat Féminin 2025',
-            time: '1 semaine',
-            type: 'program',
-            importance: 'medium'
-        },
-        {
-            title: 'Financement Accordé',
-            description: '30M FCFA pour 3 startups camerounaises',
-            time: '2 semaines',
-            type: 'funding',
-            importance: 'high'
-        },
-        {
-            title: 'Formation Certifiante',
-            description: 'Lancement du programme Leadership Avancé',
-            time: '3 semaines',
-            type: 'program',
-            importance: 'medium'
-        },
-        {
-            title: 'Partenariat International',
-            description: 'Collaboration avec l\'ONG Global Impact',
-            time: '1 mois',
-            type: 'partnership',
-            importance: 'high'
-        },
-        {
-            title: 'Subvention Européenne',
-            description: '100M FCFA pour le développement rural',
-            time: '6 semaines',
-            type: 'funding',
-            importance: 'high'
-        }
-    ];
+function StatCard({ icon, target, label, color, delay, started }: {
+    icon: string; target: number; label: string; color: string; delay: number; started: boolean;
+}) {
+    const count = useCountUp(target, 1600, started);
+    return (
+        <div style={{
+            background: 'rgba(255,255,255,0.07)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 12,
+            padding: '20px 16px',
+            textAlign: 'center',
+            backdropFilter: 'blur(12px)',
+            animation: `heroFadeUp 0.7s ease ${delay}s both`,
+            transition: 'transform 0.25s, background 0.25s',
+        }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-6px)'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.07)'; }}
+        >
+            <i className={`bi ${icon}`} style={{ fontSize: '1.5rem', color, display: 'block', marginBottom: 10 }} />
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                {target === 0 ? '—' : count.toLocaleString('fr-FR')}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.55)', marginTop: 6, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                {label}
+            </div>
+        </div>
+    );
+}
+
+export function ProfessionalHeroSection({ user, stats }: Props) {
+    const [started, setStarted] = useState(false);
+    const ref = useRef<HTMLElement>(null);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentMetric((prev) => (prev + 1) % keyMetrics.length);
-        }, 3500);
-        return () => clearInterval(interval);
-    }, [keyMetrics.length]);
+        const timer = setTimeout(() => setStarted(true), 300);
+        return () => clearTimeout(timer);
+    }, []);
 
-    // Animation pour les milestones
-    useEffect(() => {
-        const milestoneInterval = setInterval(() => {
-            setCurrentMilestoneIndex((prev) => (prev + 1) % recentMilestones.length);
-        }, 4000);
-        return () => clearInterval(milestoneInterval);
-    }, [recentMilestones.length]);
+    const counters = [
+        { icon: 'bi-calendar-event',      target: stats.totalEvents,  label: 'Événements',    color: '#86EFAC', delay: 0.55 },
+        { icon: 'bi-people-fill',          target: stats.totalMembers, label: 'Membres',        color: '#FDE68A', delay: 0.65 },
+        { icon: 'bi-ticket-perforated',    target: stats.ticketsSold,  label: 'Billets vendus', color: '#F9A8D4', delay: 0.75 },
+        { icon: 'bi-cash-coin',            target: 0,                   label: 'Fonds collectés',color: '#7DD3FC', delay: 0.85 },
+    ];
+
+    const totalRaisedDisplay = (stats.totalRaised && stats.totalRaised !== '0.0M' && stats.totalRaised !== '0K')
+        ? `${stats.totalRaised} FCFA` : '—';
 
     return (
-        <section 
-            className="professional-hero position-relative overflow-hidden"
+        <section
+            ref={ref}
             style={{
-                minHeight: '75vh',
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%)',
-                paddingTop: '120px',
-                paddingBottom: '80px'
+                position: 'relative',
+                overflow: 'hidden',
+                background: '#0B2210',
+                paddingTop: 'clamp(90px, 14vw, 130px)',
+                paddingBottom: 'clamp(60px, 10vw, 100px)',
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
             }}
         >
-            {/* Subtle Background Pattern */}
-            <div className="position-absolute w-100 h-100" style={{ zIndex: 1, opacity: 0.08 }}>
-                <div 
-                    className="position-absolute"
-                    style={{
-                        width: '300px',
-                        height: '300px',
-                        background: 'radial-gradient(circle, #5FA145 0%, transparent 70%)',
-                        top: '15%',
-                        right: '10%',
-                        borderRadius: '50%'
-                    }}
-                />
-                <div 
-                    className="position-absolute"
-                    style={{
-                        width: '200px',
-                        height: '200px',
-                        background: 'radial-gradient(circle, #E4518C 0%, transparent 70%)',
-                        bottom: '20%',
-                        left: '5%',
-                        borderRadius: '50%'
-                    }}
-                />
+            {/* ── Animated background blobs ── */}
+            <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+                {/* Blob 1 — large green */}
+                <div style={{
+                    position: 'absolute', width: 700, height: 700, borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(22,163,74,0.22) 0%, transparent 70%)',
+                    top: '-200px', left: '-150px',
+                    animation: 'blobFloat1 14s ease-in-out infinite',
+                }} />
+                {/* Blob 2 — gold */}
+                <div style={{
+                    position: 'absolute', width: 500, height: 500, borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(217,119,6,0.18) 0%, transparent 70%)',
+                    bottom: '-100px', right: '-80px',
+                    animation: 'blobFloat2 18s ease-in-out infinite',
+                }} />
+                {/* Blob 3 — lighter green, center */}
+                <div style={{
+                    position: 'absolute', width: 350, height: 350, borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 70%)',
+                    top: '40%', left: '55%',
+                    animation: 'blobFloat3 22s ease-in-out infinite',
+                }} />
+
+                {/* Subtle grid */}
+                <div style={{
+                    position: 'absolute', inset: 0,
+                    backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+                    backgroundSize: '60px 60px',
+                }} />
+
+                {/* Floating particles */}
+                {[...Array(12)].map((_, i) => (
+                    <div key={i} style={{
+                        position: 'absolute',
+                        width: i % 3 === 0 ? 3 : 2,
+                        height: i % 3 === 0 ? 3 : 2,
+                        borderRadius: '50%',
+                        background: i % 4 === 0 ? 'rgba(217,119,6,0.7)' : 'rgba(134,239,172,0.5)',
+                        left: `${8 + (i * 7.5) % 84}%`,
+                        top: `${10 + (i * 11) % 80}%`,
+                        animation: `particleFloat ${6 + (i % 5) * 2}s ease-in-out ${i * 0.4}s infinite`,
+                    }} />
+                ))}
             </div>
 
-            <Container className="position-relative" style={{ zIndex: 2 }}>
-                <Row className="align-items-center">
-                    {/* Main Content */}
-                    <Col lg={7} className="mb-5 mb-lg-0">
-                        <div className="hero-content">
-                            {/* Professional Status Badge */}
-                            <div 
-                                className="d-inline-flex align-items-center px-4 py-2 rounded-pill mb-4"
-                                style={{
-                                    background: 'linear-gradient(135deg, rgba(232, 245, 232, 0.15) 0%, rgba(95, 161, 69, 0.1) 100%)',
-                                    backdropFilter: 'blur(20px)',
-                                    border: '1px solid rgba(232, 245, 232, 0.25)'
-                                }}
-                            >
-                                <div 
-                                    className="d-flex align-items-center justify-content-center rounded-circle me-3"
-                                    style={{
-                                        width: '20px',
-                                        height: '20px',
-                                        background: '#5FA145'
-                                    }}
-                                >
-                                    <i className="bi bi-shield-check" style={{ color: '#FFF', fontSize: '0.7rem' }}></i>
-                                </div>
-                                <span style={{ color: '#5FA145', fontSize: '0.9rem', fontWeight: '500' }}>
-                                    Plateforme Certifiée ISO 26000 - Impact Social
-                                </span>
-                            </div>
+            {/* ── Main content ── */}
+            <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 420px', gap: 64, alignItems: 'center' }} className="hero-grid">
 
-                            {/* Main Headlines */}
-                            <h1 
-                                className="display-3 fw-bold mb-4"
-                                style={{ 
-                                    color: '#334E15',
-                                    lineHeight: '1.1',
-                                    textShadow: 'none',
-                                    fontFamily: '"Inter", system-ui, -apple-system, sans-serif'
-                                }}
-                            >
-                                {user ? (
-                                    <>
-                                        Bienvenue, <br />
-                                        <span style={{ color: '#C69438' }}>{user?.name?.split(' ')[0] || 'Utilisateur'}</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        L'Écosystème Professionnel<br />
-                                        de <span style={{ color: '#C69438' }}>l'Impact Social</span>
-                                    </>
-                                )}
-                            </h1>
-                            
-                            <p 
-                                className="lead mb-5"
-                                style={{ 
-                                    color: '#6B7280',
-                                    fontSize: '1.2rem',
-                                    maxWidth: '550px',
-                                    lineHeight: '1.6',
-                                    fontWeight: '400'
-                                }}
-                            >
-                                {user ? (
-                                    'Découvrez les dernières opportunités, connectez-vous avec des professionnels de l\'impact et suivez vos projets en temps réel.'
-                                ) : (
-                                    'Rejoignez le réseau professionnel qui transforme l\'engagement citoyen en projets concrets et durables. Financements, mentorat, partenariats.'
-                                )}
-                            </p>
-
-                            {/* Professional CTA Buttons */}
-                            <div className="d-flex flex-column flex-sm-row gap-3 mb-5">
-                                {user ? (
-                                    <>
-                                        <Button
-                                            size="lg"
-                                            className="px-5 py-3"
-                                            style={{
-                                                background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
-                                                border: 'none',
-                                                color: '#FFF',
-                                                fontSize: '1rem',
-                                                fontWeight: '600',
-                                                borderRadius: '12px',
-                                                boxShadow: '0 8px 25px rgba(95, 161, 69, 0.25)',
-                                                transition: 'all 0.3s ease',
-                                                minWidth: '200px'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                                e.currentTarget.style.boxShadow = '0 12px 35px rgba(95, 161, 69, 0.35)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.transform = 'translateY(0)';
-                                                e.currentTarget.style.boxShadow = '0 8px 25px rgba(95, 161, 69, 0.25)';
-                                            }}
-                                        >
-                                            <i className="bi bi-plus-circle me-2"></i>
-                                            Nouveau Projet
-                                        </Button>
-                                        <Button
-                                            variant="outline-light"
-                                            size="lg"
-                                            className="px-5 py-3"
-                                            style={{
-                                                borderColor: 'rgba(232, 245, 232, 0.4)',
-                                                color: '#5FA145',
-                                                fontSize: '1rem',
-                                                fontWeight: '500',
-                                                borderRadius: '12px',
-                                                borderWidth: '1.5px',
-                                                background: 'rgba(232, 245, 232, 0.05)',
-                                                minWidth: '200px'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = 'rgba(232, 245, 232, 0.1)';
-                                                e.currentTarget.style.borderColor = '#E8F5E8';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'rgba(232, 245, 232, 0.05)';
-                                                e.currentTarget.style.borderColor = 'rgba(232, 245, 232, 0.4)';
-                                            }}
-                                        >
-                                            <i className="bi bi-graph-up me-2"></i>
-                                            Tableau de Bord
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Button
-                                            href="/simple-register"
-                                            size="lg"
-                                            className="px-5 py-3"
-                                            style={{
-                                                background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
-                                                border: 'none',
-                                                color: '#FFF',
-                                                fontSize: '1rem',
-                                                fontWeight: '600',
-                                                borderRadius: '12px',
-                                                boxShadow: '0 8px 25px rgba(95, 161, 69, 0.25)',
-                                                transition: 'all 0.3s ease',
-                                                minWidth: '220px'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                                e.currentTarget.style.boxShadow = '0 12px 35px rgba(95, 161, 69, 0.35)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.transform = 'translateY(0)';
-                                                e.currentTarget.style.boxShadow = '0 8px 25px rgba(95, 161, 69, 0.25)';
-                                            }}
-                                        >
-                                            <i className="bi bi-person-plus me-2"></i>
-                                            Rejoindre la Communauté
-                                        </Button>
-                                        <Button
-                                            href="/login"
-                                            variant="outline-light"
-                                            size="lg"
-                                            className="px-5 py-3"
-                                            style={{
-                                                borderColor: 'rgba(232, 245, 232, 0.4)',
-                                                color: '#5FA145',
-                                                fontSize: '1rem',
-                                                fontWeight: '500',
-                                                borderRadius: '12px',
-                                                borderWidth: '1.5px',
-                                                background: 'rgba(232, 245, 232, 0.05)',
-                                                minWidth: '160px'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = 'rgba(232, 245, 232, 0.1)';
-                                                e.currentTarget.style.borderColor = '#E8F5E8';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'rgba(232, 245, 232, 0.05)';
-                                                e.currentTarget.style.borderColor = 'rgba(232, 245, 232, 0.4)';
-                                            }}
-                                        >
-                                            <i className="bi bi-box-arrow-in-right me-2"></i>
-                                            Se Connecter
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-
-                            {/* Trust Indicators */}
-                            <div className="d-flex align-items-center gap-4 flex-wrap">
-                                <div className="d-flex align-items-center gap-2">
-                                    <i className="bi bi-shield-check" style={{ color: '#5FA145', fontSize: '1.1rem' }}></i>
-                                    <span style={{ color: '#6B7280', fontSize: '0.9rem' }}>
-                                        Certifié B-Corp
-                                    </span>
-                                </div>
-                                <div className="d-flex align-items-center gap-2">
-                                    <i className="bi bi-award" style={{ color: '#C69438', fontSize: '1.1rem' }}></i>
-                                    <span style={{ color: '#6B7280', fontSize: '0.9rem' }}>
-                                        Prix Impact 2024
-                                    </span>
-                                </div>
-                                <div className="d-flex align-items-center gap-2">
-                                    <i className="bi bi-people" style={{ color: '#E4518C', fontSize: '1.1rem' }}></i>
-                                    <span style={{ color: '#6B7280', fontSize: '0.9rem' }}>
-                                        +2850 Membres
-                                    </span>
-                                </div>
-                            </div>
+                    {/* Left */}
+                    <div>
+                        {/* Badge */}
+                        <div style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 8,
+                            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+                            borderRadius: 99, padding: '6px 14px', marginBottom: 28,
+                            animation: 'heroFadeUp 0.6s ease 0.1s both',
+                        }}>
+                            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ADE80', animation: 'pulseGreen 2s infinite' }} />
+                            <span style={{ color: '#A7F3C0', fontSize: '0.8125rem', fontWeight: 500 }}>
+                                Fondation TITI — {user ? `Bienvenue, ${user.name.split(' ')[0]} 👋` : 'Cameroun'}
+                            </span>
                         </div>
-                    </Col>
 
-                    {/* Metrics Dashboard */}
-                    <Col lg={5}>
-                        <Row className="g-4">
-                            {/* Live Metrics Card */}
-                            <Col md={12}>
-                                <Card 
-                                    className="border-0"
-                                    style={{
-                                        background: 'rgba(255, 255, 255, 0.95)',
-                                        backdropFilter: 'blur(20px)',
-                                        borderRadius: '20px',
-                                        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)'
-                                    }}
-                                >
-                                    <Card.Body className="p-4">
-                                        <div className="d-flex align-items-center justify-content-between mb-4">
-                                            <h5 className="mb-0 fw-bold" style={{ color: '#334E15' }}>
-                                                Impact en Temps Réel
-                                            </h5>
-                                            <div 
-                                                className="d-flex align-items-center gap-1 px-2 py-1 rounded-pill"
-                                                style={{ background: 'rgba(95, 161, 69, 0.1)' }}
-                                            >
-                                                <div 
-                                                    style={{
-                                                        width: '6px',
-                                                        height: '6px',
-                                                        background: '#5FA145',
-                                                        borderRadius: '50%',
-                                                        animation: 'pulse 2s infinite'
-                                                    }}
-                                                />
-                                                <span style={{ color: '#5FA145', fontSize: '0.7rem', fontWeight: '600' }}>
-                                                    LIVE
-                                                </span>
-                                            </div>
-                                        </div>
-                                        
-                                        <Row className="g-3">
-                                            {keyMetrics.map((metric, index) => (
-                                                <Col xs={6} key={index}>
-                                                    <div 
-                                                        className="text-center p-3 rounded-3"
-                                                        style={{
-                                                            background: index === currentMetric 
-                                                                ? `linear-gradient(135deg, ${metric.color}15 0%, ${metric.color}10 100%)` 
-                                                                : '#F8F9FA',
-                                                            border: index === currentMetric 
-                                                                ? `1px solid ${metric.color}30` 
-                                                                : '1px solid #E9ECEF',
-                                                            transition: 'all 0.4s ease'
-                                                        }}
-                                                    >
-                                                        <i 
-                                                            className={`${metric.icon} mb-2`}
-                                                            style={{ 
-                                                                color: metric.color,
-                                                                fontSize: '1.5rem'
-                                                            }}
-                                                        ></i>
-                                                        <div 
-                                                            className="fw-bold"
-                                                            style={{ 
-                                                                color: '#334E15',
-                                                                fontSize: '1.3rem'
-                                                            }}
-                                                        >
-                                                            {metric.number}
-                                                        </div>
-                                                        <div 
-                                                            style={{ 
-                                                                color: '#6B7280',
-                                                                fontSize: '0.75rem',
-                                                                fontWeight: '500'
-                                                            }}
-                                                        >
-                                                            {metric.label}
-                                                        </div>
-                                                        <div 
-                                                            className="mt-1"
-                                                            style={{ 
-                                                                color: metric.color,
-                                                                fontSize: '0.65rem',
-                                                                fontWeight: '600'
-                                                            }}
-                                                        >
-                                                            {metric.trend}
-                                                        </div>
-                                                    </div>
-                                                </Col>
-                                            ))}
-                                        </Row>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
+                        {/* Headline */}
+                        <h1 style={{
+                            margin: '0 0 20px',
+                            fontSize: 'clamp(2.4rem, 5vw, 3.75rem)',
+                            fontWeight: 800,
+                            lineHeight: 1.1,
+                            letterSpacing: '-0.025em',
+                            color: '#fff',
+                            animation: 'heroFadeUp 0.7s ease 0.2s both',
+                        }}>
+                            Événements à impact,{' '}
+                            <span style={{
+                                color: 'transparent',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                backgroundImage: 'linear-gradient(90deg, #FDE68A 0%, #D97706 100%)',
+                                display: 'inline-block',
+                            }}>
+                                organisés pour vous
+                            </span>
+                        </h1>
 
-                            {/* Recent Milestones */}
-                            <Col md={12}>
-                                <Card 
-                                    className="border-0"
-                                    style={{
-                                        background: 'rgba(255, 255, 255, 0.95)',
-                                        backdropFilter: 'blur(20px)',
-                                        borderRadius: '20px',
-                                        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)'
-                                    }}
+                        {/* Sub */}
+                        <p style={{
+                            color: 'rgba(255,255,255,0.6)',
+                            fontSize: '1.0625rem',
+                            lineHeight: 1.75,
+                            maxWidth: 500,
+                            marginBottom: 36,
+                            animation: 'heroFadeUp 0.7s ease 0.3s both',
+                        }}>
+                            Réservez vos places en ligne, payez en Mobile Money ou par carte, et rejoignez une communauté engagée pour un impact durable au Cameroun.
+                        </p>
+
+                        {/* CTAs */}
+                        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 48, animation: 'heroFadeUp 0.7s ease 0.4s both' }}>
+                            <a href="/events" style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 8,
+                                height: 44, padding: '0 22px',
+                                background: '#D97706', color: '#fff',
+                                borderRadius: 8, fontWeight: 600, fontSize: '0.9375rem',
+                                textDecoration: 'none', border: 'none',
+                                boxShadow: '0 0 0 0 rgba(217,119,6,0.4)',
+                                animation: 'ctaPulse 3s ease 2s infinite',
+                                transition: 'transform 0.2s',
+                            }}
+                                onMouseEnter={e => (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'}
+                                onMouseLeave={e => (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'}
+                            >
+                                <i className="bi bi-calendar-event" />
+                                Voir les événements
+                            </a>
+                            {!user && (
+                                <a href="/register" style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                                    height: 44, padding: '0 22px',
+                                    background: 'rgba(255,255,255,0.1)', color: '#fff',
+                                    border: '1px solid rgba(255,255,255,0.25)',
+                                    borderRadius: 8, fontWeight: 500, fontSize: '0.9375rem',
+                                    textDecoration: 'none', transition: 'background 0.2s, transform 0.2s',
+                                }}
+                                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.18)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.1)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
                                 >
-                                    <Card.Body className="p-4">
-                                        <h6 className="fw-bold mb-3" style={{ color: '#334E15' }}>
-                                            <i className="bi bi-clock-history me-2" style={{ color: '#5FA145' }}></i>
-                                            Actualités Récentes
-                                        </h6>
-                                        <div 
-                                            className="milestone-list"
-                                            style={{
-                                                height: '220px',
-                                                overflow: 'hidden',
-                                                position: 'relative'
-                                            }}
-                                        >
-                                            <div
-                                                style={{
-                                                    transform: `translateY(-${currentMilestoneIndex * 73}px)`,
-                                                    transition: 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)',
-                                                    willChange: 'transform'
-                                                }}
-                                            >
-                                                {[...recentMilestones, ...recentMilestones.slice(0, 3)].map((milestone, index) => (
-                                                    <div 
-                                                        key={`milestone-${index}`} 
-                                                        className="d-flex align-items-start mb-3"
-                                                        style={{
-                                                            height: '73px',
-                                                            opacity: Math.abs(index - currentMilestoneIndex) <= 2 ? 1 : 0.4,
-                                                            transition: 'opacity 1s ease',
-                                                            paddingRight: '8px'
-                                                        }}
-                                                    >
-                                                        <div 
-                                                            className="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
-                                                            style={{
-                                                                width: '32px',
-                                                                height: '32px',
-                                                                background: milestone.importance === 'high' 
-                                                                    ? 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)'
-                                                                    : 'linear-gradient(135deg, #E4518C 0%, #C69438 100%)'
-                                                            }}
-                                                        >
-                                                            {milestone.type === 'partnership' && <i className="bi bi-handshake text-white" style={{ fontSize: '0.8rem' }}></i>}
-                                                            {milestone.type === 'program' && <i className="bi bi-rocket text-white" style={{ fontSize: '0.8rem' }}></i>}
-                                                            {milestone.type === 'funding' && <i className="bi bi-currency-euro text-white" style={{ fontSize: '0.8rem' }}></i>}
-                                                        </div>
-                                                        <div className="flex-grow-1">
-                                                            <div 
-                                                                className="fw-semibold mb-1"
-                                                                style={{ color: '#334E15', fontSize: '0.9rem' }}
-                                                            >
-                                                                {milestone.title}
-                                                            </div>
-                                                            <div 
-                                                                className="mb-1"
-                                                                style={{ color: '#6B7280', fontSize: '0.8rem', lineHeight: '1.3' }}
-                                                            >
-                                                                {milestone.description}
-                                                            </div>
-                                                            <div style={{ color: '#9CA3AF', fontSize: '0.7rem' }}>
-                                                                Il y a {milestone.time}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="text-center mt-3">
-                                            <Button
-                                                size="sm"
-                                                className="rounded-pill px-3"
-                                                style={{
-                                                    background: 'transparent',
-                                                    border: '1px solid #5FA145',
-                                                    color: '#5FA145',
-                                                    fontSize: '0.8rem',
-                                                    transition: 'all 0.3s ease'
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    e.currentTarget.style.background = 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)';
-                                                    e.currentTarget.style.color = '#FFFFFF';
-                                                    e.currentTarget.style.borderColor = '#5FA145';
-                                                    e.currentTarget.style.transform = 'translateY(-1px)';
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.currentTarget.style.background = 'transparent';
-                                                    e.currentTarget.style.color = '#5FA145';
-                                                    e.currentTarget.style.borderColor = '#5FA145';
-                                                    e.currentTarget.style.transform = 'translateY(0)';
-                                                }}
-                                            >
-                                                Voir plus
-                                            </Button>
-                                        </div>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>
-            </Container>
+                                    <i className="bi bi-person-plus" />
+                                    S'inscrire gratuitement
+                                </a>
+                            )}
+                        </div>
+
+                        {/* Trust strip */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, animation: 'heroFadeUp 0.7s ease 0.5s both' }}>
+                            {[
+                                { icon: 'bi-shield-check', text: 'Paiement sécurisé' },
+                                { icon: 'bi-phone',        text: 'MTN / Orange Money' },
+                                { icon: 'bi-qr-code',      text: 'Billet QR électronique' },
+                            ].map((item, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                                    <i className={`bi ${item.icon}`} style={{ color: '#86EFAC', fontSize: '0.9375rem' }} />
+                                    <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.8125rem' }}>{item.text}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Right — stat cards */}
+                    <div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                            {counters.map((c, i) => (
+                                <StatCard key={i} {...c} started={started} />
+                            ))}
+                        </div>
+
+                        {/* Fonds collectés special display */}
+                        <div style={{
+                            marginTop: 12,
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: 12,
+                            padding: '16px 20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            animation: 'heroFadeUp 0.7s ease 0.9s both',
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <i className="bi bi-cash-coin" style={{ color: '#7DD3FC', fontSize: '1.25rem' }} />
+                                <div>
+                                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Fonds collectés</div>
+                                    <div style={{ color: '#fff', fontWeight: 700, fontSize: '1.25rem' }}>{totalRaisedDisplay}</div>
+                                </div>
+                            </div>
+                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ADE80', animation: 'pulseGreen 2s infinite' }} />
+                        </div>
+
+                        {/* Scroll cue */}
+                        <div style={{ textAlign: 'center', marginTop: 20, animation: 'heroFadeUp 0.7s ease 1s both' }}>
+                            <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                <i className="bi bi-mouse" style={{ animation: 'scrollBounce 2s ease-in-out infinite' }} />
+                                Défiler pour découvrir
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <style>{`
+                @keyframes heroFadeUp {
+                    from { opacity: 0; transform: translateY(28px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes blobFloat1 {
+                    0%,100% { transform: translate(0,0) scale(1); }
+                    33%     { transform: translate(40px,-30px) scale(1.05); }
+                    66%     { transform: translate(-20px,20px) scale(0.96); }
+                }
+                @keyframes blobFloat2 {
+                    0%,100% { transform: translate(0,0) scale(1); }
+                    50%     { transform: translate(-50px,40px) scale(1.08); }
+                }
+                @keyframes blobFloat3 {
+                    0%,100% { transform: translate(0,0); }
+                    40%     { transform: translate(30px,-40px); }
+                    80%     { transform: translate(-20px,15px); }
+                }
+                @keyframes particleFloat {
+                    0%,100% { transform: translateY(0) translateX(0); opacity: 0.6; }
+                    50%     { transform: translateY(-20px) translateX(8px); opacity: 1; }
+                }
+                @keyframes pulseGreen {
+                    0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.5); }
+                    50%     { box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+                }
+                @keyframes ctaPulse {
+                    0%,100% { box-shadow: 0 0 0 0 rgba(217,119,6,0); }
+                    50%     { box-shadow: 0 0 0 8px rgba(217,119,6,0); }
+                }
+                @keyframes scrollBounce {
+                    0%,100% { transform: translateY(0); }
+                    50%     { transform: translateY(4px); }
+                }
+                .hero-grid {
+                    grid-template-columns: 1fr 400px;
+                }
+                @media (max-width: 1024px) {
+                    .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+                }
+                @media (max-width: 640px) {
+                    .hero-grid { gap: 32px !important; }
+                }
+            `}</style>
         </section>
     );
 }

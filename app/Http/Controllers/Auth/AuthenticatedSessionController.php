@@ -81,9 +81,8 @@ class AuthenticatedSessionController extends Controller
      */
     private function getRedirectRoute($user): string
     {
-        // Si l'utilisateur n'a pas de profil, rediriger vers la création de profil
         if (!$user->hasProfile()) {
-            return 'profile.edit';
+            return 'home';
         }
 
         // Redirection basée sur le type de membre

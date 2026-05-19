@@ -49,7 +49,7 @@ export function HeroSection() {
                     style={{
                         width: '300px',
                         height: '300px',
-                        background: 'rgba(228, 81, 140, 0.1)',
+                        background: 'rgba(198, 148, 56, 0.1)',
                         top: '10%',
                         right: '10%',
                         animation: 'float 6s ease-in-out infinite'
@@ -95,7 +95,7 @@ export function HeroSection() {
                                 <span 
                                     className="badge rounded-pill me-2"
                                     style={{
-                                        background: 'linear-gradient(135deg, #E4518C 0%, #F5B4C6 100%)',
+                                        background: 'linear-gradient(135deg, #C69438 0%, #F9D27A 100%)',
                                         color: '#334E15'
                                     }}
                                 >
@@ -222,7 +222,7 @@ export function HeroSection() {
                                 style={{
                                     width: '400px',
                                     height: '400px',
-                                    background: 'linear-gradient(135deg, rgba(232, 245, 232, 0.1) 0%, rgba(228, 81, 140, 0.1) 100%)',
+                                    background: 'linear-gradient(135deg, rgba(232, 245, 232, 0.1) 0%, rgba(198, 148, 56, 0.1) 100%)',
                                     backdropFilter: 'blur(20px)',
                                     border: '2px solid rgba(232, 245, 232, 0.2)',
                                     fontSize: '8rem',

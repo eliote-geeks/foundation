@@ -173,7 +173,7 @@ export function CalendarModule() {
         switch (type) {
             case 'meeting': return '#6366F1';
             case 'event': return '#5FA145';
-            case 'deadline': return '#E4518C';
+            case 'deadline': return '#C69438';
             case 'reminder': return '#C69438';
             case 'contest': return '#DC3545';
             default: return '#6B7280';
@@ -182,7 +182,7 @@ export function CalendarModule() {
 
     const getPriorityColor = (priority: string): string => {
         switch (priority) {
-            case 'high': return '#E4518C';
+            case 'high': return '#C69438';
             case 'medium': return '#C69438';
             case 'low': return '#5FA145';
             default: return '#6B7280';
@@ -194,7 +194,7 @@ export function CalendarModule() {
             scheduled: { text: 'Programmé', color: '#6366F1' },
             'in-progress': { text: 'En cours', color: '#C69438' },
             completed: { text: 'Terminé', color: '#5FA145' },
-            cancelled: { text: 'Annulé', color: '#E4518C' }
+            cancelled: { text: 'Annulé', color: '#C69438' }
         };
 
         const taskConfig = {
@@ -205,7 +205,7 @@ export function CalendarModule() {
 
         const config = type === 'event' ? eventConfig : taskConfig;
         const { text, color } = config[status as keyof typeof config] || { text: status, color: '#6B7280' };
-        
+
         return (
             <Badge style={{ backgroundColor: color, fontSize: '0.7rem' }}>
                 {text}
@@ -259,11 +259,11 @@ export function CalendarModule() {
 
         // Jours de la semaine
         const weekDays = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-        
+
         // En-têtes des jours
         for (let i = 0; i < weekDays.length; i++) {
             days.push(
-                <div key={`header-${i}`} className="calendar-header-day text-center p-2 fw-bold" 
+                <div key={`header-${i}`} className="calendar-header-day text-center p-2 fw-bold"
                      style={{ color: '#6B7280', fontSize: '0.85rem' }}>
                     {weekDays[i]}
                 </div>
@@ -283,7 +283,7 @@ export function CalendarModule() {
             const isCurrentDay = isToday(date);
 
             days.push(
-                <div 
+                <div
                     key={day}
                     className="calendar-day p-2 border rounded-3 position-relative"
                     style={{
@@ -296,9 +296,9 @@ export function CalendarModule() {
                     onClick={() => setSelectedDate(date)}
                 >
                     <div className="d-flex justify-content-between align-items-center mb-1">
-                        <span 
+                        <span
                             className="fw-bold"
-                            style={{ 
+                            style={{
                                 color: isCurrentDay ? '#5FA145' : '#334E15',
                                 fontSize: '0.9rem'
                             }}
@@ -306,7 +306,7 @@ export function CalendarModule() {
                             {day}
                         </span>
                         {(dayEvents.length > 0 || dayTasks.length > 0) && (
-                            <div 
+                            <div
                                 className="rounded-circle"
                                 style={{
                                     width: '8px',
@@ -316,11 +316,11 @@ export function CalendarModule() {
                             />
                         )}
                     </div>
-                    
+
                     {/* Afficher les premiers événements/tâches */}
                     <div className="events-preview">
                         {dayEvents.slice(0, 2).map(event => (
-                            <div 
+                            <div
                                 key={event.id}
                                 className="event-dot mb-1 px-2 py-1 rounded-2"
                                 style={{
@@ -335,7 +335,7 @@ export function CalendarModule() {
                             </div>
                         ))}
                         {dayTasks.slice(0, 1).map(task => (
-                            <div 
+                            <div
                                 key={task.id}
                                 className="task-dot mb-1 px-2 py-1 rounded-2"
                                 style={{
@@ -441,7 +441,7 @@ export function CalendarModule() {
             {activeView === 'calendar' && (
                 <Row className="g-4">
                     <Col lg={8}>
-                        <Card 
+                        <Card
                             className="border-0"
                             style={{
                                 borderRadius: '20px',
@@ -460,9 +460,9 @@ export function CalendarModule() {
                                             <i className="bi bi-chevron-left"></i>
                                         </Button>
                                         <h5 className="fw-bold mx-3 mb-0" style={{ color: '#334E15' }}>
-                                            {currentDate.toLocaleDateString('fr-FR', { 
-                                                month: 'long', 
-                                                year: 'numeric' 
+                                            {currentDate.toLocaleDateString('fr-FR', {
+                                                month: 'long',
+                                                year: 'numeric'
                                             })}
                                         </h5>
                                         <Button
@@ -500,7 +500,7 @@ export function CalendarModule() {
                                 </div>
                             </Card.Header>
                             <Card.Body className="p-4">
-                                <div 
+                                <div
                                     className="calendar-grid"
                                     style={{
                                         display: 'grid',
@@ -517,7 +517,7 @@ export function CalendarModule() {
                     <Col lg={4}>
                         <div className="calendar-sidebar">
                             {/* Upcoming Events */}
-                            <Card 
+                            <Card
                                 className="border-0 mb-4"
                                 style={{
                                     borderRadius: '20px',
@@ -532,7 +532,7 @@ export function CalendarModule() {
                                     <div className="upcoming-events">
                                         {upcomingEvents.map(event => (
                                             <div key={event.id} className="d-flex align-items-start mb-3">
-                                                <div 
+                                                <div
                                                     className="d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0"
                                                     style={{
                                                         width: '32px',
@@ -552,11 +552,11 @@ export function CalendarModule() {
                                                             {formatDate(event.date)} • {formatTime(event.startTime)}
                                                         </small>
                                                         {event.priority === 'high' && (
-                                                            <Badge 
+                                                            <Badge
                                                                 className="ms-2"
-                                                                style={{ 
-                                                                    backgroundColor: '#E4518C', 
-                                                                    fontSize: '0.6rem' 
+                                                                style={{
+                                                                    backgroundColor: '#C69438',
+                                                                    fontSize: '0.6rem'
                                                                 }}
                                                             >
                                                                 Urgent
@@ -590,7 +590,7 @@ export function CalendarModule() {
                             </Card>
 
                             {/* Urgent Tasks */}
-                            <Card 
+                            <Card
                                 className="border-0"
                                 style={{
                                     borderRadius: '20px',
@@ -605,7 +605,7 @@ export function CalendarModule() {
                                     <div className="urgent-tasks">
                                         {urgentTasks.map(task => (
                                             <div key={task.id} className="d-flex align-items-start mb-3">
-                                                <div 
+                                                <div
                                                     className="d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0"
                                                     style={{
                                                         width: '32px',
@@ -624,20 +624,20 @@ export function CalendarModule() {
                                                         <small style={{ color: '#6B7280' }}>
                                                             Échéance: {formatDate(task.dueDate)}
                                                         </small>
-                                                        <Badge 
-                                                            style={{ 
+                                                        <Badge
+                                                            style={{
                                                                 backgroundColor: getPriorityColor(task.priority),
                                                                 fontSize: '0.6rem'
                                                             }}
                                                         >
-                                                            {task.priority === 'high' ? 'Urgent' : 
+                                                            {task.priority === 'high' ? 'Urgent' :
                                                              task.priority === 'medium' ? 'Normal' : 'Faible'}
                                                         </Badge>
                                                     </div>
                                                     <div className="progress" style={{ height: '4px' }}>
-                                                        <div 
+                                                        <div
                                                             className="progress-bar"
-                                                            style={{ 
+                                                            style={{
                                                                 width: `${task.progress}%`,
                                                                 backgroundColor: getPriorityColor(task.priority)
                                                             }}
@@ -669,7 +669,7 @@ export function CalendarModule() {
 
             {/* Events List */}
             {activeView === 'events' && (
-                <Card 
+                <Card
                     className="border-0"
                     style={{
                         borderRadius: '20px',
@@ -716,7 +716,7 @@ export function CalendarModule() {
                     <Card.Body className="p-4 pt-3">
                         <div className="events-list">
                             {events.map(event => (
-                                <div 
+                                <div
                                     key={event.id}
                                     className="d-flex align-items-center p-4 rounded-3 mb-3"
                                     style={{
@@ -724,7 +724,7 @@ export function CalendarModule() {
                                         border: '1px solid #E9ECEF'
                                     }}
                                 >
-                                    <div 
+                                    <div
                                         className="d-flex align-items-center justify-content-center rounded-circle me-4 flex-shrink-0"
                                         style={{
                                             width: '50px',
@@ -748,13 +748,13 @@ export function CalendarModule() {
                                                 )}
                                             </div>
                                             <div className="d-flex align-items-center gap-2">
-                                                <Badge 
-                                                    style={{ 
+                                                <Badge
+                                                    style={{
                                                         backgroundColor: getPriorityColor(event.priority),
                                                         fontSize: '0.7rem'
                                                     }}
                                                 >
-                                                    {event.priority === 'high' ? 'Priorité Haute' : 
+                                                    {event.priority === 'high' ? 'Priorité Haute' :
                                                      event.priority === 'medium' ? 'Priorité Moyenne' : 'Priorité Basse'}
                                                 </Badge>
                                                 {getStatusBadge(event.status, 'event')}
@@ -844,7 +844,7 @@ export function CalendarModule() {
 
             {/* Tasks List */}
             {activeView === 'tasks' && (
-                <Card 
+                <Card
                     className="border-0"
                     style={{
                         borderRadius: '20px',
@@ -872,7 +872,7 @@ export function CalendarModule() {
                     <Card.Body className="p-4 pt-3">
                         <div className="tasks-list">
                             {tasks.map(task => (
-                                <div 
+                                <div
                                     key={task.id}
                                     className="d-flex align-items-center p-4 rounded-3 mb-3"
                                     style={{
@@ -880,7 +880,7 @@ export function CalendarModule() {
                                         border: '1px solid #E9ECEF'
                                     }}
                                 >
-                                    <div 
+                                    <div
                                         className="d-flex align-items-center justify-content-center rounded-circle me-4 flex-shrink-0"
                                         style={{
                                             width: '45px',
@@ -921,9 +921,9 @@ export function CalendarModule() {
                                                         </span>
                                                     </div>
                                                 )}
-                                                <Badge 
+                                                <Badge
                                                     className="me-2"
-                                                    style={{ 
+                                                    style={{
                                                         backgroundColor: `${getPriorityColor(task.priority)}20`,
                                                         color: getPriorityColor(task.priority),
                                                         fontSize: '0.7rem'
@@ -940,9 +940,9 @@ export function CalendarModule() {
                                         </div>
                                         <div className="d-flex align-items-center justify-content-between">
                                             <div className="progress flex-grow-1 me-3" style={{ height: '6px' }}>
-                                                <div 
+                                                <div
                                                     className="progress-bar"
-                                                    style={{ 
+                                                    style={{
                                                         width: `${task.progress}%`,
                                                         backgroundColor: getPriorityColor(task.priority)
                                                     }}
@@ -1005,20 +1005,20 @@ export function CalendarModule() {
                 </Card>
             )}
 
-            <style jsx>{`
+            <style>{`
                 .calendar-day:hover {
                     background-color: #F8F9FA !important;
                     border-color: #5FA145 !important;
                 }
-                
+
                 .event-dot, .task-dot {
                     transition: all 0.2s ease;
                 }
-                
+
                 .event-dot:hover, .task-dot:hover {
                     transform: translateX(2px);
                 }
-                
+
                 .progress-bar {
                     transition: width 0.6s ease;
                 }

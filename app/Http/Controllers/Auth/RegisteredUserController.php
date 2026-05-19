@@ -106,7 +106,7 @@ class RegisteredUserController extends Controller
             
             DB::commit();
 
-            return redirect()->intended(route('home', absolute: false));
+            return redirect(route('home', absolute: false));
             
         } catch (\Exception $e) {
             DB::rollback();

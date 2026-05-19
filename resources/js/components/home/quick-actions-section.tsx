@@ -41,9 +41,9 @@ export function QuickActionsSection() {
             title: 'Rejoindre',
             description: 'Devenez membre et accédez à tous les avantages',
             icon: 'bi-people-fill',
-            color: '#E4518C',
-            gradient: 'linear-gradient(135deg, #E4518C 0%, #F5B4C6 100%)',
-            href: '/simple-register',
+            color: '#C69438',
+            gradient: 'linear-gradient(135deg, #C69438 0%, #F9D27A 100%)',
+            href: '/register',
             badge: 'Gratuit'
         },
         {
@@ -83,7 +83,7 @@ export function QuickActionsSection() {
                     style={{
                         width: '150px',
                         height: '150px',
-                        background: 'radial-gradient(circle, #E4518C 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, #C69438 0%, transparent 70%)',
                         bottom: '30%',
                         left: '5%',
                         animation: 'pulse 3s ease-in-out infinite reverse'
@@ -272,8 +272,9 @@ export function QuickActionsSection() {
                                 margin: '0 auto'
                             }}
                         >
-                            <h5 className="fw-bold mb-3" style={{ color: '#334E15' }}>
-                                🎯 Nouveau ici ?
+                            <h5 className="fw-bold mb-3 d-flex align-items-center justify-content-center gap-2" style={{ color: '#334E15' }}>
+                                <i className="bi bi-compass" style={{ color: '#5FA145' }}></i>
+                                Nouveau ici ?
                             </h5>
                             <p className="mb-4" style={{ color: '#6B7280', fontSize: '0.95rem' }}>
                                 Découvrez comment notre communauté transforme les défis en opportunités d'impact.

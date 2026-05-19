@@ -20,7 +20,7 @@ export function ModernProgress({
     const percentage = Math.min((value / max) * 100, 100);
     
     const gradients = {
-        primary: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        primary: 'linear-gradient(135deg, #4A8A2A 0%, #2D5016 100%)',
         success: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
         warning: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
         info: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
@@ -92,7 +92,7 @@ export function CircularProgress({
     const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
     const colors = {
-        primary: '#667eea',
+        primary: '#4A8A2A',
         success: '#4facfe',
         warning: '#fa709a',
         info: '#43e97b'

@@ -60,8 +60,8 @@ export function TestimonialsSection() {
     const stats: Stat[] = [
         { value: "2,850", label: "Membres Actifs", icon: "bi bi-people-fill", color: "#5FA145", target: 2850 },
         { value: "600M", label: "FCFA Collectés", icon: "bi bi-cash-coin", color: "#C69438", target: 600 },
-        { value: "45", label: "Projets Soutenus", icon: "bi bi-rocket-takeoff", color: "#E4518C", target: 45 },
-        { value: "98%", label: "Satisfaction", icon: "bi bi-heart-fill", color: "#F5B4C6", target: 98 }
+        { value: "45", label: "Projets Soutenus", icon: "bi bi-rocket-takeoff", color: "#C69438", target: 45 },
+        { value: "98%", label: "Satisfaction", icon: "bi bi-heart-fill", color: "#F9D27A", target: 98 }
     ];
 
     // Auto-rotate testimonials
@@ -101,7 +101,7 @@ export function TestimonialsSection() {
                                     });
                                 }
                             };
-                            
+
                             setTimeout(() => animate(), index * 200);
                         });
                     }
@@ -119,7 +119,7 @@ export function TestimonialsSection() {
     }, []);
 
     return (
-        <section 
+        <section
             className="py-5"
             style={{
                 background: 'linear-gradient(180deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%)',
@@ -131,17 +131,17 @@ export function TestimonialsSection() {
                 {/* Statistics Section */}
                 <div id="stats-section" className="mb-5 pb-5">
                     <div className="text-center mb-5">
-                        <h2 
+                        <h2
                             className="display-4 fw-bold mb-4"
                             style={{ color: '#334E15' }}
                         >
                             Notre impact en chiffres
                         </h2>
-                        <p 
+                        <p
                             className="lead"
                             style={{ color: '#6B7280', maxWidth: '600px', margin: '0 auto', fontSize: '1.2rem' }}
                         >
-                            Des résultats concrets qui témoignent de notre engagement 
+                            Des résultats concrets qui témoignent de notre engagement
                             pour un changement positif et durable.
                         </p>
                     </div>
@@ -149,7 +149,7 @@ export function TestimonialsSection() {
                     <Row className="g-4">
                         {stats.map((stat, index) => (
                             <Col lg={3} md={6} key={index}>
-                                <div 
+                                <div
                                     className="stat-card text-center p-4 h-100"
                                     style={{
                                         background: '#ffffff',
@@ -163,7 +163,7 @@ export function TestimonialsSection() {
                                         e.currentTarget.style.boxShadow = `0 15px 35px rgba(${
                                             stat.color === '#5FA145' ? '95, 161, 69' :
                                             stat.color === '#C69438' ? '198, 148, 56' :
-                                            stat.color === '#E4518C' ? '228, 81, 140' : '245, 180, 198'
+                                            stat.color === '#C69438' ? '228, 81, 140' : '245, 180, 198'
                                         }, 0.3)`;
                                     }}
                                     onMouseLeave={(e) => {
@@ -171,7 +171,7 @@ export function TestimonialsSection() {
                                         e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
                                     }}
                                 >
-                                    <div 
+                                    <div
                                         className="stat-icon d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
                                         style={{
                                             width: '80px',
@@ -182,17 +182,17 @@ export function TestimonialsSection() {
                                     >
                                         <i className={`${stat.icon} display-6`}></i>
                                     </div>
-                                    
-                                    <div 
+
+                                    <div
                                         className="stat-value display-3 fw-bold mb-2"
                                         style={{ color: stat.color }}
                                     >
-                                        {index === 1 ? `${animatedValues[index]}M` : 
-                                         index === 3 ? `${animatedValues[index]}%` : 
+                                        {index === 1 ? `${animatedValues[index]}M` :
+                                         index === 3 ? `${animatedValues[index]}%` :
                                          animatedValues[index].toLocaleString()}
                                     </div>
-                                    
-                                    <div 
+
+                                    <div
                                         className="stat-label fw-semibold"
                                         style={{ color: '#334E15', fontSize: '1.1rem' }}
                                     >
@@ -207,21 +207,21 @@ export function TestimonialsSection() {
                 {/* Testimonials Section */}
                 <div className="testimonials-section">
                     <div className="text-center mb-5">
-                        <div 
+                        <div
                             className="d-inline-flex align-items-center px-4 py-2 rounded-pill mb-4"
                             style={{
-                                background: 'rgba(228, 81, 140, 0.15)',
+                                background: 'rgba(198, 148, 56, 0.15)',
                                 backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(228, 81, 140, 0.3)'
+                                border: '1px solid rgba(198, 148, 56, 0.3)'
                             }}
                         >
-                            <i className="bi bi-chat-heart me-2" style={{ color: '#E4518C' }}></i>
-                            <span style={{ color: '#E4518C', fontSize: '1.1rem', fontWeight: '600' }}>
+                            <i className="bi bi-chat-heart me-2" style={{ color: '#C69438' }}></i>
+                            <span style={{ color: '#C69438', fontSize: '1.1rem', fontWeight: '600' }}>
                                 Témoignages
                             </span>
                         </div>
-                        
-                        <h2 
+
+                        <h2
                             className="display-4 fw-bold mb-4"
                             style={{ color: '#334E15' }}
                         >
@@ -231,10 +231,10 @@ export function TestimonialsSection() {
 
                     <Row className="justify-content-center">
                         <Col lg={8}>
-                            <div 
+                            <div
                                 className="testimonial-container p-5 rounded-4 text-center"
                                 style={{
-                                    background: 'linear-gradient(135deg, rgba(232, 245, 232, 0.1) 0%, rgba(228, 81, 140, 0.05) 100%)',
+                                    background: 'linear-gradient(135deg, rgba(232, 245, 232, 0.1) 0%, rgba(198, 148, 56, 0.05) 100%)',
                                     backdropFilter: 'blur(20px)',
                                     border: '1px solid rgba(232, 245, 232, 0.2)',
                                     minHeight: '400px',
@@ -243,7 +243,7 @@ export function TestimonialsSection() {
                                     justifyContent: 'center'
                                 }}
                             >
-                                <div 
+                                <div
                                     className="testimonial-avatar mb-4"
                                     style={{
                                         fontSize: '4rem',
@@ -255,7 +255,7 @@ export function TestimonialsSection() {
 
                                 <div className="mb-4">
                                     {[...Array(testimonials[currentTestimonial].rating)].map((_, index) => (
-                                        <i 
+                                        <i
                                             key={index}
                                             className="bi bi-star-fill me-1"
                                             style={{ color: '#C69438', fontSize: '1.2rem' }}
@@ -263,7 +263,7 @@ export function TestimonialsSection() {
                                     ))}
                                 </div>
 
-                                <blockquote 
+                                <blockquote
                                     className="mb-4"
                                     style={{
                                         fontSize: '1.3rem',
@@ -273,7 +273,7 @@ export function TestimonialsSection() {
                                         position: 'relative'
                                     }}
                                 >
-                                    <i 
+                                    <i
                                         className="bi bi-quote position-absolute"
                                         style={{
                                             fontSize: '3rem',
@@ -286,14 +286,14 @@ export function TestimonialsSection() {
                                 </blockquote>
 
                                 <div>
-                                    <div 
+                                    <div
                                         className="fw-bold mb-1"
                                         style={{ color: '#5FA145', fontSize: '1.2rem' }}
                                     >
                                         {testimonials[currentTestimonial].name}
                                     </div>
-                                    <div 
-                                        style={{ 
+                                    <div
+                                        style={{
                                             color: '#6B7280',
                                             fontSize: '1.1rem',
                                             fontWeight: '400'
@@ -313,8 +313,8 @@ export function TestimonialsSection() {
                                         style={{
                                             width: currentTestimonial === index ? '40px' : '12px',
                                             height: '4px',
-                                            background: currentTestimonial === index 
-                                                ? 'linear-gradient(135deg, #5FA145 0%, #E4518C 100%)' 
+                                            background: currentTestimonial === index
+                                                ? 'linear-gradient(135deg, #5FA145 0%, #C69438 100%)'
                                                 : '#E9ECEF',
                                             borderRadius: '2px',
                                             transition: 'all 0.3s ease',

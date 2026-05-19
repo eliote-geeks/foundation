@@ -42,14 +42,14 @@ export function FoundationNavbar({ user }: FoundationNavbarProps) {
                         style={{
                             width: '40px',
                             height: '40px',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: 'linear-gradient(135deg, #4A8A2A 0%, #2D5016 100%)',
                             animation: 'float 3s ease-in-out infinite'
                         }}
                     >
                         <i className="bi bi-heart-fill text-white fs-5"></i>
                     </div>
                     <span className="fw-bold fs-4" style={{
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        background: 'linear-gradient(135deg, #4A8A2A 0%, #2D5016 100%)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text'

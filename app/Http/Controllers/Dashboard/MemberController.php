@@ -36,7 +36,7 @@ class MemberController extends Controller
                 'value' => UserProfile::byMemberType('adherent')->count(),
                 'change' => '+' . UserProfile::byMemberType('adherent')->whereDate('created_at', '>=', now()->subWeek())->count(),
                 'positive' => true,
-                'color' => '#667eea',
+                'color' => '#4A8A2A',
                 'icon' => 'bi-person-check'
             ],
             [
@@ -44,7 +44,7 @@ class MemberController extends Controller
                 'value' => UserProfile::byMemberType('ambassador')->count(),
                 'change' => '+' . UserProfile::byMemberType('ambassador')->whereDate('created_at', '>=', now()->subWeek())->count(),
                 'positive' => true,
-                'color' => '#E4518C',
+                'color' => '#C69438',
                 'icon' => 'bi-star'
             ],
             [

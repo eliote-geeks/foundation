@@ -1,1 +1,0 @@
-import{d as f,e as i}from"./Row-CLtRBrrt.js";import{r as x,j as l}from"./app-DjVC1cjc.js";const n=x.forwardRef(({bsPrefix:r,bg:s="primary",pill:e=!1,text:a,className:o,as:t="span",...p},m)=>{const d=f(r,"badge");return l.jsx(t,{ref:m,...p,className:i(o,d,e&&"rounded-pill",a&&`text-${a}`,s&&`bg-${s}`)})});n.displayName="Badge";export{n as B};

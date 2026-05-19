@@ -351,8 +351,8 @@ export default function DonationCampaignDetail({
                                                         style={{
                                                             width: '35px',
                                                             height: '35px',
-                                                            background: index < 3 ? '#C6943815' : '#667eea15',
-                                                            color: index < 3 ? '#C69438' : '#667eea'
+                                                            background: index < 3 ? '#C6943815' : '#4A8A2A15',
+                                                            color: index < 3 ? '#C69438' : '#4A8A2A'
                                                         }}
                                                     >
                                                         {index < 3 ? (
@@ -536,7 +536,7 @@ export default function DonationCampaignDetail({
                                     <Button
                                         onClick={() => setShowUpdateModal(true)}
                                         style={{
-                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            background: 'linear-gradient(135deg, #4A8A2A 0%, #2D5016 100%)',
                                             border: 'none',
                                             borderRadius: '12px'
                                         }}
@@ -616,7 +616,7 @@ export default function DonationCampaignDetail({
                                 <Button
                                     type="submit"
                                     style={{
-                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        background: 'linear-gradient(135deg, #4A8A2A 0%, #2D5016 100%)',
                                         border: 'none',
                                         borderRadius: '8px'
                                     }}

@@ -148,7 +148,7 @@ export function NotificationsModule() {
             case 'urgent': return '#DC3545';
             case 'warning': return '#C69438';
             case 'success': return '#5FA145';
-            case 'error': return '#E4518C';
+            case 'error': return '#C69438';
             default: return '#6366F1';
         }
     };
@@ -157,7 +157,7 @@ export function NotificationsModule() {
         switch (category) {
             case 'financial': return '#C69438';
             case 'events': return '#5FA145';
-            case 'members': return '#E4518C';
+            case 'members': return '#C69438';
             case 'partners': return '#6366F1';
             case 'system': return '#DC3545';
             default: return '#6B7280';
@@ -166,7 +166,7 @@ export function NotificationsModule() {
 
     const getPriorityBadge = (priority: string) => {
         const config = {
-            high: { text: 'Haute', color: '#E4518C' },
+            high: { text: 'Haute', color: '#C69438' },
             medium: { text: 'Moyenne', color: '#C69438' },
             low: { text: 'Basse', color: '#5FA145' }
         };
@@ -237,7 +237,7 @@ export function NotificationsModule() {
                             <Badge 
                                 className="ms-2"
                                 style={{ 
-                                    backgroundColor: '#E4518C',
+                                    backgroundColor: '#C69438',
                                     fontSize: '0.7rem',
                                     transform: 'translateY(-2px)'
                                 }}
@@ -498,7 +498,7 @@ export function NotificationsModule() {
                                     <div className="stats-grid">
                                         {[
                                             { label: 'Total', value: notifications.length, color: '#6366F1', icon: 'bi-bell' },
-                                            { label: 'Non lues', value: unreadCount, color: '#E4518C', icon: 'bi-bell-fill' },
+                                            { label: 'Non lues', value: unreadCount, color: '#C69438', icon: 'bi-bell-fill' },
                                             { label: 'Urgentes', value: urgentCount, color: '#DC3545', icon: 'bi-exclamation-triangle-fill' },
                                             { label: 'Aujourd\'hui', value: 3, color: '#5FA145', icon: 'bi-calendar-day' }
                                         ].map((stat, index) => (

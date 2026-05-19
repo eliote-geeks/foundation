@@ -104,9 +104,9 @@ class Partner extends Model
         return match($this->category) {
             'Technologie' => '#5FA145',
             'Finance' => '#C69438',
-            'Éducation' => '#E4518C',
+            'Éducation' => '#C69438',
             'Télécommunications' => '#4D8A3C',
-            'Énergie' => '#F5B4C6',
+            'Énergie' => '#F9D27A',
             'Agroalimentaire' => '#334E15',
             'Transport' => '#6B7280',
             default => '#6B7280'

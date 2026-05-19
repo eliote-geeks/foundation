@@ -3,24 +3,78 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Event;
 
 Route::get('/', function () {
+    $totalRaised = \App\Models\Donation::where('payment_status', 'completed')->sum('amount')
+        + \App\Models\Ticket::where('payment_status', 'paid')->sum('price_paid');
+
     return Inertia::render('home', [
-        'user' => auth()->user()
+        'user' => auth()->user(),
+        'stats' => [
+            'totalEvents'  => \App\Models\Event::published()->count(),
+            'totalMembers' => \App\Models\User::count(),
+            'ticketsSold'  => \App\Models\Ticket::where('payment_status', 'paid')->count(),
+            'totalRaised'  => $totalRaised >= 1_000_000
+                ? number_format($totalRaised / 1_000_000, 1) . 'M'
+                : number_format($totalRaised / 1_000, 0) . 'K',
+        ],
+        'partners' => \App\Models\Partner::active()
+            ->whereNotNull('logo')
+            ->limit(8)
+            ->get(['id', 'name', 'logo', 'website_url']),
+        'upcomingEvents' => Event::query()
+            ->published()
+            ->upcoming()
+            ->orderBy('start_date')
+            ->limit(6)
+            ->get()
+            ->map(fn (Event $event) => [
+                'id' => $event->id,
+                'title' => $event->title,
+                'short_description' => $event->short_description,
+                'location' => $event->location,
+                'start_date_display' => $event->start_date->translatedFormat('d M Y • H:i'),
+                'category_display' => $event->category_display,
+                'image' => $event->image,
+                'formatted_price' => $event->formattedPrice(),
+                'requires_approval' => $event->requires_approval,
+            ])
+            ->values(),
     ]);
 })->name('home');
 
 Route::get('/contests', function () {
+    $contests = \App\Models\Contest::whereIn('status', ['active', 'voting', 'upcoming', 'completed'])
+        ->orderBy('end_date', 'asc')
+        ->get()
+        ->map(fn (\App\Models\Contest $c) => [
+            'id'          => $c->id,
+            'title'       => $c->title,
+            'description' => $c->short_description ?: substr($c->description ?? '', 0, 160),
+            'icon'        => 'bi-trophy',
+            'category'    => $c->category,
+            'endDate'     => $c->end_date?->toDateString(),
+            'votes'       => $c->votes()->where('payment_status', 'paid')->count(),
+            'status'      => $c->isActive() ? 'active' : ($c->isCompleted() ? 'ended' : 'upcoming'),
+            'prize'       => $c->prizes ? (collect($c->prizes)->first()['value'] ?? null) : null,
+        ]);
+
     return Inertia::render('contests', [
-        'user' => auth()->user()
+        'user'     => auth()->user(),
+        'contests' => $contests,
     ]);
 })->name('contests');
 
-Route::get('/tickets', function () {
-    return Inertia::render('tickets', [
-        'user' => auth()->user()
-    ]);
-})->name('tickets');
+// /tickets redirige vers /events (même contenu, évite la duplication)
+Route::get('/tickets', fn() => redirect('/events'))->name('tickets');
+
+// Routes événements (public)
+Route::controller(App\Http\Controllers\PublicEventController::class)->group(function () {
+    Route::get('/events', 'index')->name('events.index');
+    Route::get('/events/{event}', 'show')->name('events.show');
+    Route::post('/events/{event}/reserve', 'reserve')->name('events.reserve');
+});
 
 // Routes partenaires
 Route::controller(App\Http\Controllers\PartnerController::class)->group(function () {
@@ -31,8 +85,8 @@ Route::controller(App\Http\Controllers\PartnerController::class)->group(function
     Route::get('/api/partners/{partner}', 'show')->name('api.partners.show');
 });
 
-// Dashboard routes
-Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
+// Dashboard routes (admin only)
+Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->group(function () {
 
     // Routes dashboard membres
     Route::controller(App\Http\Controllers\Dashboard\MemberController::class)->prefix('members')->name('members.')->group(function () {
@@ -100,9 +154,7 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
         Route::post('/donors/{donor}/thank-you', 'sendThankYou')->name('donors.thank-you');
     });
 
-    Route::get('/donations', function () {
-        return app(App\Http\Controllers\Dashboard\DonationCampaignController::class)->index(request());
-    })->name('donations');
+    Route::get('/donations', [App\Http\Controllers\Dashboard\DonationCampaignController::class, 'summary'])->name('donations');
 
     Route::get('/projects', function () {
         return Inertia::render('dashboard/projects', [
@@ -116,11 +168,7 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
         ]);
     })->name('communications');
 
-    Route::get('/finances', function () {
-        return Inertia::render('dashboard/finances', [
-            'user' => auth()->user()
-        ]);
-    })->name('finances');
+    Route::get('/finances', [App\Http\Controllers\Dashboard\FinancesController::class, 'index'])->name('finances');
 
     // Routes dashboard partenaires
     Route::controller(App\Http\Controllers\Dashboard\PartnerController::class)->prefix('partners')->name('partners.')->group(function () {
@@ -161,20 +209,13 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
         Route::get('/export', 'export')->name('export');
     });
 
-    // Route principale pour les concours
-    Route::get('/contests', [App\Http\Controllers\Dashboard\ContestController::class, 'index'])->name('contests');
-
     Route::get('/content', function () {
         return Inertia::render('dashboard/content', [
             'user' => auth()->user()
         ]);
     })->name('content');
 
-    Route::get('/analytics', function () {
-        return Inertia::render('dashboard/analytics', [
-            'user' => auth()->user()
-        ]);
-    })->name('analytics');
+    Route::get('/analytics', [App\Http\Controllers\Dashboard\AnalyticsController::class, 'index'])->name('analytics');
 
     Route::get('/settings', function () {
         return Inertia::render('dashboard/settings', [
@@ -234,27 +275,9 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
         ]);
     })->name('communications.social-media');
 
-    // Finances submenu routes
-    Route::get('/finances/budget', function () {
-        return Inertia::render('dashboard/finances', [
-            'user' => auth()->user(),
-            'tab' => 'budget'
-        ]);
-    })->name('finances.budget');
-
-    Route::get('/finances/transactions', function () {
-        return Inertia::render('dashboard/finances', [
-            'user' => auth()->user(),
-            'tab' => 'transactions'
-        ]);
-    })->name('finances.transactions');
-
-    Route::get('/finances/reports', function () {
-        return Inertia::render('dashboard/finances', [
-            'user' => auth()->user(),
-            'tab' => 'reports'
-        ]);
-    })->name('finances.reports');
+    // Finances submenu routes (same controller, tab handled on frontend)
+    Route::get('/finances/transactions', [App\Http\Controllers\Dashboard\FinancesController::class, 'index'])->name('finances.transactions');
+    Route::get('/finances/reports', [App\Http\Controllers\Dashboard\FinancesController::class, 'index'])->name('finances.reports');
 
     // Content submenu routes
     Route::get('/content/articles', function () {
@@ -294,31 +317,29 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
     })->name('settings.security');
 });
 
-// Main dashboard route (without trailing slash)
-Route::get('/dashboard', function () {
-    return Inertia::render('dashboard-new', [
-        'user' => auth()->user()
-    ]);
-})->middleware(['auth'])->name('dashboard');
+// Main dashboard route (admin only)
+Route::get('/dashboard', [App\Http\Controllers\Dashboard\DashboardController::class, 'index'])
+    ->middleware(['auth', 'admin'])->name('dashboard');
 
-Route::get('/profile', function () {
-    return Inertia::render('profile', [
-        'user' => auth()->user()
-    ]);
-})->name('profile');
+Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])
+    ->middleware(['auth'])->name('profile');
 
-Route::get('/profile/{type}', function ($type) {
-    return Inertia::render('profile-demo', [
-        'user' => auth()->user(),
-        'type' => $type
-    ]);
-})->name('profile.type');
-
+// Page démo des types de profil (non connecté uniquement)
 Route::get('/profiles', function () {
     return Inertia::render('profile-demo', [
-        'user' => auth()->user()
+        'user' => auth()->user(),
+        'type' => ''
     ]);
 })->name('profiles');
+
+// ── Legal pages ──────────────────────────────────────────────────────
+Route::prefix('legal')->name('legal.')->group(function () {
+    Route::get('/mentions',  fn() => Inertia::render('legal/mentions'))->name('mentions');
+    Route::get('/cgu',       fn() => Inertia::render('legal/cgu'))->name('cgu');
+    Route::get('/privacy',   fn() => Inertia::render('legal/privacy'))->name('privacy');
+    Route::get('/cookies',   fn() => Inertia::render('legal/cookies'))->name('cookies');
+    Route::get('/rgpd',      fn() => Inertia::render('legal/rgpd'))->name('rgpd');
+});
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

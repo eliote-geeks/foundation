@@ -91,8 +91,8 @@ export default function Dashboard({ user }: DashboardProps) {
             change: '+847',
             trend: 'up',
             icon: 'bi-people-fill',
-            color: '#E4518C',
-            gradient: 'linear-gradient(135deg, #E4518C 0%, #D63384 100%)'
+            color: '#C69438',
+            gradient: 'linear-gradient(135deg, #C69438 0%, #D63384 100%)'
         },
         {
             id: 'funds',
@@ -150,7 +150,7 @@ export default function Dashboard({ user }: DashboardProps) {
             status: 'active',
             progress: 78,
             icon: 'bi-people-fill',
-            color: '#E4518C',
+            color: '#C69438',
             metrics: {
                 primary: '2,850+ Membres',
                 secondary: '6 Catégories'
@@ -269,7 +269,7 @@ export default function Dashboard({ user }: DashboardProps) {
         switch (status) {
             case 'active': return '#5FA145';
             case 'beta': return '#C69438';
-            case 'coming-soon': return '#E4518C';
+            case 'coming-soon': return '#C69438';
             default: return '#6B7280';
         }
     };
@@ -278,7 +278,7 @@ export default function Dashboard({ user }: DashboardProps) {
         const config = {
             active: { text: 'Actif', bg: '#5FA145' },
             beta: { text: 'Bêta', bg: '#C69438' },
-            'coming-soon': { text: 'Bientôt', bg: '#E4518C' }
+            'coming-soon': { text: 'Bientôt', bg: '#C69438' }
         };
         const { text, bg } = config[status as keyof typeof config] || { text: status, bg: '#6B7280' };
         

@@ -104,8 +104,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
     });
 
     const memberTypes = [
-        { value: 'adherent', label: 'Adhérent', color: '#667eea', icon: 'bi-person-check' },
-        { value: 'ambassador', label: 'Ambassadeur', color: '#E4518C', icon: 'bi-star' },
+        { value: 'adherent', label: 'Adhérent', color: '#4A8A2A', icon: 'bi-person-check' },
+        { value: 'ambassador', label: 'Ambassadeur', color: '#C69438', icon: 'bi-star' },
         { value: 'volunteer', label: 'Bénévole', color: '#C69438', icon: 'bi-hand-thumbs-up' },
         { value: 'former_challenger', label: 'Ancien Challenger', color: '#5FA145', icon: 'bi-trophy' },
         { value: 'partner', label: 'Partenaire', color: '#4D8A3C', icon: 'bi-handshake' },
@@ -113,7 +113,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
     ];
 
     const commonInterests = [
-        'Environnement', 'Éducation', 'Technologie', 'Santé', 'Agriculture', 
+        'Environnement', 'Éducation', 'Technologie', 'Santé', 'Agriculture',
         'Entrepreneuriat', 'Arts & Culture', 'Sports', 'Développement Durable', 'Innovation'
     ];
 
@@ -129,8 +129,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
     const getEngagementColor = (score: number) => {
         if (score >= 1000) return '#5FA145';
         if (score >= 500) return '#C69438';
-        if (score >= 200) return '#E4518C';
-        if (score >= 50) return '#667eea';
+        if (score >= 200) return '#C69438';
+        if (score >= 50) return '#4A8A2A';
         return '#9CA3AF';
     };
 
@@ -142,7 +142,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
     const handleArrayChange = (field: 'interests' | 'skills', value: string) => {
         setFormData(prev => ({
             ...prev,
-            [field]: prev[field].includes(value) 
+            [field]: prev[field].includes(value)
                 ? prev[field].filter(item => item !== value)
                 : [...prev[field], value]
         }));
@@ -201,7 +201,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
     const handleCreateMember = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        
+
         try {
             router.post('/dashboard/members', formData, {
                 onSuccess: () => {
@@ -225,9 +225,9 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
     const handleEditMember = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedMember) return;
-        
+
         setIsLoading(true);
-        
+
         try {
             router.put(`/dashboard/members/${selectedMember.id}`, formData, {
                 onSuccess: () => {
@@ -251,9 +251,9 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
 
     const handleDeleteMember = async () => {
         if (!selectedMember) return;
-        
+
         setIsLoading(true);
-        
+
         try {
             router.delete(`/dashboard/members/${selectedMember.id}`, {
                 onSuccess: () => {
@@ -276,7 +276,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
     const handleToggleActive = async (member: Member) => {
         const memberId = member.id;
         setProcessingMembers(prev => new Set(prev).add(memberId));
-        
+
         try {
             const response = await fetch(`/dashboard/members/${memberId}/toggle-active`, {
                 method: 'POST',
@@ -285,9 +285,9 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                 }
             });
-            
+
             const data = await response.json();
-            
+
             if (response.ok) {
                 showAlert(data.message);
                 // Recharger la page pour mettre à jour les données
@@ -310,9 +310,9 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
     const handleAddPoints = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedMember) return;
-        
+
         setIsLoading(true);
-        
+
         try {
             const response = await fetch(`/dashboard/members/${selectedMember.id}/engagement-points`, {
                 method: 'POST',
@@ -322,9 +322,9 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                 },
                 body: JSON.stringify(pointsData)
             });
-            
+
             const data = await response.json();
-            
+
             if (response.ok) {
                 setShowPointsModal(false);
                 setSelectedMember(null);
@@ -347,7 +347,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
         const params = new URLSearchParams();
         if (searchTerm) params.set('search', searchTerm);
         if (memberType !== 'all') params.set('filter', memberType);
-        
+
         window.location.href = `/dashboard/members?${params.toString()}`;
     };
 
@@ -404,7 +404,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
             <Row className="g-4 mb-5">
                 {stats.map((stat, index) => (
                     <Col lg={3} md={6} key={index}>
-                        <Card 
+                        <Card
                             className="border-0 h-100"
                             style={{
                                 borderRadius: '15px',
@@ -422,7 +422,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                             {stat.value}
                                         </h3>
                                     </div>
-                                    <div 
+                                    <div
                                         className="d-flex align-items-center justify-content-center rounded-circle"
                                         style={{
                                             width: '45px',
@@ -495,7 +495,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 style={{ borderRadius: '10px 0 0 10px' }}
                             />
-                            <Button 
+                            <Button
                                 type="submit"
                                 style={{
                                     background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
@@ -538,7 +538,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                     <tr key={member.id}>
                                                         <td className="border-0">
                                                             <div className="d-flex align-items-center">
-                                                                <div 
+                                                                <div
                                                                     className="rounded-circle me-3 d-flex align-items-center justify-content-center"
                                                                     style={{
                                                                         width: '40px',
@@ -548,8 +548,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                                     }}
                                                                 >
                                                                     {member.avatar ? (
-                                                                        <img 
-                                                                            src={member.avatar} 
+                                                                        <img
+                                                                            src={member.avatar}
                                                                             alt={member.name}
                                                                             className="rounded-circle"
                                                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -569,8 +569,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                             </div>
                                                         </td>
                                                         <td className="border-0">
-                                                            <Badge 
-                                                                style={{ 
+                                                            <Badge
+                                                                style={{
                                                                     background: typeInfo.color,
                                                                     fontSize: '0.75rem'
                                                                 }}
@@ -584,8 +584,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                                 <div className="fw-semibold" style={{ color: getEngagementColor(member.engagement_score) }}>
                                                                     {member.engagement_score}
                                                                 </div>
-                                                                <ProgressBar 
-                                                                    now={Math.min(member.engagement_score / 10, 100)} 
+                                                                <ProgressBar
+                                                                    now={Math.min(member.engagement_score / 10, 100)}
                                                                     style={{ height: '4px' }}
                                                                     className="mt-1"
                                                                 />
@@ -598,15 +598,15 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                         </td>
                                                         <td className="border-0">
                                                             <Dropdown>
-                                                                <Dropdown.Toggle 
-                                                                    variant="outline-secondary" 
+                                                                <Dropdown.Toggle
+                                                                    variant="outline-secondary"
                                                                     size="sm"
                                                                     style={{ border: 'none', background: 'none' }}
                                                                 >
                                                                     <i className="bi bi-three-dots"></i>
                                                                 </Dropdown.Toggle>
                                                                 <Dropdown.Menu>
-                                                                    <Dropdown.Item 
+                                                                    <Dropdown.Item
                                                                         onClick={() => {
                                                                             setSelectedMember(member);
                                                                             setShowDetailModal(true);
@@ -614,7 +614,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                                     >
                                                                         <i className="bi bi-eye me-2"></i>Voir détails
                                                                     </Dropdown.Item>
-                                                                    <Dropdown.Item 
+                                                                    <Dropdown.Item
                                                                         onClick={() => {
                                                                             setSelectedMember(member);
                                                                             loadMemberData(member);
@@ -624,7 +624,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                                     >
                                                                         <i className="bi bi-pencil me-2"></i>Modifier
                                                                     </Dropdown.Item>
-                                                                    <Dropdown.Item 
+                                                                    <Dropdown.Item
                                                                         onClick={() => {
                                                                             setSelectedMember(member);
                                                                             setShowPointsModal(true);
@@ -634,9 +634,9 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                                         <i className="bi bi-trophy me-2"></i>Ajouter points
                                                                     </Dropdown.Item>
                                                                     <Dropdown.Divider />
-                                                                    <Dropdown.Item 
+                                                                    <Dropdown.Item
                                                                         onClick={() => handleToggleActive(member)}
-                                                                        style={{ fontSize: '0.9rem', color: member.is_active ? '#E4518C' : '#5FA145' }}
+                                                                        style={{ fontSize: '0.9rem', color: member.is_active ? '#C69438' : '#5FA145' }}
                                                                         disabled={processingMembers.has(member.id)}
                                                                     >
                                                                         {processingMembers.has(member.id) ? (
@@ -684,12 +684,12 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                     {recentActivities.map(activity => {
                                         const typeInfo = getTypeInfo(activity.member_type);
                                         return (
-                                            <div 
-                                                key={activity.id} 
+                                            <div
+                                                key={activity.id}
                                                 className="d-flex align-items-start p-3 rounded-3 mb-3"
                                                 style={{ background: '#F8F9FA' }}
                                             >
-                                                <div 
+                                                <div
                                                     className="d-flex align-items-center justify-content-center rounded-circle me-3"
                                                     style={{
                                                         width: '35px',
@@ -709,8 +709,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                         {activity.activity_title}
                                                     </div>
                                                     <div className="d-flex align-items-center mt-1">
-                                                        <Badge 
-                                                            bg="success" 
+                                                        <Badge
+                                                            bg="success"
                                                             style={{ fontSize: '0.65rem' }}
                                                         >
                                                             +{activity.points_earned} pts
@@ -737,7 +737,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h5 className="fw-bold mb-0" style={{ color: '#334E15' }}>
                                 <i className="bi bi-people me-2"></i>
-                                {memberType === 'all' ? 'Tous les membres' : 
+                                {memberType === 'all' ? 'Tous les membres' :
                                  memberType === 'adherent' ? 'Adhérents' :
                                  memberType === 'ambassador' ? 'Ambassadeurs' :
                                  memberType === 'volunteer' ? 'Bénévoles' : 'Membres'}
@@ -746,7 +746,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                 </Badge>
                             </h5>
                         </div>
-                        
+
                         <div className="table-responsive">
                             <Table hover className="mb-0">
                                 <thead style={{ background: '#F8F9FA' }}>
@@ -766,7 +766,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                             <tr key={member.id}>
                                                 <td className="border-0">
                                                     <div className="d-flex align-items-center">
-                                                        <div 
+                                                        <div
                                                             className="rounded-circle me-3 d-flex align-items-center justify-content-center"
                                                             style={{
                                                                 width: '40px',
@@ -776,8 +776,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                             }}
                                                         >
                                                             {member.avatar ? (
-                                                                <img 
-                                                                    src={member.avatar} 
+                                                                <img
+                                                                    src={member.avatar}
                                                                     alt={member.name}
                                                                     className="rounded-circle"
                                                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -797,8 +797,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                     </div>
                                                 </td>
                                                 <td className="border-0">
-                                                    <Badge 
-                                                        style={{ 
+                                                    <Badge
+                                                        style={{
                                                             background: typeInfo.color,
                                                             fontSize: '0.75rem'
                                                         }}
@@ -837,10 +837,10 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                                 setSelectedMember(member);
                                                                 setShowDetailModal(true);
                                                             }}
-                                                            style={{ 
-                                                                border: 'none', 
-                                                                background: '#E8F5E8', 
-                                                                color: '#5FA145' 
+                                                            style={{
+                                                                border: 'none',
+                                                                background: '#E8F5E8',
+                                                                color: '#5FA145'
                                                             }}
                                                             title="Voir détails"
                                                         >
@@ -854,29 +854,29 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                                 loadMemberData(member);
                                                                 setShowEditModal(true);
                                                             }}
-                                                            style={{ 
-                                                                border: 'none', 
-                                                                background: '#F3F4F6', 
-                                                                color: '#6B7280' 
+                                                            style={{
+                                                                border: 'none',
+                                                                background: '#F3F4F6',
+                                                                color: '#6B7280'
                                                             }}
                                                             title="Modifier"
                                                         >
                                                             <i className="bi bi-pencil"></i>
                                                         </Button>
                                                         <Dropdown>
-                                                            <Dropdown.Toggle 
-                                                                variant="outline-secondary" 
+                                                            <Dropdown.Toggle
+                                                                variant="outline-secondary"
                                                                 size="sm"
-                                                                style={{ 
-                                                                    border: 'none', 
-                                                                    background: '#F3F4F6', 
-                                                                    color: '#6B7280' 
+                                                                style={{
+                                                                    border: 'none',
+                                                                    background: '#F3F4F6',
+                                                                    color: '#6B7280'
                                                                 }}
                                                             >
                                                                 <i className="bi bi-three-dots"></i>
                                                             </Dropdown.Toggle>
                                                             <Dropdown.Menu>
-                                                                <Dropdown.Item 
+                                                                <Dropdown.Item
                                                                     onClick={() => {
                                                                         setSelectedMember(member);
                                                                         setShowPointsModal(true);
@@ -886,11 +886,11 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                                     <i className="bi bi-trophy me-2"></i>Ajouter points
                                                                 </Dropdown.Item>
                                                                 <Dropdown.Divider />
-                                                                <Dropdown.Item 
+                                                                <Dropdown.Item
                                                                     onClick={() => handleToggleActive(member)}
-                                                                    style={{ 
-                                                                        fontSize: '0.9rem', 
-                                                                        color: member.is_active ? '#E4518C' : '#5FA145' 
+                                                                    style={{
+                                                                        fontSize: '0.9rem',
+                                                                        color: member.is_active ? '#C69438' : '#5FA145'
                                                                     }}
                                                                     disabled={processingMembers.has(member.id)}
                                                                 >
@@ -906,7 +906,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                                         </>
                                                                     )}
                                                                 </Dropdown.Item>
-                                                                <Dropdown.Item 
+                                                                <Dropdown.Item
                                                                     onClick={() => {
                                                                         setSelectedMember(member);
                                                                         setShowDeleteModal(true);
@@ -933,8 +933,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                     <ul className="pagination">
                                         {Array.from({ length: members.last_page }, (_, i) => i + 1).map(page => (
                                             <li key={page} className={`page-item ${page === members.current_page ? 'active' : ''}`}>
-                                                <a 
-                                                    className="page-link" 
+                                                <a
+                                                    className="page-link"
                                                     href={`/dashboard/members?page=${page}${memberType !== 'all' ? `&filter=${memberType}` : ''}${searchTerm ? `&search=${searchTerm}` : ''}`}
                                                 >
                                                     {page}
@@ -1161,7 +1161,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                                 key={interest}
                                                 bg={formData.interests.includes(interest) ? 'primary' : 'light'}
                                                 text={formData.interests.includes(interest) ? 'light' : 'dark'}
-                                                style={{ 
+                                                style={{
                                                     cursor: 'pointer',
                                                     fontSize: '0.8rem'
                                                 }}
@@ -1314,7 +1314,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                     {selectedMember && (
                         <>
                             <div className="text-center mb-4">
-                                <div 
+                                <div
                                     className="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
                                     style={{
                                         width: '80px',
@@ -1336,9 +1336,9 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                     {selectedMember.email} • {selectedMember.member_type_display}
                                 </small>
                             </div>
-                            
-                            <div 
-                                className="p-3 rounded" 
+
+                            <div
+                                className="p-3 rounded"
                                 style={{ background: '#FEF3C7', border: '1px solid #F59E0B20' }}
                             >
                                 <div className="d-flex align-items-start">
@@ -1346,7 +1346,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                     <div>
                                         <strong style={{ color: '#92400E' }}>Attention !</strong>
                                         <div style={{ color: '#92400E', fontSize: '0.9rem' }}>
-                                            Cette action est irréversible. Toutes les données du membre, 
+                                            Cette action est irréversible. Toutes les données du membre,
                                             ses activités et son historique seront définitivement supprimés.
                                         </div>
                                     </div>
@@ -1407,7 +1407,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                         </Modal.Header>
                         <Modal.Body className="p-4">
                             <div className="text-center mb-4">
-                                <div 
+                                <div
                                     className="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
                                     style={{
                                         width: '80px',
@@ -1417,8 +1417,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                     }}
                                 >
                                     {selectedMember.avatar ? (
-                                        <img 
-                                            src={selectedMember.avatar} 
+                                        <img
+                                            src={selectedMember.avatar}
                                             alt={selectedMember.name}
                                             className="rounded-circle"
                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -1428,8 +1428,8 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                     )}
                                 </div>
                                 <h4 className="fw-bold mb-1">{selectedMember.name}</h4>
-                                <Badge 
-                                    style={{ 
+                                <Badge
+                                    style={{
                                         background: getTypeInfo(selectedMember.member_type).color,
                                         fontSize: '0.8rem'
                                     }}
@@ -1446,7 +1446,7 @@ export default function DashboardMembers({ user, stats, members, memberType, eng
                                 <Col md={6}>
                                     <small className="text-muted">Localisation</small>
                                     <div className="fw-semibold">
-                                        {selectedMember.city && selectedMember.country ? 
+                                        {selectedMember.city && selectedMember.country ?
                                             `${selectedMember.city}, ${selectedMember.country}` :
                                             selectedMember.country || 'Non spécifié'}
                                     </div>

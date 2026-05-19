@@ -247,7 +247,7 @@ export default function DonationCampaigns({ stats, campaigns, recentCampaigns, c
                     <Button
                         onClick={() => setShowCreateModal(true)}
                         style={{
-                            background: 'linear-gradient(135deg, #E4518C 0%, #C73E75 100%)',
+                            background: 'linear-gradient(135deg, #C69438 0%, #C73E75 100%)',
                             border: 'none',
                             borderRadius: '12px'
                         }}
@@ -454,7 +454,7 @@ export default function DonationCampaigns({ stats, campaigns, recentCampaigns, c
 
                                     <div className="d-flex align-items-center justify-content-between">
                                         <small className="text-muted">
-                                            {campaign.days_remaining !== null ? (
+                                            {campaign.days_remaining != null ? (
                                                 <>
                                                     <i className="bi bi-calendar me-1"></i>
                                                     {campaign.days_remaining > 0 
@@ -627,7 +627,7 @@ export default function DonationCampaigns({ stats, campaigns, recentCampaigns, c
                                     type="submit"
                                     disabled={isLoading}
                                     style={{
-                                        background: 'linear-gradient(135deg, #E4518C 0%, #C73E75 100%)',
+                                        background: 'linear-gradient(135deg, #C69438 0%, #C73E75 100%)',
                                         border: 'none',
                                         borderRadius: '8px'
                                     }}

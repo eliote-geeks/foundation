@@ -38,6 +38,7 @@ interface SupportedLanguagesResponse {
     data?: {
         languages: Record<string, string>;
     };
+    errors?: ServiceError;
 }
 
 interface AutoTranslationResponse {

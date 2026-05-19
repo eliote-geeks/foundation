@@ -27,10 +27,10 @@ const priorityVariants: Record<string, string> = {
 
 const categoryColors: Record<string, string> = {
     'Solidarité': '#5FA145',
-    'Éducation': '#667eea',
-    'Infrastructure': '#E4518C',
+    'Éducation': '#4A8A2A',
+    'Infrastructure': '#C69438',
     'Communication': '#C69438',
-    'Formation': '#764ba2',
+    'Formation': '#2D5016',
 };
 
 export default function Projects({ user, filter }: ProjectsProps) {
@@ -52,7 +52,7 @@ export default function Projects({ user, filter }: ProjectsProps) {
             value: '42',
             change: '+7',
             positive: true,
-            color: '#667eea',
+            color: '#4A8A2A',
             icon: 'bi-check-circle-fill'
         },
         {
@@ -60,7 +60,7 @@ export default function Projects({ user, filter }: ProjectsProps) {
             value: '81.750.000 FCFA',
             change: '+15%',
             positive: true,
-            color: '#E4518C',
+            color: '#C69438',
             icon: 'bi-wallet-fill'
         },
         {
@@ -370,7 +370,7 @@ export default function Projects({ user, filter }: ProjectsProps) {
                                             </Col>
                                             <Col xs={6}>
                                                 <div className="text-center">
-                                                    <div className="fw-bold" style={{ color: '#E4518C' }}>
+                                                    <div className="fw-bold" style={{ color: '#C69438' }}>
                                                         {project.beneficiaries}
                                                     </div>
                                                     <div className="text-muted" style={{ fontSize: '0.75rem' }}>

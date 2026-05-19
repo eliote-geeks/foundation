@@ -331,7 +331,7 @@ export default function AdminLayout({ children, title = 'Dashboard', user }: Adm
                                 <i className="bi bi-bell"></i>
                                 <span 
                                     className="position-absolute top-0 start-100 translate-middle badge rounded-pill"
-                                    style={{ backgroundColor: '#E4518C', fontSize: '0.6rem' }}
+                                    style={{ backgroundColor: '#C69438', fontSize: '0.6rem' }}
                                 >
                                     3
                                 </span>
@@ -375,7 +375,7 @@ export default function AdminLayout({ children, title = 'Dashboard', user }: Adm
             </div>
 
             {/* Custom Styles */}
-            <style jsx>{`
+            <style>{`
                 .sidebar-link:hover {
                     transform: translateX(2px);
                 }

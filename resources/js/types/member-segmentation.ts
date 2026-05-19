@@ -101,7 +101,14 @@ export interface ActivityNotification {
 }
 
 // Segments prédéfinis pour la segmentation automatique
-export const DefaultSegments = {
+export const DefaultSegments: Record<
+    string,
+    {
+        name: string;
+        description: string;
+        criteria: SegmentCriteria;
+    }
+> = {
     NEW_MEMBERS: {
         name: 'Nouveaux membres',
         description: 'Membres inscrits dans les 30 derniers jours',

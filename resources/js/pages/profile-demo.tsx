@@ -2,18 +2,16 @@ import { Head } from '@inertiajs/react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { ModernHeader } from '../components/home/modern-header';
 import { ModernFooter } from '../components/home/modern-footer';
-import Profile from './profile';
-
 interface ProfileDemoProps {
     user?: {
         name: string;
         email: string;
         member_type?: string;
     };
-    type: string;
+    type?: string;
 }
 
-export default function ProfileDemo({ user, type }: ProfileDemoProps) {
+export default function ProfileDemo({ user }: ProfileDemoProps) {
     // Types d'utilisateurs disponibles
     const userTypes = [
         {
@@ -34,7 +32,7 @@ export default function ProfileDemo({ user, type }: ProfileDemoProps) {
             id: 'former_challenger',
             name: 'Ancien Challenger',
             description: 'Alumnus des programmes',
-            color: '#E4518C',
+            color: '#C69438',
             icon: 'bi-trophy-fill'
         },
         {
@@ -60,12 +58,7 @@ export default function ProfileDemo({ user, type }: ProfileDemoProps) {
         }
     ];
 
-    // Si un type spécifique est demandé, afficher ce profil
-    if (type && userTypes.find(t => t.id === type)) {
-        return <Profile user={user} userType={type} />;
-    }
-
-    // Sinon, afficher la sélection des types de profil
+    // Afficher la sélection des types de profil
     return (
         <>
             <Head>
@@ -202,7 +195,7 @@ export default function ProfileDemo({ user, type }: ProfileDemoProps) {
                                         </p>
                                         <div className="d-flex justify-content-center gap-3">
                                             <Button
-                                                href="/simple-register"
+                                                href="/register"
                                                 style={{
                                                     background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
                                                     border: 'none',

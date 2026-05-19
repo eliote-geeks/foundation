@@ -13,7 +13,7 @@ export function ModernBadge({ variant, children, animated = false, glow = false 
         warning: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
         danger: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
         info: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-        primary: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        primary: 'linear-gradient(135deg, #4A8A2A 0%, #2D5016 100%)',
         secondary: 'linear-gradient(135deg, #434343 0%, #000000 100%)'
     };
 

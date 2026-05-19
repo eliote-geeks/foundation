@@ -1,4 +1,4 @@
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, type Variants } from 'framer-motion';
 import { useRef, ReactNode } from 'react';
 import { CheckCircle, Settings, Phone, Sparkles } from 'lucide-react';
 
@@ -12,12 +12,14 @@ interface ModernPageLayoutProps {
 }
 
 // Variants d'animation standardisées
-export const fadeInUp = {
+const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+export const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 60 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE_OUT } }
 };
 
-export const staggerContainer = {
+export const staggerContainer: Variants = {
     hidden: {},
     visible: {
         transition: {
@@ -26,14 +28,14 @@ export const staggerContainer = {
     }
 };
 
-export const cardHover = {
+export const cardHover: Variants = {
     rest: { scale: 1, y: 0 },
     hover: { 
         scale: 1.02, 
         y: -4,
         transition: { 
             duration: 0.3,
-            ease: "easeOut"
+            ease: EASE_OUT
         }
     }
 };

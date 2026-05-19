@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Table, Modal, Form, Alert, Dropdown, InputGroup, Nav, Spinner, OverlayTrigger, Popover } from 'react-bootstrap';
 import DashboardLayout from '../../layouts/dashboard-layout';
 
@@ -87,7 +87,7 @@ export default function DashboardContests({ user, stats, contests, recentContest
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [isLoading, setIsLoading] = useState(false);
     const [processingContests, setProcessingContests] = useState<Set<number>>(new Set());
-    const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
+    const [validationErrors, setValidationErrors] = useState<Record<string, string | string[]>>({});
 
     const [formData, setFormData] = useState({
         title: '',
@@ -123,9 +123,9 @@ export default function DashboardContests({ user, stats, contests, recentContest
 
     const contestCategories = [
         { value: 'innovation', label: 'Innovation', color: '#5FA145', icon: 'bi-lightbulb' },
-        { value: 'technology', label: 'Technologie', color: '#667eea', icon: 'bi-cpu' },
+        { value: 'technology', label: 'Technologie', color: '#4A8A2A', icon: 'bi-cpu' },
         { value: 'entrepreneurship', label: 'Entrepreneuriat', color: '#C69438', icon: 'bi-briefcase' },
-        { value: 'education', label: 'Éducation', color: '#E4518C', icon: 'bi-book' },
+        { value: 'education', label: 'Éducation', color: '#C69438', icon: 'bi-book' },
         { value: 'arts', label: 'Arts & Culture', color: '#4D8A3C', icon: 'bi-palette' },
         { value: 'environment', label: 'Environnement', color: '#334E15', icon: 'bi-tree' },
         { value: 'social', label: 'Social', color: '#6366F1', icon: 'bi-people' }
@@ -134,8 +134,8 @@ export default function DashboardContests({ user, stats, contests, recentContest
     const contestTypes = [
         { value: 'voting', label: 'Concours avec vote', color: '#5FA145', icon: 'bi-hand-thumbs-up' },
         { value: 'submission', label: 'Soumission', color: '#C69438', icon: 'bi-file-earmark-plus' },
-        { value: 'quiz', label: 'Quiz', color: '#E4518C', icon: 'bi-question-circle' },
-        { value: 'challenge', label: 'Défi', color: '#667eea', icon: 'bi-trophy' }
+        { value: 'quiz', label: 'Quiz', color: '#C69438', icon: 'bi-question-circle' },
+        { value: 'challenge', label: 'Défi', color: '#4A8A2A', icon: 'bi-trophy' }
     ];
 
     const getCategoryInfo = (category: string) => {
@@ -151,7 +151,7 @@ export default function DashboardContests({ user, stats, contests, recentContest
             case 'active': return '#5FA145';
             case 'voting': return '#C69438';
             case 'draft': return '#6B7280';
-            case 'closed': return '#E4518C';
+            case 'closed': return '#C69438';
             case 'completed': return '#4D8A3C';
             default: return '#6B7280';
         }
@@ -194,7 +194,8 @@ export default function DashboardContests({ user, stats, contests, recentContest
     };
 
     // Fonction pour wrapper un champ avec un popover d'erreur
-    const withErrorPopover = (fieldName: string, children: React.ReactElement) => {
+    type ClassStyleProps = { className?: string; style?: React.CSSProperties };
+    const withErrorPopover = (fieldName: string, children: React.ReactElement<ClassStyleProps>) => {
         const errors = validationErrors[fieldName];
         const hasError = errors && (Array.isArray(errors) ? errors.length > 0 : true);
         
@@ -246,7 +247,7 @@ export default function DashboardContests({ user, stats, contests, recentContest
     };
 
     // Fonction pour wrapper un champ vote avec un popover d'erreur
-    const withVoteErrorPopover = (fieldName: string, children: React.ReactElement) => {
+    const withVoteErrorPopover = (fieldName: string, children: React.ReactElement<ClassStyleProps>) => {
         const errors = voteValidationErrors[fieldName];
         const hasError = errors && (Array.isArray(errors) ? errors.length > 0 : true);
         

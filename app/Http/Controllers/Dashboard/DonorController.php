@@ -29,7 +29,7 @@ class DonorController extends Controller
                     $q->where('donated_at', '>=', now()->subMonth());
                 })->count(),
                 'positive' => true,
-                'color' => '#667eea',
+                'color' => '#4A8A2A',
                 'icon' => 'bi-people'
             ],
             [
@@ -68,7 +68,7 @@ class DonorController extends Controller
                            ->avg('amount'), 0, ',', ' '
                 ),
                 'positive' => true,
-                'color' => '#E4518C',
+                'color' => '#C69438',
                 'icon' => 'bi-graph-up-arrow'
             ]
         ];

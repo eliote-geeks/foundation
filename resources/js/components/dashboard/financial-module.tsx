@@ -109,7 +109,7 @@ export function FinancialModule() {
         switch (status) {
             case 'completed': return '#5FA145';
             case 'pending': return '#C69438';
-            case 'cancelled': return '#E4518C';
+            case 'cancelled': return '#C69438';
             default: return '#6B7280';
         }
     };
@@ -162,7 +162,7 @@ export function FinancialModule() {
                     <Col lg={8}>
                         <Row className="g-3 mb-4">
                             <Col md={4}>
-                                <Card 
+                                <Card
                                     className="border-0 h-100"
                                     style={{
                                         background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
@@ -182,10 +182,10 @@ export function FinancialModule() {
                                 </Card>
                             </Col>
                             <Col md={4}>
-                                <Card 
+                                <Card
                                     className="border-0 h-100"
                                     style={{
-                                        background: 'linear-gradient(135deg, #E4518C 0%, #D63384 100%)',
+                                        background: 'linear-gradient(135deg, #C69438 0%, #D63384 100%)',
                                         borderRadius: '15px'
                                     }}
                                 >
@@ -202,7 +202,7 @@ export function FinancialModule() {
                                 </Card>
                             </Col>
                             <Col md={4}>
-                                <Card 
+                                <Card
                                     className="border-0 h-100"
                                     style={{
                                         background: 'linear-gradient(135deg, #C69438 0%, #B8860B 100%)',
@@ -224,7 +224,7 @@ export function FinancialModule() {
                         </Row>
 
                         {/* Budget Progress */}
-                        <Card 
+                        <Card
                             className="border-0"
                             style={{
                                 borderRadius: '20px',
@@ -241,16 +241,16 @@ export function FinancialModule() {
                                         <span style={{ color: '#6B7280' }}>
                                             {formatCurrency(financialData.totalExpenses)} / {formatCurrency(financialData.budget)}
                                         </span>
-                                        <span 
+                                        <span
                                             className="fw-bold"
-                                            style={{ 
-                                                color: budgetUsed > 80 ? '#E4518C' : budgetUsed > 60 ? '#C69438' : '#5FA145' 
+                                            style={{
+                                                color: budgetUsed > 80 ? '#C69438' : budgetUsed > 60 ? '#C69438' : '#5FA145'
                                             }}
                                         >
                                             {budgetUsed.toFixed(1)}%
                                         </span>
                                     </div>
-                                    <ProgressBar 
+                                    <ProgressBar
                                         now={budgetUsed}
                                         style={{ height: '8px' }}
                                         className="rounded-pill"
@@ -281,7 +281,7 @@ export function FinancialModule() {
 
                     {/* Recent Transactions Preview */}
                     <Col lg={4}>
-                        <Card 
+                        <Card
                             className="border-0 h-100"
                             style={{
                                 borderRadius: '20px',
@@ -310,31 +310,31 @@ export function FinancialModule() {
                                 <div className="transactions-list">
                                     {financialData.transactions.slice(0, 4).map(transaction => (
                                         <div key={transaction.id} className="d-flex align-items-center mb-3">
-                                            <div 
+                                            <div
                                                 className="d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0"
                                                 style={{
                                                     width: '35px',
                                                     height: '35px',
-                                                    background: `${transaction.type === 'income' ? '#5FA145' : '#E4518C'}15`,
-                                                    color: transaction.type === 'income' ? '#5FA145' : '#E4518C'
+                                                    background: `${transaction.type === 'income' ? '#5FA145' : '#C69438'}15`,
+                                                    color: transaction.type === 'income' ? '#5FA145' : '#C69438'
                                                 }}
                                             >
                                                 <i className={getTransactionIcon(transaction.type, transaction.category)} style={{ fontSize: '0.9rem' }}></i>
                                             </div>
                                             <div className="flex-grow-1">
                                                 <div className="fw-semibold" style={{ fontSize: '0.85rem', color: '#334E15' }}>
-                                                    {transaction.description.length > 25 
-                                                        ? transaction.description.substring(0, 25) + '...' 
+                                                    {transaction.description.length > 25
+                                                        ? transaction.description.substring(0, 25) + '...'
                                                         : transaction.description
                                                     }
                                                 </div>
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <small style={{ color: '#6B7280' }}>{transaction.category}</small>
                                                     <div className="text-end">
-                                                        <div 
-                                                            className="fw-bold" 
-                                                            style={{ 
-                                                                color: transaction.type === 'income' ? '#5FA145' : '#E4518C',
+                                                        <div
+                                                            className="fw-bold"
+                                                            style={{
+                                                                color: transaction.type === 'income' ? '#5FA145' : '#C69438',
                                                                 fontSize: '0.8rem'
                                                             }}
                                                         >
@@ -354,7 +354,7 @@ export function FinancialModule() {
 
             {/* Transactions View */}
             {activeView === 'transactions' && (
-                <Card 
+                <Card
                     className="border-0"
                     style={{
                         borderRadius: '20px',
@@ -378,9 +378,9 @@ export function FinancialModule() {
                                 Nouvelle Transaction
                             </Button>
                         </div>
-                        
+
                         {financialData.transactions.map(transaction => (
-                            <div 
+                            <div
                                 key={transaction.id}
                                 className="d-flex align-items-center p-3 rounded-3 mb-3"
                                 style={{
@@ -388,13 +388,13 @@ export function FinancialModule() {
                                     border: '1px solid #E9ECEF'
                                 }}
                             >
-                                <div 
+                                <div
                                     className="d-flex align-items-center justify-content-center rounded-circle me-4 flex-shrink-0"
                                     style={{
                                         width: '45px',
                                         height: '45px',
-                                        background: `${transaction.type === 'income' ? '#5FA145' : '#E4518C'}15`,
-                                        color: transaction.type === 'income' ? '#5FA145' : '#E4518C'
+                                        background: `${transaction.type === 'income' ? '#5FA145' : '#C69438'}15`,
+                                        color: transaction.type === 'income' ? '#5FA145' : '#C69438'
                                     }}
                                 >
                                     <i className={getTransactionIcon(transaction.type, transaction.category)} style={{ fontSize: '1.2rem' }}></i>
@@ -406,32 +406,32 @@ export function FinancialModule() {
                                                 {transaction.description}
                                             </h6>
                                             <div className="d-flex align-items-center">
-                                                <Badge 
+                                                <Badge
                                                     className="me-2"
-                                                    style={{ 
-                                                        background: `${transaction.type === 'income' ? '#5FA145' : '#E4518C'}20`,
-                                                        color: transaction.type === 'income' ? '#5FA145' : '#E4518C',
+                                                    style={{
+                                                        background: `${transaction.type === 'income' ? '#5FA145' : '#C69438'}20`,
+                                                        color: transaction.type === 'income' ? '#5FA145' : '#C69438',
                                                         fontSize: '0.7rem'
                                                     }}
                                                 >
                                                     {transaction.category}
                                                 </Badge>
-                                                <Badge 
-                                                    style={{ 
+                                                <Badge
+                                                    style={{
                                                         background: getStatusColor(transaction.status),
                                                         fontSize: '0.7rem'
                                                     }}
                                                 >
-                                                    {transaction.status === 'completed' ? 'Complété' : 
+                                                    {transaction.status === 'completed' ? 'Complété' :
                                                      transaction.status === 'pending' ? 'En attente' : 'Annulé'}
                                                 </Badge>
                                             </div>
                                         </div>
                                         <div className="text-end">
-                                            <div 
-                                                className="fw-bold mb-1" 
-                                                style={{ 
-                                                    color: transaction.type === 'income' ? '#5FA145' : '#E4518C',
+                                            <div
+                                                className="fw-bold mb-1"
+                                                style={{
+                                                    color: transaction.type === 'income' ? '#5FA145' : '#C69438',
                                                     fontSize: '1.1rem'
                                                 }}
                                             >
@@ -453,7 +453,7 @@ export function FinancialModule() {
             {activeView === 'budget' && (
                 <Row className="g-4">
                     <Col xs={12}>
-                        <Card 
+                        <Card
                             className="border-0"
                             style={{
                                 borderRadius: '20px',
@@ -465,14 +465,14 @@ export function FinancialModule() {
                                     <i className="bi bi-wallet2 me-2"></i>
                                     Gestion du Budget 2025
                                 </h6>
-                                
+
                                 <div className="row g-4">
                                     <div className="col-md-8">
                                         <div className="budget-categories">
                                             {[
                                                 { name: 'Événements & Conférences', allocated: 20000000, spent: 12500000, color: '#5FA145' },
                                                 { name: 'Équipements & Infrastructure', allocated: 15000000, spent: 8900000, color: '#C69438' },
-                                                { name: 'Personnel & Formation', allocated: 10000000, spent: 7200000, color: '#E4518C' },
+                                                { name: 'Personnel & Formation', allocated: 10000000, spent: 7200000, color: '#C69438' },
                                                 { name: 'Marketing & Communication', allocated: 5000000, spent: 3800000, color: '#6366F1' }
                                             ].map((category, index) => {
                                                 const percentage = (category.spent / category.allocated) * 100;
@@ -491,9 +491,9 @@ export function FinancialModule() {
                                                                 </small>
                                                             </div>
                                                         </div>
-                                                        <ProgressBar 
+                                                        <ProgressBar
                                                             now={percentage}
-                                                            style={{ 
+                                                            style={{
                                                                 height: '8px',
                                                                 background: `${category.color}20`
                                                             }}
@@ -505,7 +505,7 @@ export function FinancialModule() {
                                         </div>
                                     </div>
                                     <div className="col-md-4">
-                                        <div 
+                                        <div
                                             className="p-4 rounded-4 text-center h-100"
                                             style={{
                                                 background: 'linear-gradient(135deg, #334E15 0%, #5FA145 100%)',

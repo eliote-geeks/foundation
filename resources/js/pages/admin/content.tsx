@@ -125,7 +125,7 @@ export default function AdminContent({ user }: AdminContentProps) {
             case 'article': return '#5FA145';
             case 'page': return '#4D8A3C';
             case 'event': return '#C69438';
-            case 'announcement': return '#E4518C';
+            case 'announcement': return '#C69438';
             default: return '#6B7280';
         }
     };

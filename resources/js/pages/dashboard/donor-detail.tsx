@@ -93,7 +93,7 @@ export default function DonorDetail({
     const getDonorTypeInfo = () => {
         if (donor.is_major_donor) return { icon: 'bi-star-fill', color: '#C69438', label: 'Donateur majeur' };
         if (donor.is_regular_donor) return { icon: 'bi-arrow-repeat', color: '#5FA145', label: 'Donateur régulier' };
-        return { icon: 'bi-person', color: '#667eea', label: 'Donateur' };
+        return { icon: 'bi-person', color: '#4A8A2A', label: 'Donateur' };
     };
 
     const typeInfo = getDonorTypeInfo();
@@ -242,7 +242,7 @@ export default function DonorDetail({
                                                 </Col>
                                                 <Col md={4}>
                                                     <div className="text-center">
-                                                        <div className="fw-bold h4" style={{ color: '#667eea' }}>
+                                                        <div className="fw-bold h4" style={{ color: '#4A8A2A' }}>
                                                             {donor.total_donations}
                                                         </div>
                                                         <small className="text-muted">Nombre de dons</small>
@@ -369,8 +369,8 @@ export default function DonorDetail({
                                                         style={{
                                                             width: '35px',
                                                             height: '35px',
-                                                            background: '#667eea15',
-                                                            color: '#667eea'
+                                                            background: '#4A8A2A15',
+                                                            color: '#4A8A2A'
                                                         }}
                                                     >
                                                         <i className="bi bi-person"></i>
@@ -593,8 +593,8 @@ export default function DonorDetail({
                                 style={{
                                     width: '50px',
                                     height: '50px',
-                                    background: '#667eea15',
-                                    color: '#667eea'
+                                    background: '#4A8A2A15',
+                                    color: '#4A8A2A'
                                 }}
                             >
                                 <i className="bi bi-person"></i>
@@ -634,7 +634,7 @@ export default function DonorDetail({
                                 <Button
                                     type="submit"
                                     style={{
-                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        background: 'linear-gradient(135deg, #4A8A2A 0%, #2D5016 100%)',
                                         border: 'none',
                                         borderRadius: '8px'
                                     }}

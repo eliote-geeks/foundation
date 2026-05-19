@@ -36,7 +36,7 @@ export function SocialHeroSection({ user }: SocialHeroProps) {
             number: '12',
             label: 'Pays Représentés',
             description: 'Portée internationale',
-            color: '#E4518C'
+            color: '#C69438'
         },
         {
             icon: 'bi-currency-euro',
@@ -130,7 +130,7 @@ export function SocialHeroSection({ user }: SocialHeroProps) {
                     style={{
                         width: '250px',
                         height: '250px',
-                        background: 'rgba(228, 81, 140, 0.1)',
+                        background: 'rgba(198, 148, 56, 0.1)',
                         top: '10%',
                         right: '5%',
                         animation: 'float 6s ease-in-out infinite'
@@ -178,7 +178,7 @@ export function SocialHeroSection({ user }: SocialHeroProps) {
                                 <span 
                                     className="badge rounded-pill me-3"
                                     style={{
-                                        background: 'linear-gradient(135deg, #E4518C 0%, #F5B4C6 100%)',
+                                        background: 'linear-gradient(135deg, #C69438 0%, #F9D27A 100%)',
                                         color: '#334E15'
                                     }}
                                 >
@@ -270,7 +270,7 @@ export function SocialHeroSection({ user }: SocialHeroProps) {
                                 ) : (
                                     <>
                                         <Button
-                                            href="/simple-register"
+                                            href="/register"
                                             size="lg"
                                             className="px-5 py-3"
                                             style={{
@@ -357,14 +357,14 @@ export function SocialHeroSection({ user }: SocialHeroProps) {
                                         style={{
                                             width: '35px',
                                             height: '35px',
-                                            background: 'rgba(228, 81, 140, 0.2)',
+                                            background: 'rgba(198, 148, 56, 0.2)',
                                             fontSize: '1rem'
                                         }}
                                     >
                                         ⚡
                                     </div>
                                     <div>
-                                        <div style={{ color: '#E4518C', fontSize: '0.9rem', fontWeight: '600' }}>
+                                        <div style={{ color: '#C69438', fontSize: '0.9rem', fontWeight: '600' }}>
                                             24/7
                                         </div>
                                         <div style={{ color: 'rgba(232, 245, 232, 0.8)', fontSize: '0.75rem' }}>
@@ -517,7 +517,7 @@ export function SocialHeroSection({ user }: SocialHeroProps) {
                                                         <div>
                                                             {activity.type === 'success' && <span style={{ color: '#5FA145' }}>🎉</span>}
                                                             {activity.type === 'post' && <span style={{ color: '#C69438' }}>📝</span>}
-                                                            {activity.type === 'join' && <span style={{ color: '#E4518C' }}>👋</span>}
+                                                            {activity.type === 'join' && <span style={{ color: '#C69438' }}>👋</span>}
                                                         </div>
                                                     </div>
                                                 ))}

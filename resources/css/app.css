@@ -1,7 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 @import 'tailwindcss';
-@import 'bootstrap/dist/css/bootstrap.min.css';
-@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
 @import './animations.css';
 @import './components.css';
 @import './home-animations.css';
@@ -15,7 +18,7 @@
 
 @theme {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -79,17 +82,17 @@
     --secondary-foreground: #334E15; /* Vert foncé */
     --muted: #4D8A3C; /* Vert moyen */
     --muted-foreground: #E8F5E8; /* Vert très clair */
-    --accent: #E4518C; /* Rose vif - pétales */
-    --accent-foreground: #F5B4C6; /* Rose clair */
-    --destructive: #E4518C; /* Rose vif pour les actions destructives */
-    --destructive-foreground: #F5B4C6; /* Rose clair */
+    --accent: #C69438; /* Or - accent */
+    --accent-foreground: #F9D27A; /* Or clair */
+    --destructive: #DC3545; /* Rouge destructif */
+    --destructive-foreground: #F9D27A; /* Or clair */
     --border: #4D8A3C; /* Vert moyen pour les bordures */
     --input: #4D8A3C; /* Vert moyen pour les inputs */
     --ring: #5FA145; /* Vert clair pour les focus */
     --chart-1: #5FA145; /* Vert clair */
     --chart-2: #C69438; /* Marron doré */
-    --chart-3: #E4518C; /* Rose vif */
-    --chart-4: #F5B4C6; /* Rose clair */
+    --chart-3: #C69438; /* Or */
+    --chart-4: #F9D27A; /* Or clair */
     --chart-5: #4D8A3C; /* Vert moyen */
     --radius: 0.625rem;
     --sidebar: #334E15; /* Vert foncé pour sidebar */
@@ -115,18 +118,18 @@
     --secondary: #C69438; /* Marron doré - garde la même couleur */
     --secondary-foreground: #1a2a0a; /* Vert très foncé */
     --muted: #2a3f12; /* Vert foncé */
-    --muted-foreground: #E4518C; /* Rose vif pour plus de contraste */
-    --accent: #E4518C; /* Rose vif - garde la même couleur */
-    --accent-foreground: #F5B4C6; /* Rose clair */
-    --destructive: #E4518C; /* Rose vif */
-    --destructive-foreground: #F5B4C6; /* Rose clair */
+    --muted-foreground: #A8D5A2; /* Vert clair atténué */
+    --accent: #C69438; /* Or - garde la même couleur */
+    --accent-foreground: #F9D27A; /* Or clair */
+    --destructive: #C69438; /* Or */
+    --destructive-foreground: #F9D27A; /* Or clair */
     --border: #334E15; /* Vert foncé pour les bordures */
     --input: #334E15; /* Vert foncé pour les inputs */
     --ring: #5FA145; /* Vert clair pour les focus */
     --chart-1: #5FA145; /* Vert clair */
     --chart-2: #C69438; /* Marron doré */
-    --chart-3: #E4518C; /* Rose vif */
-    --chart-4: #F5B4C6; /* Rose clair */
+    --chart-3: #C69438; /* Or */
+    --chart-4: #F9D27A; /* Or clair */
     --chart-5: #4D8A3C; /* Vert moyen */
     --sidebar: #1a2a0a; /* Vert très foncé pour sidebar */
     --sidebar-foreground: #E8F5E8; /* Vert très clair */
@@ -147,3 +150,180 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* ─── Global Design System ─────────────────────────────────────────── */
+
+/* Font */
+*, *::before, *::after { box-sizing: border-box; }
+body, .modal-content, .card, input, button, select, textarea {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Design tokens ── */
+:root {
+    --titi-green:    #16A34A;
+    --titi-green-dk: #14532D;
+    --titi-green-lt: #DCFCE7;
+    --titi-gold:     #D97706;
+    --titi-text:     #111827;
+    --titi-sub:      #6B7280;
+    --titi-muted:    #9CA3AF;
+    --titi-border:   #E5E7EB;
+    --titi-surface:  #F9FAFB;
+    --titi-white:    #FFFFFF;
+    --titi-radius:   6px;
+    --titi-radius-lg: 10px;
+}
+
+/* ── Typography ── */
+.page-title   { font-size: 1.25rem; font-weight: 600; color: var(--titi-text); letter-spacing: -0.01em; }
+.page-sub     { font-size: 0.8125rem; color: var(--titi-sub); }
+.section-label{ font-size: 0.75rem; font-weight: 600; color: var(--titi-sub); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ── Buttons — flat, small, precise ── */
+.btn-titi-primary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 32px; padding: 0 12px;
+    background: var(--titi-green); color: #fff; border: none;
+    border-radius: var(--titi-radius); font-size: 0.8125rem; font-weight: 500;
+    cursor: pointer; transition: background 0.15s ease, opacity 0.15s ease;
+    white-space: nowrap;
+}
+.btn-titi-primary:hover:not(:disabled) { background: #15803D; color: #fff; }
+.btn-titi-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.btn-titi-secondary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 32px; padding: 0 12px;
+    background: var(--titi-white); color: var(--titi-text);
+    border: 1px solid var(--titi-border);
+    border-radius: var(--titi-radius); font-size: 0.8125rem; font-weight: 500;
+    cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
+}
+.btn-titi-secondary:hover:not(:disabled) { background: var(--titi-surface); border-color: #D1D5DB; color: var(--titi-text); }
+.btn-titi-secondary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.btn-titi-ghost {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 32px; padding: 0 10px;
+    background: transparent; color: var(--titi-sub); border: none;
+    border-radius: var(--titi-radius); font-size: 0.8125rem; font-weight: 500;
+    cursor: pointer; transition: background 0.15s ease, color 0.15s ease;
+}
+.btn-titi-ghost:hover { background: var(--titi-surface); color: var(--titi-text); }
+
+.btn-titi-danger {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 32px; padding: 0 12px;
+    background: #DC2626; color: #fff; border: none;
+    border-radius: var(--titi-radius); font-size: 0.8125rem; font-weight: 500;
+    cursor: pointer; transition: background 0.15s ease;
+}
+.btn-titi-danger:hover:not(:disabled) { background: #B91C1C; color: #fff; }
+.btn-titi-danger:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Full-width variant */
+.btn-titi-primary.w-full,
+.btn-titi-secondary.w-full { height: 36px; width: 100%; }
+
+/* ── Inputs ── */
+.titi-input {
+    display: block; width: 100%;
+    height: 36px; padding: 0 10px;
+    background: var(--titi-white); color: #111827;
+    border: 1px solid #C9D0D8; border-radius: var(--titi-radius);
+    font-size: 0.875rem; font-family: 'Inter', sans-serif;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    outline: none;
+}
+.titi-input::placeholder { color: #9CA3AF; }
+.titi-input:focus {
+    border-color: var(--titi-green);
+    box-shadow: 0 0 0 2px rgba(22,163,74,0.15);
+}
+.titi-input.error { border-color: #DC2626; }
+.titi-input.error:focus { box-shadow: 0 0 0 2px rgba(220,38,38,0.15); }
+
+textarea.titi-input { height: auto; padding: 8px 10px; resize: vertical; }
+
+.titi-label {
+    display: block; margin-bottom: 4px;
+    font-size: 0.75rem; font-weight: 500; color: #374151;
+}
+.titi-hint  { font-size: 0.6875rem; color: var(--titi-muted); margin-top: 3px; }
+.titi-error { font-size: 0.6875rem; color: #DC2626; margin-top: 3px; }
+
+/* ── Cards ── */
+.titi-card {
+    background: var(--titi-white);
+    border: 1px solid var(--titi-border);
+    border-radius: var(--titi-radius-lg);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+/* ── Form groups ── */
+.titi-field { display: flex; flex-direction: column; gap: 0; margin-bottom: 16px; }
+.titi-field:last-child { margin-bottom: 0; }
+
+/* ── Section divider ── */
+.titi-section {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--titi-border);
+}
+.titi-section:last-child { border-bottom: none; }
+.titi-section-header { margin-bottom: 16px; }
+.titi-section-title { font-size: 0.875rem; font-weight: 600; color: var(--titi-text); margin: 0 0 2px; }
+.titi-section-desc  { font-size: 0.75rem; color: var(--titi-sub); margin: 0; }
+
+/* ── Alert / Notice ── */
+.titi-notice {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 10px 12px; border-radius: var(--titi-radius);
+    font-size: 0.8125rem;
+}
+.titi-notice.info    { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; }
+.titi-notice.success { background: #F0FDF4; border: 1px solid #BBF7D0; color: #15803D; }
+.titi-notice.warning { background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; }
+.titi-notice.danger  { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; }
+
+/* ── Page layout ── */
+.titi-page {
+    min-height: 100vh;
+    background: var(--titi-surface);
+    padding-top: 66px;
+}
+.titi-content { max-width: 720px; margin: 0 auto; padding: 32px 16px; }
+.titi-content-wide { max-width: 960px; margin: 0 auto; padding: 32px 16px; }
+
+/* ── Overrides for Bootstrap components ── */
+.form-control, .form-select {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    border-color: #C9D0D8;
+    border-radius: var(--titi-radius);
+    color: #111827;
+    background-color: #FFFFFF;
+}
+.form-control { min-height: 38px; padding: 6px 10px; }
+.form-select  { min-height: 38px; padding: 6px 32px 6px 10px; }
+.form-control:focus, .form-select:focus {
+    border-color: var(--titi-green);
+    box-shadow: 0 0 0 2px rgba(22,163,74,0.15);
+    color: #111827;
+}
+.form-control::placeholder { color: #9CA3AF; }
+.form-label {
+    font-size: 0.8125rem; font-weight: 500; color: #374151;
+    margin-bottom: 5px;
+}
+textarea.form-control { height: auto; min-height: 90px; padding: 8px 10px; }
+.form-control.is-invalid, .form-select.is-invalid { border-color: #DC2626; }
+.form-control.is-invalid:focus, .form-select.is-invalid:focus { box-shadow: 0 0 0 2px rgba(220,38,38,0.15); }
+.invalid-feedback { font-size: 0.75rem; color: #DC2626; }
+
+/* Bootstrap btn overrides */
+.btn { border-radius: var(--titi-radius); font-family: 'Inter', sans-serif; font-size: 0.8125rem; font-weight: 500; }
+.btn-sm { font-size: 0.75rem; padding: 4px 10px; }

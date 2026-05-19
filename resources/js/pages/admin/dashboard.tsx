@@ -85,8 +85,8 @@ export default function AdminDashboard({ user, stats }: AdminDashboardProps) {
             change: '+2',
             changeType: 'positive',
             icon: 'bi-trophy-fill',
-            color: '#E4518C',
-            gradient: 'linear-gradient(135deg, #E4518C 0%, #D6427A 100%)'
+            color: '#C69438',
+            gradient: 'linear-gradient(135deg, #C69438 0%, #D6427A 100%)'
         },
         {
             title: t('monthlyRevenue', 'Revenus Mensuel'),
@@ -188,7 +188,7 @@ export default function AdminDashboard({ user, stats }: AdminDashboardProps) {
             case 'success': return '#5FA145';
             case 'warning': return '#C69438';
             case 'info': return '#4D8A3C';
-            case 'danger': return '#E4518C';
+            case 'danger': return '#C69438';
             default: return '#6B7280';
         }
     };
@@ -375,7 +375,7 @@ export default function AdminDashboard({ user, stats }: AdminDashboardProps) {
                             style={{ borderRadius: '16px 16px 0 0' }}
                         >
                             <h5 className="mb-0 fw-bold" style={{ color: '#1F2937' }}>
-                                <i className="bi bi-clock me-2" style={{ color: '#E4518C' }}></i>
+                                <i className="bi bi-clock me-2" style={{ color: '#C69438' }}></i>
                                 Activité Récente
                             </h5>
                         </Card.Header>
@@ -500,14 +500,14 @@ export default function AdminDashboard({ user, stats }: AdminDashboardProps) {
                                     <Button 
                                         className="w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4"
                                         style={{
-                                            background: 'linear-gradient(135deg, #E4518C 0%, #D6427A 100%)',
+                                            background: 'linear-gradient(135deg, #C69438 0%, #D6427A 100%)',
                                             border: 'none',
                                             borderRadius: '12px',
                                             minHeight: '100px'
                                         }}
                                         onMouseEnter={(e) => {
                                             e.currentTarget.style.transform = 'translateY(-2px)';
-                                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(228, 81, 140, 0.3)';
+                                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(198, 148, 56, 0.3)';
                                         }}
                                         onMouseLeave={(e) => {
                                             e.currentTarget.style.transform = 'translateY(0)';

@@ -12,11 +12,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
+    Route::get('register', [RegisteredUserController::class, 'createSimple'])
         ->name('register');
-
-    Route::get('simple-register', [RegisteredUserController::class, 'createSimple'])
-        ->name('simple-register');
 
     Route::get('member-register', [RegisteredUserController::class, 'createMember'])
         ->name('member-register');

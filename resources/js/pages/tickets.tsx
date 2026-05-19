@@ -23,171 +23,37 @@ interface Event {
 }
 
 interface TicketsProps {
-    user?: {
-        name: string;
-        email: string;
-    };
+    user?: { name: string; email: string };
+    events: Event[];
 }
 
-export default function Tickets({ user }: TicketsProps) {
+export default function Tickets({ user, events }: TicketsProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedMonth, setSelectedMonth] = useState('all');
     const [priceRange, setPriceRange] = useState('all');
     const [purchasedTickets, setPurchasedTickets] = useState<number[]>([]);
 
-    // Données d'événements
-    const events: Event[] = useMemo(() => ([
-        {
-            id: 1,
-            title: "Conférence Innovation Sociale",
-            description: "Rencontrez les acteurs du changement social et découvrez les innovations qui transforment nos communautés.",
-            image: "🎯",
-            category: "conference",
-            date: "2025-02-15",
-            time: "09:00",
-            location: "Centre de Conférences Yaoundé",
-            city: "Yaoundé",
-            price: 15000,
-            originalPrice: 20000,
-            availableTickets: 45,
-            totalTickets: 150,
-            featured: true,
-            tags: ["innovation", "social", "networking"]
-        },
-        {
-            id: 2,
-            title: "Atelier Entrepreneuriat Vert",
-            description: "Formation pratique sur la création d'entreprises durables avec des experts reconnus.",
-            image: "🌱",
-            category: "formation",
-            date: "2025-02-20",
-            time: "14:00",
-            location: "Hub Innovation Douala",
-            city: "Douala",
-            price: 8000,
-            availableTickets: 25,
-            totalTickets: 30,
-            featured: false,
-            tags: ["formation", "entrepreneuriat", "environnement"]
-        },
-        {
-            id: 3,
-            title: "Gala de Charité 2025",
-            description: "Soirée de gala pour collecter des fonds au profit de l'éducation des jeunes défavorisés.",
-            image: "✨",
-            category: "gala",
-            date: "2025-03-10",
-            time: "19:00",
-            location: "Hôtel Hilton Yaoundé",
-            city: "Yaoundé",
-            price: 50000,
-            availableTickets: 12,
-            totalTickets: 100,
-            featured: true,
-            tags: ["gala", "charité", "éducation"]
-        },
-        {
-            id: 4,
-            title: "Festival Arts & Culture",
-            description: "Célébration de la diversité culturelle sénégalaise avec expositions, concerts et spectacles.",
-            image: "🎨",
-            category: "festival",
-            date: "2025-03-25",
-            time: "10:00",
-            location: "Parc de la Mvog-Beti",
-            city: "Yaoundé",
-            price: 5000,
-            availableTickets: 200,
-            totalTickets: 500,
-            featured: false,
-            tags: ["culture", "art", "festival"]
-        },
-        {
-            id: 5,
-            title: "Hackathon Tech4Good",
-            description: "48h pour développer des solutions technologiques aux défis sociaux et environnementaux.",
-            image: "💻",
-            category: "hackathon",
-            date: "2025-04-05",
-            time: "09:00",
-            location: "Technopole de Yaoundé",
-            city: "Yaoundé",
-            price: 12000,
-            availableTickets: 35,
-            totalTickets: 50,
-            featured: true,
-            tags: ["tech", "innovation", "hackathon"]
-        },
-        {
-            id: 6,
-            title: "Conférence Santé Communautaire",
-            description: "Débats sur l'amélioration de l'accès aux soins de santé dans les zones rurales.",
-            image: "⚕️",
-            category: "conference",
-            date: "2025-04-15",
-            time: "08:30",
-            location: "Université de Yaoundé I",
-            city: "Yaoundé",
-            price: 10000,
-            availableTickets: 60,
-            totalTickets: 120,
-            featured: false,
-            tags: ["santé", "communauté", "rural"]
-        },
-        {
-            id: 7,
-            title: "Séminaire Leadership Féminin",
-            description: "Formation dédiée au leadership et à l'autonomisation des femmes entrepreneures.",
-            image: "👑",
-            category: "formation",
-            date: "2025-05-20",
-            time: "13:00",
-            location: "Centre Culturel Camerounais",
-            city: "Douala",
-            price: 7500,
-            availableTickets: 18,
-            totalTickets: 25,
-            featured: false,
-            tags: ["leadership", "femmes", "formation"]
-        },
-        {
-            id: 8,
-            title: "Concert Solidaire",
-            description: "Concert caritatif avec les plus grands artistes sénégalais pour soutenir l'éducation.",
-            image: "🎵",
-            category: "concert",
-            date: "2025-06-01",
-            time: "20:00",
-            location: "Palais des Congrès de Yaoundé",
-            city: "Yaoundé",
-            price: 25000,
-            originalPrice: 30000,
-            availableTickets: 8,
-            totalTickets: 300,
-            featured: true,
-            tags: ["concert", "musique", "solidaire"]
-        }
-    ]), []);
+    // Catégories déduites des événements réels
+    const categories = useMemo(() => {
+        const cats = [...new Set(events.map(e => e.category))];
+        return [
+            { value: 'all', label: 'Toutes catégories' },
+            ...cats.map(c => ({ value: c, label: c.charAt(0).toUpperCase() + c.slice(1) })),
+        ];
+    }, [events]);
 
-    const categories = [
-        { value: 'all', label: 'Toutes catégories' },
-        { value: 'conference', label: 'Conférences' },
-        { value: 'formation', label: 'Formations' },
-        { value: 'gala', label: 'Galas' },
-        { value: 'festival', label: 'Festivals' },
-        { value: 'hackathon', label: 'Hackathons' },
-        { value: 'concert', label: 'Concerts' }
-    ];
-
-    const months = [
-        { value: 'all', label: 'Tous les mois' },
-        { value: '2025-02', label: 'Février 2025' },
-        { value: '2025-03', label: 'Mars 2025' },
-        { value: '2025-04', label: 'Avril 2025' },
-        { value: '2025-05', label: 'Mai 2025' },
-        { value: '2025-06', label: 'Juin 2025' }
-    ];
+    // Mois déduits des événements réels
+    const months = useMemo(() => {
+        const monthSet = new Set(events.map(e => e.date.substring(0, 7)));
+        return [
+            { value: 'all', label: 'Tous les mois' },
+            ...[...monthSet].sort().map(m => ({
+                value: m,
+                label: new Date(m + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
+            })),
+        ];
+    }, [events]);
 
     const priceRanges = [
         { value: 'all', label: 'Tous les prix' },
@@ -262,8 +128,8 @@ export default function Tickets({ user }: TicketsProps) {
         const colors: Record<string, string> = {
             conference: '#5FA145',
             formation: '#C69438',
-            gala: '#E4518C',
-            festival: '#F5B4C6',
+            gala: '#C69438',
+            festival: '#F9D27A',
             hackathon: '#4D8A3C',
             concert: '#334E15'
         };
@@ -274,7 +140,7 @@ export default function Tickets({ user }: TicketsProps) {
         const percentage = (available / total) * 100;
         if (percentage > 50) return { color: '#5FA145', text: 'Disponible' };
         if (percentage > 20) return { color: '#C69438', text: 'Places limitées' };
-        if (percentage > 0) return { color: '#E4518C', text: 'Dernières places' };
+        if (percentage > 0) return { color: '#C69438', text: 'Dernières places' };
         return { color: '#6B7280', text: 'Complet' };
     };
 
@@ -326,7 +192,7 @@ export default function Tickets({ user }: TicketsProps) {
                                             </div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="h3 fw-bold mb-1" style={{ color: '#E4518C' }}>
+                                            <div className="h3 fw-bold mb-1" style={{ color: '#C69438' }}>
                                                 {events.reduce((sum, event) => sum + event.totalTickets - event.availableTickets, 0)}
                                             </div>
                                             <div style={{ color: '#FFFFFF', fontSize: '0.9rem' }}>
@@ -334,7 +200,7 @@ export default function Tickets({ user }: TicketsProps) {
                                             </div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="h3 fw-bold mb-1" style={{ color: '#F5B4C6' }}>
+                                            <div className="h3 fw-bold mb-1" style={{ color: '#F9D27A' }}>
                                                 6
                                             </div>
                                             <div style={{ color: '#FFFFFF', fontSize: '0.9rem' }}>
@@ -442,7 +308,7 @@ export default function Tickets({ user }: TicketsProps) {
                                         style={{
                                             width: '40px',
                                             height: '40px',
-                                            background: 'linear-gradient(135deg, #E4518C 0%, #F5B4C6 100%)'
+                                            background: 'linear-gradient(135deg, #C69438 0%, #F9D27A 100%)'
                                         }}
                                     >
                                         <i className="bi bi-star-fill text-white"></i>
@@ -500,7 +366,7 @@ export default function Tickets({ user }: TicketsProps) {
                                                     <Badge 
                                                         className="px-3 py-2"
                                                         style={{ 
-                                                            background: 'linear-gradient(135deg, #E4518C 0%, #F5B4C6 100%)',
+                                                            background: 'linear-gradient(135deg, #C69438 0%, #F9D27A 100%)',
                                                             fontSize: '0.75rem',
                                                             borderRadius: '50px'
                                                         }}
@@ -598,7 +464,7 @@ export default function Tickets({ user }: TicketsProps) {
                                                 <div className="price-availability d-flex justify-content-between align-items-center mb-4">
                                                     <div>
                                                         <div className="d-flex align-items-center">
-                                                            <span className="fw-bold h5 mb-0 me-2" style={{ color: '#E4518C' }}>
+                                                            <span className="fw-bold h5 mb-0 me-2" style={{ color: '#C69438' }}>
                                                                 {formatPrice(event.price)}
                                                             </span>
                                                             {event.originalPrice && (

@@ -104,7 +104,7 @@ export function ReportsModule() {
             description: 'Croissance, segmentation et engagement des membres',
             category: 'Communauté',
             icon: 'bi-people-fill',
-            color: '#E4518C',
+            color: '#C69438',
             fields: ['Nouvelles inscriptions', 'Taux d\'engagement', 'Segmentation démographique', 'Activité par région'],
             estimatedTime: '2-4 min'
         },
@@ -153,7 +153,7 @@ export function ReportsModule() {
     const getTypeColor = (type: string): string => {
         switch (type) {
             case 'financial': return '#C69438';
-            case 'members': return '#E4518C';
+            case 'members': return '#C69438';
             case 'events': return '#5FA145';
             case 'partners': return '#6366F1';
             case 'custom': return '#334E15';
@@ -179,7 +179,7 @@ export function ReportsModule() {
             scheduled: { text: 'Programmé', color: '#6366F1' }
         };
         const { text, color } = config[status as keyof typeof config];
-        
+
         return (
             <Badge style={{ backgroundColor: color, fontSize: '0.7rem' }}>
                 {status === 'generating' && <i className="bi bi-arrow-repeat me-1 spinner-border spinner-border-sm"></i>}
@@ -209,7 +209,7 @@ export function ReportsModule() {
 
     const generateReport = (templateId: string) => {
         setGeneratingReports(prev => new Set([...prev, templateId]));
-        
+
         // Simulation de génération
         setTimeout(() => {
             setGeneratingReports(prev => {
@@ -222,24 +222,24 @@ export function ReportsModule() {
 
     const getFrequencyBadge = (frequency?: string) => {
         if (!frequency) return null;
-        
+
         const config = {
             daily: { text: 'Quotidien', icon: 'bi-arrow-repeat' },
             weekly: { text: 'Hebdomadaire', icon: 'bi-calendar-week' },
             monthly: { text: 'Mensuel', icon: 'bi-calendar-month' },
             quarterly: { text: 'Trimestriel', icon: 'bi-calendar3' }
         };
-        
+
         const freq = config[frequency as keyof typeof config];
         if (!freq) return null;
-        
+
         return (
-            <Badge 
-                variant="secondary" 
+            <Badge
+                bg="secondary"
                 className="ms-2"
-                style={{ 
-                    backgroundColor: '#6B7280', 
-                    fontSize: '0.7rem' 
+                style={{
+                    backgroundColor: '#6B7280',
+                    fontSize: '0.7rem'
                 }}
             >
                 <i className={`${freq.icon} me-1`}></i>
@@ -289,7 +289,7 @@ export function ReportsModule() {
             {activeView === 'reports' && (
                 <Row className="g-4">
                     <Col lg={8}>
-                        <Card 
+                        <Card
                             className="border-0"
                             style={{
                                 borderRadius: '20px',
@@ -318,7 +318,7 @@ export function ReportsModule() {
                             <Card.Body className="p-4 pt-3">
                                 <div className="reports-list">
                                     {reports.map(report => (
-                                        <div 
+                                        <div
                                             key={report.id}
                                             className="d-flex align-items-center p-4 rounded-3 mb-3"
                                             style={{
@@ -326,7 +326,7 @@ export function ReportsModule() {
                                                 border: '1px solid #E9ECEF'
                                             }}
                                         >
-                                            <div 
+                                            <div
                                                 className="d-flex align-items-center justify-content-center rounded-circle me-4 flex-shrink-0"
                                                 style={{
                                                     width: '50px',
@@ -352,7 +352,7 @@ export function ReportsModule() {
                                                 </div>
                                                 <div className="d-flex align-items-center justify-content-between">
                                                     <div className="d-flex align-items-center">
-                                                        <i className={`${getFormatIcon(report.format)} me-2`} 
+                                                        <i className={`${getFormatIcon(report.format)} me-2`}
                                                            style={{ color: getTypeColor(report.type) }}></i>
                                                         <span style={{ color: '#6B7280', fontSize: '0.8rem' }}>
                                                             {report.format.toUpperCase()} • {report.size}
@@ -425,7 +425,7 @@ export function ReportsModule() {
                     {/* Quick Stats */}
                     <Col lg={4}>
                         <div className="reports-stats">
-                            <Card 
+                            <Card
                                 className="border-0 mb-4"
                                 style={{
                                     borderRadius: '20px',
@@ -439,37 +439,37 @@ export function ReportsModule() {
                                     </h6>
                                     <div className="stats-grid">
                                         {[
-                                            { 
-                                                label: 'Total Rapports', 
-                                                value: reports.length, 
-                                                color: '#5FA145', 
-                                                icon: 'bi-file-earmark-text' 
+                                            {
+                                                label: 'Total Rapports',
+                                                value: reports.length,
+                                                color: '#5FA145',
+                                                icon: 'bi-file-earmark-text'
                                             },
-                                            { 
-                                                label: 'Prêts', 
-                                                value: reports.filter(r => r.status === 'ready').length, 
-                                                color: '#5FA145', 
-                                                icon: 'bi-check-circle' 
+                                            {
+                                                label: 'Prêts',
+                                                value: reports.filter(r => r.status === 'ready').length,
+                                                color: '#5FA145',
+                                                icon: 'bi-check-circle'
                                             },
-                                            { 
-                                                label: 'En génération', 
-                                                value: reports.filter(r => r.status === 'generating').length, 
-                                                color: '#C69438', 
-                                                icon: 'bi-arrow-repeat' 
+                                            {
+                                                label: 'En génération',
+                                                value: reports.filter(r => r.status === 'generating').length,
+                                                color: '#C69438',
+                                                icon: 'bi-arrow-repeat'
                                             },
-                                            { 
-                                                label: 'Programmés', 
-                                                value: reports.filter(r => r.scheduleFrequency).length, 
-                                                color: '#6366F1', 
-                                                icon: 'bi-calendar-check' 
+                                            {
+                                                label: 'Programmés',
+                                                value: reports.filter(r => r.scheduleFrequency).length,
+                                                color: '#6366F1',
+                                                icon: 'bi-calendar-check'
                                             }
                                         ].map((stat, index) => (
-                                            <div 
+                                            <div
                                                 key={index}
                                                 className="d-flex align-items-center p-3 rounded-3 mb-3"
                                                 style={{ background: `${stat.color}08` }}
                                             >
-                                                <div 
+                                                <div
                                                     className="d-flex align-items-center justify-content-center rounded-circle me-3"
                                                     style={{
                                                         width: '35px',
@@ -495,7 +495,7 @@ export function ReportsModule() {
                             </Card>
 
                             {/* Recent Downloads */}
-                            <Card 
+                            <Card
                                 className="border-0"
                                 style={{
                                     borderRadius: '20px',
@@ -510,7 +510,7 @@ export function ReportsModule() {
                                     <div className="downloads-list">
                                         {reports.filter(r => r.downloadUrl).slice(0, 3).map(report => (
                                             <div key={report.id} className="d-flex align-items-center mb-3">
-                                                <div 
+                                                <div
                                                     className="d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0"
                                                     style={{
                                                         width: '30px',
@@ -523,8 +523,8 @@ export function ReportsModule() {
                                                 </div>
                                                 <div className="flex-grow-1">
                                                     <div className="fw-semibold" style={{ fontSize: '0.85rem', color: '#334E15' }}>
-                                                        {report.name.length > 20 
-                                                            ? report.name.substring(0, 20) + '...' 
+                                                        {report.name.length > 20
+                                                            ? report.name.substring(0, 20) + '...'
                                                             : report.name
                                                         }
                                                     </div>
@@ -557,7 +557,7 @@ export function ReportsModule() {
                 <Row className="g-4">
                     {reportTemplates.map(template => (
                         <Col lg={6} key={template.id}>
-                            <Card 
+                            <Card
                                 className="border-0 h-100"
                                 style={{
                                     borderRadius: '20px',
@@ -565,14 +565,14 @@ export function ReportsModule() {
                                     overflow: 'hidden'
                                 }}
                             >
-                                <div 
+                                <div
                                     className="p-4"
                                     style={{
                                         background: `linear-gradient(135deg, ${template.color} 0%, ${template.color}CC 100%)`
                                     }}
                                 >
                                     <div className="d-flex align-items-center mb-3">
-                                        <div 
+                                        <div
                                             className="d-flex align-items-center justify-content-center rounded-circle me-3"
                                             style={{
                                                 width: '50px',
@@ -581,7 +581,7 @@ export function ReportsModule() {
                                                 backdropFilter: 'blur(10px)'
                                             }}
                                         >
-                                            <i 
+                                            <i
                                                 className={`${template.icon} text-white`}
                                                 style={{ fontSize: '1.5rem' }}
                                             ></i>
@@ -590,8 +590,8 @@ export function ReportsModule() {
                                             <h5 className="fw-bold mb-1 text-white">
                                                 {template.name}
                                             </h5>
-                                            <Badge 
-                                                style={{ 
+                                            <Badge
+                                                style={{
                                                     background: 'rgba(255,255,255,0.2)',
                                                     color: '#FFF',
                                                     fontSize: '0.7rem'
@@ -611,7 +611,7 @@ export function ReportsModule() {
                                         </span>
                                     </div>
                                 </div>
-                                
+
                                 <Card.Body className="p-4">
                                     <h6 className="fw-bold mb-3" style={{ color: '#334E15' }}>
                                         Données incluses
@@ -619,7 +619,7 @@ export function ReportsModule() {
                                     <div className="fields-list mb-4">
                                         {template.fields.map((field, index) => (
                                             <div key={index} className="d-flex align-items-center mb-2">
-                                                <i 
+                                                <i
                                                     className="bi bi-check-circle-fill me-2"
                                                     style={{ color: template.color, fontSize: '0.8rem' }}
                                                 ></i>
@@ -635,8 +635,8 @@ export function ReportsModule() {
                                             disabled={generatingReports.has(template.id)}
                                             onClick={() => generateReport(template.id)}
                                             style={{
-                                                background: generatingReports.has(template.id) 
-                                                    ? '#6B7280' 
+                                                background: generatingReports.has(template.id)
+                                                    ? '#6B7280'
                                                     : `linear-gradient(135deg, ${template.color} 0%, ${template.color}CC 100%)`,
                                                 border: 'none',
                                                 borderRadius: '10px'
@@ -687,7 +687,7 @@ export function ReportsModule() {
 
             {/* Scheduled Reports */}
             {activeView === 'scheduled' && (
-                <Card 
+                <Card
                     className="border-0"
                     style={{
                         borderRadius: '20px',
@@ -711,10 +711,10 @@ export function ReportsModule() {
                                 Programmer un Rapport
                             </Button>
                         </div>
-                        
+
                         <div className="scheduled-reports">
                             {reports.filter(r => r.scheduleFrequency).map(report => (
-                                <div 
+                                <div
                                     key={report.id}
                                     className="d-flex align-items-center p-4 rounded-3 mb-3"
                                     style={{
@@ -722,7 +722,7 @@ export function ReportsModule() {
                                         border: '1px solid #E9ECEF'
                                     }}
                                 >
-                                    <div 
+                                    <div
                                         className="d-flex align-items-center justify-content-center rounded-circle me-4 flex-shrink-0"
                                         style={{
                                             width: '45px',
@@ -788,12 +788,12 @@ export function ReportsModule() {
                                     </div>
                                 </div>
                             ))}
-                            
+
                             {reports.filter(r => r.scheduleFrequency).length === 0 && (
                                 <div className="text-center py-5">
-                                    <i 
+                                    <i
                                         className="bi bi-calendar-x mb-3"
-                                        style={{ 
+                                        style={{
                                             fontSize: '3rem',
                                             color: '#6B7280',
                                             opacity: 0.5
@@ -823,15 +823,15 @@ export function ReportsModule() {
                 </Card>
             )}
 
-            <style jsx>{`
+            <style>{`
                 .spinner-border-sm {
                     animation: spinner-border 0.75s linear infinite;
                 }
-                
+
                 @keyframes spinner-border {
                     to { transform: rotate(360deg); }
                 }
-                
+
                 .reports-module .btn:hover {
                     transform: translateY(-1px);
                     transition: all 0.3s ease;

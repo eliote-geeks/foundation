@@ -129,7 +129,7 @@ export default function AdminUsers({ user }: AdminUsersProps) {
     const getMemberTypeColor = (type: string) => {
         switch (type) {
             case 'ambassadrice': return '#C69438';
-            case 'ancien_challenger': return '#E4518C';
+            case 'ancien_challenger': return '#C69438';
             case 'beneficiaire': return '#5FA145';
             case 'benevole': return '#6366F1';
             case 'adherent': return '#4D8A3C';
