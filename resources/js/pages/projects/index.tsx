@@ -73,6 +73,10 @@ export default function ProjectsIndex({ user, projects, stats }: Props) {
     });
 
     function scrollToForm() {
+        if (!user) {
+            window.location.href = '/register';
+            return;
+        }
         setShowForm(true);
         setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
     }
@@ -130,7 +134,7 @@ export default function ProjectsIndex({ user, projects, stats }: Props) {
                                 onClick={scrollToForm}
                                 style={{ padding: '12px 28px', background: '#fff', color: '#15803d', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: '0.9375rem', display: 'flex', alignItems: 'center', gap: 8 }}
                             >
-                                <i className="bi bi-rocket-takeoff"></i>Soumettre mon projet
+                                <i className="bi bi-rocket-takeoff"></i>{user ? 'Soumettre mon projet' : 'S\'inscrire pour soumettre'}
                             </button>
                             <a href="#gallery" style={{ padding: '12px 24px', background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontWeight: 600, textDecoration: 'none', fontSize: '0.9375rem' }}>
                                 Voir les projets
@@ -182,13 +186,15 @@ export default function ProjectsIndex({ user, projects, stats }: Props) {
                         <div style={{ marginTop: 32, background: 'var(--titi-white)', border: '1px solid var(--titi-border)', borderRadius: 14, padding: '24px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
                             <div>
                                 <div style={{ fontWeight: 700, fontSize: '1.0625rem', color: 'var(--titi-text)' }}>Prêt à soumettre votre projet ?</div>
-                                <div style={{ fontSize: '0.875rem', color: 'var(--titi-sub)', marginTop: 4 }}>Créez un compte et participez à notre prochain concours.</div>
+                                <div style={{ fontSize: '0.875rem', color: 'var(--titi-sub)', marginTop: 4 }}>
+                                    {user ? 'Remplissez le formulaire ci-dessous pour soumettre votre projet.' : 'Créez un compte et soumettez votre projet en quelques minutes.'}
+                                </div>
                             </div>
                             <button
                                 onClick={scrollToForm}
                                 style={{ padding: '10px 22px', background: '#16A34A', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}
                             >
-                                <i className="bi bi-rocket-takeoff"></i>Commencer maintenant
+                                <i className="bi bi-rocket-takeoff"></i>{user ? 'Soumettre mon projet' : 'Commencer maintenant'}
                             </button>
                         </div>
                     </div>
