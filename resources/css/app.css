@@ -328,46 +328,6 @@ textarea.form-control { height: auto; min-height: 90px; padding: 8px 10px; }
 .btn { border-radius: var(--titi-radius); font-family: 'Inter', sans-serif; font-size: 0.8125rem; font-weight: 500; }
 .btn-sm { font-size: 0.75rem; padding: 4px 10px; }
 
-/* ── Dark mode overrides for public/settings pages ── */
-html.dark {
-    --titi-text:    #F3F4F6;
-    --titi-sub:     #9CA3AF;
-    --titi-muted:   #6B7280;
-    --titi-border:  #374151;
-    --titi-surface: #111827;
-    --titi-white:   #1F2937;
-}
-
-html.dark .titi-page          { background: #111827; }
-html.dark .titi-card          { background: #1F2937; border-color: #374151; }
-html.dark .titi-section       { border-bottom-color: #374151; }
-html.dark .titi-input         { background: #1F2937; color: #F3F4F6; border-color: #374151; }
-html.dark .titi-input::placeholder { color: #6B7280; }
-html.dark .titi-label         { color: #D1D5DB; }
-html.dark .titi-section-title { color: #F3F4F6; }
-html.dark .titi-section-desc  { color: #9CA3AF; }
-html.dark .page-title         { color: #F3F4F6; }
-html.dark .page-sub           { color: #9CA3AF; }
-html.dark .btn-titi-secondary { background: #1F2937; color: #F3F4F6; border-color: #374151; }
-html.dark .btn-titi-secondary:hover:not(:disabled) { background: #374151; border-color: #4B5563; }
-html.dark .btn-titi-ghost     { color: #9CA3AF; }
-html.dark .btn-titi-ghost:hover { background: #374151; color: #F3F4F6; }
-html.dark .titi-notice.info    { background: #1E3A5F; border-color: #1E40AF; color: #93C5FD; }
-html.dark .titi-notice.success { background: #14532D; border-color: #15803D; color: #86EFAC; }
-html.dark .titi-notice.warning { background: #78350F; border-color: #92400E; color: #FCD34D; }
-html.dark .titi-notice.danger  { background: #7F1D1D; border-color: #991B1B; color: #FCA5A5; }
-
-html.dark .form-control,
-html.dark .form-select        { background-color: #1F2937; color: #F3F4F6; border-color: #374151; }
-html.dark .form-control:focus,
-html.dark .form-select:focus  { color: #F3F4F6; background-color: #1F2937; }
-html.dark .form-label         { color: #D1D5DB; }
-html.dark .form-control::placeholder { color: #6B7280; }
-
-/* Header always stays light regardless of theme */
-html.dark .modern-header-nav .btn-titi-secondary { background: #FFFFFF !important; color: #111827 !important; border-color: #E5E7EB !important; }
-html.dark .modern-header-nav .btn-titi-ghost     { color: #6B7280 !important; }
-html.dark .modern-header-nav .btn-titi-primary   { background: #16A34A !important; color: #fff !important; }
 
 /* ── Page transitions ─────────────────────────────────────────────────────── */
 @keyframes pageEnter {
