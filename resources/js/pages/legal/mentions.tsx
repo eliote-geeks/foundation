@@ -12,8 +12,8 @@ export default function MentionsLegales() {
                         'Dénomination : TITI EVENTS',
                         'Statut juridique : Fondation à but non lucratif',
                         'Siège social : Yaoundé, Cameroun',
-                        'Email : info@fondation-titi.org',
-                        'Téléphone : +237 000 000 000',
+                        'Email : Info.titievents@gmail.com',
+                        'Téléphone : +237 654 450 215',
                     ]} />
                 </LegalSection>
 

@@ -36,15 +36,14 @@ export function ModernFooter() {
                         </p>
                         <div style={{ display: 'flex', gap: 8 }}>
                             {[
-                                { icon: 'bi-linkedin', name: 'LinkedIn' },
-                                { icon: 'bi-facebook', name: 'Facebook' },
-                                { icon: 'bi-instagram', name: 'Instagram' },
-                                { icon: 'bi-twitter-x', name: 'Twitter/X' },
-                                { icon: 'bi-youtube', name: 'YouTube' },
+                                { icon: 'bi-facebook', name: 'Facebook', href: 'https://www.facebook.com/share/1PEbh8QXLs/?mibextid=wwXIfr' },
+                                { icon: 'bi-tiktok',   name: 'TikTok',   href: 'https://www.tiktok.com/@titi.events' },
                             ].map(s => (
                                 <a
                                     key={s.icon}
-                                    href="#"
+                                    href={s.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     title={s.name}
                                     style={{
                                         width: 32, height: 32, borderRadius: 6,
@@ -107,15 +106,15 @@ export function ModernFooter() {
                         <p style={{ color: '#F9FAFB', fontWeight: 600, fontSize: '0.8125rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 14 }}>Contact</p>
                         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
                             <li>
-                                <a href="mailto:info@fondation-titi.org" style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '0.875rem' }}
+                                <a href="mailto:Info.titievents@gmail.com" style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '0.875rem' }}
                                     onMouseEnter={e => (e.currentTarget.style.color = '#F9FAFB')}
                                     onMouseLeave={e => (e.currentTarget.style.color = '#9CA3AF')}
                                 >
-                                    <i className="bi bi-envelope me-1" />info@fondation-titi.org
+                                    <i className="bi bi-envelope me-1" />Info.titievents@gmail.com
                                 </a>
                             </li>
                             <li style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>
-                                <i className="bi bi-telephone me-1" />+237 6XX XXX XXX
+                                <i className="bi bi-telephone me-1" />+237 654 450 215
                             </li>
                             <li style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>
                                 <i className="bi bi-geo-alt me-1" />Yaoundé, Cameroun
