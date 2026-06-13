@@ -129,6 +129,31 @@ class ContestController extends Controller
                 ->update(['mediable_type' => ContestEntry::class, 'mediable_id' => $entry->id]);
         }
 
+        // Paid entry: redirect to SharePay
+        if ($contest->entry_fee && $contest->entry_fee > 0) {
+            $entry->update(['payment_status' => 'pending', 'amount_paid' => $contest->entry_fee]);
+
+            try {
+                $sharepay = app(SharePayService::class);
+                $session  = $sharepay->createCheckout([
+                    'amount'            => (int) round($contest->entry_fee),
+                    'currency'          => $contest->currency ?? 'XAF',
+                    'merchantReference' => 'ENTRY-' . $entry->id,
+                    'description'       => "Inscription à « {$contest->title} »",
+                    'successUrl'        => route('payment.success'),
+                    'cancelUrl'         => route('payment.cancel'),
+                ]);
+
+                $entry->update(['transaction_id' => $session['reference']]);
+
+                return Inertia::location($session['paymentUrl']);
+
+            } catch (\Exception $e) {
+                $entry->delete();
+                return back()->withErrors(['title' => 'Erreur de paiement : ' . $e->getMessage()]);
+            }
+        }
+
         return back()->with('success', 'Votre projet a été soumis avec succès ! Il sera examiné par notre équipe.');
     }
 

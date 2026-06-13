@@ -13,12 +13,20 @@ class ContestEntry extends Model
         'contest_id', 'user_id', 'entry_number', 'title', 'description',
         'category', 'project_url', 'document_path', 'team_members',
         'status', 'admin_notes', 'votes_count', 'submitted_at',
+        'payment_status', 'transaction_id', 'amount_paid',
     ];
 
     protected $casts = [
         'team_members' => 'array',
         'submitted_at' => 'datetime',
+        'amount_paid'  => 'decimal:2',
     ];
+
+    public function formattedEntryFee(): string
+    {
+        if (!$this->amount_paid) return 'Gratuit';
+        return number_format((float) $this->amount_paid, 0, ',', ' ') . ' XAF';
+    }
 
     public function contest(): BelongsTo
     {

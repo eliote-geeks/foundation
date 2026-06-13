@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContestEntry;
 use App\Models\Donation;
 use App\Models\Ticket;
 use App\Models\Vote;
@@ -53,6 +54,17 @@ class PaymentController extends Controller
                             'name'   => $vote->participant_name,
                             'status' => $vote->payment_status,
                         ];
+                    } else {
+                        $entry = ContestEntry::where('transaction_id', $reference)->with('contest')->first();
+                        if ($entry) {
+                            $type = 'entry';
+                            $item = [
+                                'amount' => $entry->formattedEntryFee(),
+                                'label'  => $entry->contest?->title ?? 'Concours',
+                                'name'   => $entry->title,
+                                'status' => $entry->payment_status,
+                            ];
+                        }
                     }
                 }
             }
@@ -77,6 +89,10 @@ class PaymentController extends Controller
             Ticket::where('transaction_id', $reference)
                 ->where('payment_status', 'pending')
                 ->update(['payment_status' => 'failed', 'status' => 'cancelled']);
+
+            ContestEntry::where('transaction_id', $reference)
+                ->where('payment_status', 'pending')
+                ->update(['payment_status' => 'cancelled', 'status' => 'rejected']);
         }
 
         return Inertia::render('payment/cancel', [
@@ -138,6 +154,18 @@ class PaymentController extends Controller
                 'payment.success'   => $vote->update(['payment_status' => 'paid', 'voted_at' => now()]),
                 'payment.failed',
                 'payment.cancelled' => $vote->update(['payment_status' => 'failed']),
+                default             => null,
+            };
+            return response()->json(['ok' => true]);
+        }
+
+        // Try contest entry (transaction_id = SharePay ref)
+        $entry = ContestEntry::where('transaction_id', $ref)->first();
+        if ($entry) {
+            match ($event) {
+                'payment.success'   => $entry->update(['payment_status' => 'paid']),
+                'payment.failed',
+                'payment.cancelled' => $entry->update(['payment_status' => 'failed', 'status' => 'rejected']),
                 default             => null,
             };
             return response()->json(['ok' => true]);

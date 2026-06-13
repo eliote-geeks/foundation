@@ -519,9 +519,15 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                             </div>
 
                             {contest.entry_fee > 0 && (
-                                <div style={{ padding: '10px 14px', background: 'rgba(245,158,11,0.1)', border: '1px solid #fde68a', borderRadius: 8, fontSize: '0.875rem', color: '#92400e' }}>
-                                    <i className="bi bi-info-circle me-2"></i>
-                                    Frais d'inscription : <strong>{contest.entry_fee.toLocaleString('fr-FR')} {contest.currency}</strong>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                    <div style={{ padding: '10px 14px', background: 'rgba(245,158,11,0.1)', border: '1px solid #fde68a', borderRadius: 8, fontSize: '0.875rem', color: '#92400e' }}>
+                                        <i className="bi bi-info-circle me-2"></i>
+                                        Frais d'inscription : <strong>{contest.entry_fee.toLocaleString('fr-FR')} {contest.currency}</strong>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', color: '#16A34A' }}>
+                                        <i className="bi bi-shield-lock-fill" />
+                                        Paiement sécurisé via SharePay (MTN MoMo / Orange Money)
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -529,7 +535,11 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                     <Modal.Footer style={{ background: 'var(--titi-white)', borderColor: 'var(--titi-border)' }}>
                         <Button variant="outline-secondary" onClick={() => setShowSubmitModal(false)}>Annuler</Button>
                         <Button type="submit" disabled={submitForm.processing} style={{ background: '#16A34A', borderColor: '#16A34A', color: '#fff' }}>
-                            {submitForm.processing ? 'Envoi…' : 'Soumettre le projet'}
+                            {submitForm.processing
+                                ? 'Traitement…'
+                                : contest.entry_fee > 0
+                                    ? `Payer ${contest.entry_fee.toLocaleString('fr-FR')} ${contest.currency}`
+                                    : 'Soumettre le projet'}
                         </Button>
                     </Modal.Footer>
                 </Form>
