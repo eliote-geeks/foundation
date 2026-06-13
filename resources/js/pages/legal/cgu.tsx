@@ -8,7 +8,7 @@ export default function CGU() {
             <LegalLayout title="Conditions générales d'utilisation" lastUpdated="19 mai 2026">
                 <LegalSection title="Objet">
                     <LegalP>
-                        Les présentes Conditions Générales d'Utilisation (CGU) régissent l'accès et l'utilisation de la plateforme en ligne de la TITI EVENTS, accessible à l'adresse fondation-titi.org.
+                        Les présentes Conditions Générales d'Utilisation (CGU) régissent l'accès et l'utilisation de la plateforme en ligne de la TITI EVENTS, accessible à l'adresse titi-events.com.
                     </LegalP>
                     <LegalP>
                         En accédant à la plateforme, vous acceptez sans réserve les présentes CGU. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser la plateforme.
@@ -62,7 +62,7 @@ export default function CGU() {
 
                 <LegalSection title="Contact">
                     <LegalP>
-                        Pour toute question relative aux présentes CGU, contactez-nous à : <strong>legal@fondation-titi.org</strong>
+                        Pour toute question relative aux présentes CGU, contactez-nous à : <strong>Info.titievents@gmail.com</strong>
                     </LegalP>
                 </LegalSection>
             </LegalLayout>

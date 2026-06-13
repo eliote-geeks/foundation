@@ -79,7 +79,7 @@ export default function Privacy() {
                         'Droit de retirer votre consentement à tout moment',
                     ]} />
                     <LegalP>
-                        Pour exercer ces droits, contactez-nous à : <strong>privacy@fondation-titi.org</strong>
+                        Pour exercer ces droits, contactez-nous à : <strong>Info.titievents@gmail.com</strong>
                     </LegalP>
                 </LegalSection>
 
@@ -91,7 +91,7 @@ export default function Privacy() {
 
                 <LegalSection title="Contact">
                     <LegalP>
-                        Pour toute question relative à cette politique ou pour exercer vos droits : <strong>privacy@fondation-titi.org</strong>
+                        Pour toute question relative à cette politique ou pour exercer vos droits : <strong>Info.titievents@gmail.com</strong>
                     </LegalP>
                 </LegalSection>
             </LegalLayout>

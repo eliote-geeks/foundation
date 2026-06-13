@@ -59,7 +59,7 @@ export default function Cookies() {
 
                 <LegalSection title="Contact">
                     <LegalP>
-                        Pour toute question sur notre utilisation des cookies : <strong>privacy@fondation-titi.org</strong>
+                        Pour toute question sur notre utilisation des cookies : <strong>Info.titievents@gmail.com</strong>
                     </LegalP>
                 </LegalSection>
             </LegalLayout>

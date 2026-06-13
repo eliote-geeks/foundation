@@ -29,7 +29,7 @@ export default function RGPD() {
                         Le responsable du traitement des données est la <strong>TITI EVENTS</strong>, représentée par son Président, dont le siège est situé à Yaoundé, Cameroun.
                     </LegalP>
                     <LegalP>
-                        Contact DPO (Délégué à la Protection des Données) : <strong>dpo@fondation-titi.org</strong>
+                        Contact DPO (Délégué à la Protection des Données) : <strong>Info.titievents@gmail.com</strong>
                     </LegalP>
                 </LegalSection>
 
@@ -54,7 +54,7 @@ export default function RGPD() {
                         Pour exercer vos droits, vous pouvez :
                     </LegalP>
                     <LegalList items={[
-                        'Envoyer un email à : dpo@fondation-titi.org',
+                        'Envoyer un email à : Info.titievents@gmail.com',
                         'Supprimer votre compte directement depuis vos paramètres de profil',
                         'Modifier vos préférences de communication depuis votre espace membre',
                     ]} />

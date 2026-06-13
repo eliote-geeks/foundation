@@ -28,7 +28,7 @@ const FAQ = [
     },
     {
         q: 'Puis-je obtenir un remboursement ?',
-        a: "Les demandes de remboursement sont acceptées jusqu'à 48 h avant la date de l'événement. Contactez-nous à info@fondation-titi.org avec votre numéro de billet.",
+        a: "Les demandes de remboursement sont acceptées jusqu'à 48 h avant la date de l'événement. Contactez-nous à Info.titievents@gmail.com avec votre numéro de billet.",
     },
     {
         q: 'Comment rejoindre la communauté ?',
@@ -150,8 +150,8 @@ export function SocialProofSection({ testimonials }: Props) {
 
                         <div className="d-flex flex-column gap-3 mb-4">
                             {[
-                                { icon: 'bi-envelope', label: 'Email', value: 'info@fondation-titi.org', href: 'mailto:info@fondation-titi.org' },
-                                { icon: 'bi-whatsapp', label: 'WhatsApp', value: '+237 6XX XXX XXX', href: '#' },
+                                { icon: 'bi-envelope', label: 'Email', value: 'Info.titievents@gmail.com', href: 'mailto:Info.titievents@gmail.com' },
+                                { icon: 'bi-whatsapp', label: 'WhatsApp', value: '+237 654 450 215', href: 'https://wa.me/237654450215' },
                                 { icon: 'bi-geo-alt', label: 'Adresse', value: 'Yaoundé, Cameroun', href: '#' },
                             ].map((c, i) => (
                                 <a key={i} href={c.href} className="d-flex align-items-center gap-3 text-decoration-none p-3 rounded-3"
