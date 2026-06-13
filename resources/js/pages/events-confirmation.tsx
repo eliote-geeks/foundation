@@ -37,7 +37,7 @@ export default function EventsConfirmationPage({ user, event, registration }: Pr
                                 </h2>
                                 <p className="text-muted mb-0">
                                     {isPending
-                                        ? 'Votre demande sera validée par l’organisateur.'
+                                        ? "Votre demande sera validée par l'organisateur."
                                         : 'Vous êtes bien enregistré(e) pour cet événement.'}
                                 </p>
                             </div>
@@ -73,10 +73,10 @@ export default function EventsConfirmationPage({ user, event, registration }: Pr
                                         fontWeight: 700,
                                     }}
                                 >
-                                    Revenir à l’événement
+                                    Revenir à l'événement
                                 </Button>
                                 <Button href="/events" variant="outline-secondary" className="flex-grow-1">
-                                    Voir d’autres événements
+                                    Voir d'autres événements
                                 </Button>
                             </div>
 

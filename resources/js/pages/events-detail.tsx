@@ -287,8 +287,8 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
                                         <Accordion.Item eventKey="1">
                                             <Accordion.Header>Remboursements et annulations</Accordion.Header>
                                             <Accordion.Body>
-                                                Les conditions seront précisées lors du lancement du paiement en ligne. Pour l’instant,
-                                                contactez l’organisateur via les informations de contact.
+                                                Les conditions seront précisées lors du lancement du paiement en ligne. Pour l'instant,
+                                                contactez l'organisateur via les informations de contact.
                                             </Accordion.Body>
                                         </Accordion.Item>
                                     </Accordion>
@@ -324,13 +324,13 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
 
                             <Card id="reservation" className="border-0 shadow-sm mb-4">
                                 <Card.Body className="p-4">
-                                    <h5 className="fw-bold mb-2" style={{ color: ‘#334E15’ }}>
-                                        {event.is_free ? ‘Inscription gratuite’ : ‘Acheter des billets’}
+                                    <h5 className="fw-bold mb-2" style={{ color: '#334E15' }}>
+                                        {event.is_free ? 'Inscription gratuite' : 'Acheter des billets'}
                                     </h5>
-                                    <p className="text-muted mb-3" style={{ fontSize: ‘0.875rem’ }}>
+                                    <p className="text-muted mb-3" style={{ fontSize: '0.875rem' }}>
                                         {event.is_free
-                                            ? (event.requires_approval ? ‘Demande d\’invitation (validation requise).’ : ‘Inscription libre et gratuite.’)
-                                            : ‘Paiement sécurisé via SharePay (MTN MoMo / Orange Money).’}
+                                            ? (event.requires_approval ? 'Demande d\'invitation (validation requise).' : 'Inscription libre et gratuite.')
+                                            : 'Paiement sécurisé via SharePay (MTN MoMo / Orange Money).'}
                                     </p>
 
                                     <Form onSubmit={(e) => { e.preventDefault(); post(`/events/${event.id}/reserve`); }}>
@@ -339,7 +339,7 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
                                             <Form.Label className="small text-muted">Nom complet *</Form.Label>
                                             <Form.Control
                                                 value={data.full_name}
-                                                onChange={(e) => setData(‘full_name’, e.target.value)}
+                                                onChange={(e) => setData('full_name', e.target.value)}
                                                 isInvalid={Boolean(errors.full_name)}
                                                 placeholder="Votre nom"
                                             />
@@ -351,7 +351,7 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
                                             <Form.Control
                                                 type="email"
                                                 value={data.email}
-                                                onChange={(e) => setData(‘email’, e.target.value)}
+                                                onChange={(e) => setData('email', e.target.value)}
                                                 isInvalid={Boolean(errors.email)}
                                                 placeholder="vous@exemple.com"
                                             />
@@ -362,7 +362,7 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
                                             <Form.Label className="small text-muted">Téléphone</Form.Label>
                                             <Form.Control
                                                 value={data.phone}
-                                                onChange={(e) => setData(‘phone’, e.target.value)}
+                                                onChange={(e) => setData('phone', e.target.value)}
                                                 placeholder="+237 6xx xxx xxx"
                                             />
                                         </Form.Group>
@@ -373,7 +373,7 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
                                                 <Form.Control
                                                     type="number" min={1} max={10}
                                                     value={data.quantity}
-                                                    onChange={(e) => setData(‘quantity’, Number(e.target.value))}
+                                                    onChange={(e) => setData('quantity', Number(e.target.value))}
                                                     isInvalid={Boolean(errors.quantity)}
                                                 />
                                             </Col>
@@ -384,9 +384,9 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
                                         </Row>
 
                                         {!event.is_free && (
-                                            <div style={{ padding: ‘10px 14px’, background: ‘#f0fdf4’, border: ‘1px solid #bbf7d0’, borderRadius: 8, marginBottom: 16, display: ‘flex’, justifyContent: ‘space-between’, alignItems: ‘center’ }}>
-                                                <span style={{ fontSize: ‘0.875rem’, color: ‘#166534’ }}>Total à payer</span>
-                                                <strong style={{ fontSize: ‘1rem’, color: ‘#14532d’ }}>{formattedTotal}</strong>
+                                            <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '0.875rem', color: '#166534' }}>Total à payer</span>
+                                                <strong style={{ fontSize: '1rem', color: '#14532d' }}>{formattedTotal}</strong>
                                             </div>
                                         )}
 
@@ -395,7 +395,7 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
                                             <Form.Control
                                                 as="textarea" rows={2}
                                                 value={data.notes}
-                                                onChange={(e) => setData(‘notes’, e.target.value)}
+                                                onChange={(e) => setData('notes', e.target.value)}
                                                 placeholder="Infos utiles..."
                                             />
                                         </Form.Group>
@@ -404,15 +404,15 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
                                             type="submit"
                                             disabled={processing || event.available_tickets <= 0}
                                             className="w-100"
-                                            style={{ background: ‘linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)’, border: ‘none’, fontWeight: 700 }}
+                                            style={{ background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)', border: 'none', fontWeight: 700 }}
                                         >
                                             {processing
-                                                ? (event.is_free ? ‘Envoi…’ : ‘Redirection vers le paiement…’)
-                                                : (event.is_free ? ‘S\’inscrire’ : `Payer ${formattedTotal}`)}
+                                                ? (event.is_free ? 'Envoi…' : 'Redirection vers le paiement…')
+                                                : (event.is_free ? 'S\'inscrire' : `Payer ${formattedTotal}`)}
                                         </Button>
 
                                         {!event.is_free && (
-                                            <p className="text-center mt-2 mb-0" style={{ fontSize: ‘0.75rem’, color: ‘#6B7280’ }}>
+                                            <p className="text-center mt-2 mb-0" style={{ fontSize: '0.75rem', color: '#6B7280' }}>
                                                 <i className="bi bi-shield-lock me-1" />Paiement sécurisé SharePay
                                             </p>
                                         )}
