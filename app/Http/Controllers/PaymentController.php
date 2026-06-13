@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Donation;
 use App\Models\Ticket;
+use App\Models\Vote;
 use App\Services\SharePayService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -35,13 +36,24 @@ class PaymentController extends Controller
                     $type = 'ticket';
                     $qty  = $ticket->metadata['quantity'] ?? 1;
                     $item = [
-                        'amount' => $ticket->formattedPrice(),
-                        'label'  => $ticket->event?->title ?? 'Événement',
-                        'name'   => $ticket->attendee_name,
-                        'status' => $ticket->payment_status,
+                        'amount'        => $ticket->formattedPrice(),
+                        'label'         => $ticket->event?->title ?? 'Événement',
+                        'name'          => $ticket->attendee_name,
+                        'status'        => $ticket->payment_status,
                         'ticket_number' => $ticket->ticket_number,
-                        'quantity' => $qty,
+                        'quantity'      => $qty,
                     ];
+                } else {
+                    $vote = Vote::where('transaction_id', $reference)->with('contest')->first();
+                    if ($vote) {
+                        $type = 'vote';
+                        $item = [
+                            'amount' => $vote->formattedAmount(),
+                            'label'  => $vote->contest?->title ?? 'Concours',
+                            'name'   => $vote->participant_name,
+                            'status' => $vote->payment_status,
+                        ];
+                    }
                 }
             }
         }
@@ -111,12 +123,21 @@ class PaymentController extends Controller
         $ticket = Ticket::where('transaction_id', $ref)->first();
         if ($ticket) {
             match ($event) {
-                'payment.success' => $ticket->update([
-                    'payment_status' => 'paid',
-                    'status'         => 'confirmed',
-                ]),
-                'payment.failed'    => $ticket->update(['payment_status' => 'failed', 'status' => 'cancelled']),
+                'payment.success'   => $ticket->update(['payment_status' => 'paid', 'status' => 'confirmed']),
+                'payment.failed',
                 'payment.cancelled' => $ticket->update(['payment_status' => 'failed', 'status' => 'cancelled']),
+                default             => null,
+            };
+            return response()->json(['ok' => true]);
+        }
+
+        // Try vote (transaction_id = SharePay ref)
+        $vote = Vote::where('transaction_id', $ref)->first();
+        if ($vote) {
+            match ($event) {
+                'payment.success'   => $vote->update(['payment_status' => 'paid', 'voted_at' => now()]),
+                'payment.failed',
+                'payment.cancelled' => $vote->update(['payment_status' => 'failed']),
                 default             => null,
             };
             return response()->json(['ok' => true]);

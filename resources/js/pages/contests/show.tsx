@@ -91,8 +91,6 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
 
     const voteForm = useForm({
         entry_id: '',
-        payment_method: 'mtn',
-        transaction_ref: '',
         voter_phone: '',
     });
 
@@ -117,16 +115,9 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
     function handleVote(e: React.FormEvent) {
         e.preventDefault();
         voteForm.post(`/contests/${contest.id}/vote`, {
-            onSuccess: () => {
-                setShowVoteModal(false);
-                setFlash({ type: 'success', msg: 'Vote enregistré ! Confirmation après vérification du paiement.' });
-                voteForm.reset();
-            },
             onError: () => setFlash({ type: 'error', msg: 'Erreur lors du vote.' }),
         });
     }
-
-    const payNumber = voteForm.data.payment_method === 'mtn' ? settings.mtn_number : settings.orange_number;
 
     return (
         <>
@@ -555,77 +546,41 @@ export default function ContestShow({ user, contest, entries, userEntry, userHas
                 <Form onSubmit={handleVote}>
                     <Modal.Body style={{ background: 'var(--titi-white)' }}>
                         {contest.vote_price > 0 && (
-                            <div style={{ padding: '14px 16px', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.3)', borderRadius: 10, marginBottom: 16 }}>
-                                <div style={{ fontWeight: 700, color: '#15803d', fontSize: '1rem', marginBottom: 8 }}>
-                                    <i className="bi bi-phone me-2"></i>Étape 1 — Effectuez le paiement
-                                </div>
-                                <div className="d-flex gap-2 mb-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => voteForm.setData('payment_method', 'mtn')}
-                                        style={{
-                                            flex: 1, padding: '8px', border: `2px solid ${voteForm.data.payment_method === 'mtn' ? '#f59e0b' : 'var(--titi-border)'}`,
-                                            borderRadius: 8, background: voteForm.data.payment_method === 'mtn' ? 'rgba(245,158,11,0.1)' : 'var(--titi-surface)', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', color: 'var(--titi-text)',
-                                        }}
-                                    >
-                                        <span style={{ color: '#f59e0b' }}>MTN</span> Mobile Money
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => voteForm.setData('payment_method', 'orange')}
-                                        style={{
-                                            flex: 1, padding: '8px', border: `2px solid ${voteForm.data.payment_method === 'orange' ? '#ea580c' : 'var(--titi-border)'}`,
-                                            borderRadius: 8, background: voteForm.data.payment_method === 'orange' ? 'rgba(234,88,12,0.1)' : 'var(--titi-surface)', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', color: 'var(--titi-text)',
-                                        }}
-                                    >
-                                        <span style={{ color: '#ea580c' }}>Orange</span> Money
-                                    </button>
-                                </div>
-                                <div style={{ padding: '10px 14px', background: 'var(--titi-white)', border: '1px solid var(--titi-border)', borderRadius: 8 }}>
-                                    <div style={{ fontSize: '0.8125rem', color: 'var(--titi-sub)', marginBottom: 4 }}>Envoyez <strong>{contest.vote_price_fmt}</strong> au :</div>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--titi-text)', letterSpacing: '0.05em' }}>{payNumber}</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--titi-muted)', marginTop: 4 }}>Mentionnez "Vote {contest.title}" dans le motif</div>
+                            <div style={{ padding: '12px 14px', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.3)', borderRadius: 10, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <i className="bi bi-shield-lock-fill" style={{ color: '#16A34A', fontSize: '1.2rem', flexShrink: 0 }} />
+                                <div>
+                                    <div style={{ fontWeight: 600, color: '#15803d', fontSize: '0.875rem' }}>Paiement sécurisé SharePay</div>
+                                    <div style={{ fontSize: '0.8125rem', color: '#166534' }}>MTN MoMo &amp; Orange Money — {contest.vote_price_fmt}</div>
                                 </div>
                             </div>
                         )}
+
                         <div style={{ fontWeight: 600, color: 'var(--titi-text)', marginBottom: 12, fontSize: '0.9375rem' }}>
-                            <i className="bi bi-pencil me-2"></i>
-                            {contest.vote_price > 0 ? 'Étape 2 — Confirmez votre vote' : 'Confirmez votre vote'}
+                            <i className="bi bi-hand-thumbs-up me-2 text-success"></i>
+                            Voter pour <strong>{selectedEntry?.title}</strong>
                         </div>
-                        <div className="d-flex flex-column gap-3">
-                            <Form.Group>
-                                <Form.Label className="small fw-semibold" style={{ color: 'var(--titi-sub)' }}>Votre numéro de téléphone *</Form.Label>
-                                <Form.Control
-                                    type="tel"
-                                    value={voteForm.data.voter_phone}
-                                    onChange={e => voteForm.setData('voter_phone', e.target.value)}
-                                    isInvalid={!!voteForm.errors.voter_phone}
-                                    placeholder="+237 6XX XXX XXX"
-                                    style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
-                                />
-                                <Form.Control.Feedback type="invalid">{voteForm.errors.voter_phone}</Form.Control.Feedback>
-                            </Form.Group>
-                            {contest.vote_price > 0 && (
-                                <Form.Group>
-                                    <Form.Label className="small fw-semibold" style={{ color: 'var(--titi-sub)' }}>Référence de transaction *</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={voteForm.data.transaction_ref}
-                                        onChange={e => voteForm.setData('transaction_ref', e.target.value)}
-                                        isInvalid={!!voteForm.errors.transaction_ref}
-                                        placeholder="Ex: MP26050001234"
-                                        style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
-                                    />
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--titi-muted)', marginTop: 4 }}>Code reçu par SMS après le paiement</div>
-                                    <Form.Control.Feedback type="invalid">{voteForm.errors.transaction_ref}</Form.Control.Feedback>
-                                </Form.Group>
-                            )}
-                        </div>
+
+                        <Form.Group>
+                            <Form.Label className="small fw-semibold" style={{ color: 'var(--titi-sub)' }}>Votre numéro de téléphone *</Form.Label>
+                            <Form.Control
+                                type="tel"
+                                value={voteForm.data.voter_phone}
+                                onChange={e => voteForm.setData('voter_phone', e.target.value)}
+                                isInvalid={!!voteForm.errors.voter_phone}
+                                placeholder="+237 6XX XXX XXX"
+                                style={{ background: 'var(--titi-white)', color: 'var(--titi-text)', borderColor: 'var(--titi-border)' }}
+                            />
+                            <Form.Control.Feedback type="invalid">{voteForm.errors.voter_phone}</Form.Control.Feedback>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--titi-sub)', marginTop: 4 }}>Utilisé sur la page de paiement SharePay</div>
+                        </Form.Group>
                     </Modal.Body>
                     <Modal.Footer style={{ background: 'var(--titi-white)', borderColor: 'var(--titi-border)' }}>
                         <Button variant="outline-secondary" onClick={() => setShowVoteModal(false)}>Annuler</Button>
                         <Button type="submit" disabled={voteForm.processing} style={{ background: '#16A34A', borderColor: '#16A34A', color: '#fff' }}>
-                            {voteForm.processing ? 'Envoi…' : 'Confirmer mon vote'}
+                            {voteForm.processing
+                                ? <><i className="bi bi-hourglass-split me-1" />Redirection…</>
+                                : <><i className="bi bi-lock-fill me-1" />{contest.vote_price > 0 ? `Payer ${contest.vote_price_fmt}` : 'Confirmer mon vote'}</>
+                            }
                         </Button>
                     </Modal.Footer>
                 </Form>

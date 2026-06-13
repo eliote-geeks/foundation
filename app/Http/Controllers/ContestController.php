@@ -7,6 +7,7 @@ use App\Models\ContestEntry;
 use App\Models\Media;
 use App\Models\SiteSetting;
 use App\Models\Vote;
+use App\Services\SharePayService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -131,7 +132,7 @@ class ContestController extends Controller
         return back()->with('success', 'Votre projet a été soumis avec succès ! Il sera examiné par notre équipe.');
     }
 
-    public function submitVote(Request $request, Contest $contest): RedirectResponse
+    public function submitVote(Request $request, Contest $contest)
     {
         if (!auth()->check()) {
             return redirect('/login')->with('error', 'Connectez-vous pour voter.');
@@ -146,15 +147,13 @@ class ContestController extends Controller
         }
 
         $data = $request->validate([
-            'entry_id'         => 'required|exists:contest_entries,id',
-            'payment_method'   => 'required|in:mtn,orange',
-            'transaction_ref'  => 'required|string|max:100',
-            'voter_phone'      => 'required|string|max:20',
+            'entry_id'   => 'required|exists:contest_entries,id',
+            'voter_phone'=> 'required|string|max:20',
         ]);
 
         $entry = ContestEntry::findOrFail($data['entry_id']);
 
-        Vote::create([
+        $vote = Vote::create([
             'contest_id'      => $contest->id,
             'user_id'         => auth()->id(),
             'participant_id'  => $entry->id,
@@ -162,11 +161,34 @@ class ContestController extends Controller
             'amount_paid'     => $contest->vote_price,
             'currency'        => $contest->currency,
             'payment_status'  => 'pending',
-            'payment_method'  => $data['payment_method'] === 'mtn' ? 'MTN Mobile Money' : 'Orange Money',
-            'transaction_id'  => $data['transaction_ref'],
+            'payment_method'  => 'mobile_money',
             'metadata'        => ['voter_phone' => $data['voter_phone']],
         ]);
 
-        return back()->with('success', 'Vote enregistré ! Il sera confirmé après vérification du paiement.');
+        // Votes gratuits : confirmer directement
+        if (!$contest->vote_price || $contest->vote_price <= 0) {
+            $vote->update(['payment_status' => 'paid', 'voted_at' => now()]);
+            return back()->with('success', 'Vote enregistré avec succès !');
+        }
+
+        try {
+            $sharepay = app(SharePayService::class);
+            $session  = $sharepay->createCheckout([
+                'amount'            => (int) round($contest->vote_price),
+                'currency'          => $contest->currency ?? 'XAF',
+                'merchantReference' => 'VOTE-' . $vote->id,
+                'description'       => "Vote pour « {$entry->title} » — {$contest->title}",
+                'successUrl'        => route('payment.success'),
+                'cancelUrl'         => route('payment.cancel'),
+            ]);
+
+            $vote->update(['transaction_id' => $session['reference']]);
+
+            return Inertia::location($session['paymentUrl']);
+
+        } catch (\Exception $e) {
+            $vote->delete();
+            return back()->withErrors(['entry_id' => 'Erreur de paiement : ' . $e->getMessage()]);
+        }
     }
 }
