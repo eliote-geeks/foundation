@@ -26,6 +26,7 @@ type EventDetail = {
     speakers: any[] | null;
     sponsors: any[] | null;
     is_free: boolean;
+    price: number | null;
     requires_approval: boolean;
     formatted_price: string;
     capacity: number | null;
@@ -41,12 +42,17 @@ interface EventDetailProps {
 
 export default function EventDetailPage({ user, event }: EventDetailProps) {
     const { data, setData, post, processing, errors } = useForm({
-        full_name: '',
-        email: '',
+        full_name: user?.name ?? '',
+        email: user?.email ?? '',
         phone: '',
         quantity: 1,
         notes: '',
     });
+
+    const totalPrice = event.is_free ? 0 : (event.price ?? 0) * data.quantity;
+    const formattedTotal = event.is_free
+        ? 'Gratuit'
+        : totalPrice.toLocaleString('fr-FR') + ' XAF';
 
     const agendaItems = Array.isArray(event.agenda) ? event.agenda : [];
     const speakers = Array.isArray(event.speakers) ? event.speakers : [];
@@ -308,120 +314,108 @@ export default function EventDetailPage({ user, event }: EventDetailProps) {
                                             <span className="fw-semibold">{event.capacity}</span>
                                         </div>
                                     )}
-                                    <div className="mt-3 small text-muted">
-                                        Le paiement en ligne arrive en prochaine itération (Mobile Money / carte).
-                                    </div>
+                                    {!event.is_free && (
+                                        <div className="mt-3 small" style={{ color: '#16A34A' }}>
+                                            <i className="bi bi-shield-lock me-1" />Paiement MTN MoMo / Orange Money
+                                        </div>
+                                    )}
                                 </Card.Body>
                             </Card>
 
                             <Card id="reservation" className="border-0 shadow-sm mb-4">
                                 <Card.Body className="p-4">
-                                    <h5 className="fw-bold mb-2" style={{ color: '#334E15' }}>
-                                        Réservation (V1)
+                                    <h5 className="fw-bold mb-2" style={{ color: ‘#334E15’ }}>
+                                        {event.is_free ? ‘Inscription gratuite’ : ‘Acheter des billets’}
                                     </h5>
-                                    <p className="text-muted mb-3">
-                                        {event.requires_approval
-                                            ? 'Demande d’invitation (validation requise).'
-                                            : 'Inscription / réservation simple (sans paiement).'}
+                                    <p className="text-muted mb-3" style={{ fontSize: ‘0.875rem’ }}>
+                                        {event.is_free
+                                            ? (event.requires_approval ? ‘Demande d\’invitation (validation requise).’ : ‘Inscription libre et gratuite.’)
+                                            : ‘Paiement sécurisé via SharePay (MTN MoMo / Orange Money).’}
                                     </p>
 
-                                    <Form
-                                        onSubmit={(e) => {
-                                            e.preventDefault();
-                                            post(`/events/${event.id}/reserve`);
-                                        }}
-                                    >
+                                    <Form onSubmit={(e) => { e.preventDefault(); post(`/events/${event.id}/reserve`); }}>
+
                                         <Form.Group className="mb-3">
-                                            <Form.Label className="small text-muted">Nom complet</Form.Label>
+                                            <Form.Label className="small text-muted">Nom complet *</Form.Label>
                                             <Form.Control
                                                 value={data.full_name}
-                                                onChange={(e) => setData('full_name', e.target.value)}
+                                                onChange={(e) => setData(‘full_name’, e.target.value)}
                                                 isInvalid={Boolean(errors.full_name)}
                                                 placeholder="Votre nom"
                                             />
-                                            {errors.full_name && (
-                                                <Form.Control.Feedback type="invalid">{errors.full_name}</Form.Control.Feedback>
-                                            )}
+                                            {errors.full_name && <Form.Control.Feedback type="invalid">{errors.full_name}</Form.Control.Feedback>}
                                         </Form.Group>
 
                                         <Form.Group className="mb-3">
-                                            <Form.Label className="small text-muted">Email</Form.Label>
+                                            <Form.Label className="small text-muted">Email *</Form.Label>
                                             <Form.Control
+                                                type="email"
                                                 value={data.email}
-                                                onChange={(e) => setData('email', e.target.value)}
+                                                onChange={(e) => setData(‘email’, e.target.value)}
                                                 isInvalid={Boolean(errors.email)}
                                                 placeholder="vous@exemple.com"
                                             />
-                                            {errors.email && (
-                                                <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
-                                            )}
+                                            {errors.email && <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>}
                                         </Form.Group>
 
                                         <Form.Group className="mb-3">
-                                            <Form.Label className="small text-muted">Téléphone (optionnel)</Form.Label>
+                                            <Form.Label className="small text-muted">Téléphone</Form.Label>
                                             <Form.Control
                                                 value={data.phone}
-                                                onChange={(e) => setData('phone', e.target.value)}
-                                                isInvalid={Boolean(errors.phone)}
+                                                onChange={(e) => setData(‘phone’, e.target.value)}
                                                 placeholder="+237 6xx xxx xxx"
                                             />
-                                            {errors.phone && (
-                                                <Form.Control.Feedback type="invalid">{errors.phone}</Form.Control.Feedback>
-                                            )}
                                         </Form.Group>
 
-                                        <Row className="g-2">
+                                        <Row className="g-2 mb-3">
                                             <Col xs={5}>
-                                                <Form.Group className="mb-3">
-                                                    <Form.Label className="small text-muted">Quantité</Form.Label>
-                                                    <Form.Control
-                                                        type="number"
-                                                        min={1}
-                                                        max={50}
-                                                        value={data.quantity}
-                                                        onChange={(e) => setData('quantity', Number(e.target.value))}
-                                                        isInvalid={Boolean(errors.quantity)}
-                                                    />
-                                                    {errors.quantity && (
-                                                        <Form.Control.Feedback type="invalid">{errors.quantity}</Form.Control.Feedback>
-                                                    )}
-                                                </Form.Group>
+                                                <Form.Label className="small text-muted">Quantité</Form.Label>
+                                                <Form.Control
+                                                    type="number" min={1} max={10}
+                                                    value={data.quantity}
+                                                    onChange={(e) => setData(‘quantity’, Number(e.target.value))}
+                                                    isInvalid={Boolean(errors.quantity)}
+                                                />
                                             </Col>
                                             <Col xs={7}>
-                                                <Form.Group className="mb-3">
-                                                    <Form.Label className="small text-muted">Places restantes</Form.Label>
-                                                    <Form.Control value={`${event.available_tickets}`} disabled />
-                                                </Form.Group>
+                                                <Form.Label className="small text-muted">Places restantes</Form.Label>
+                                                <Form.Control value={`${event.available_tickets}`} disabled />
                                             </Col>
                                         </Row>
+
+                                        {!event.is_free && (
+                                            <div style={{ padding: ‘10px 14px’, background: ‘#f0fdf4’, border: ‘1px solid #bbf7d0’, borderRadius: 8, marginBottom: 16, display: ‘flex’, justifyContent: ‘space-between’, alignItems: ‘center’ }}>
+                                                <span style={{ fontSize: ‘0.875rem’, color: ‘#166534’ }}>Total à payer</span>
+                                                <strong style={{ fontSize: ‘1rem’, color: ‘#14532d’ }}>{formattedTotal}</strong>
+                                            </div>
+                                        )}
 
                                         <Form.Group className="mb-3">
                                             <Form.Label className="small text-muted">Message (optionnel)</Form.Label>
                                             <Form.Control
-                                                as="textarea"
-                                                rows={3}
+                                                as="textarea" rows={2}
                                                 value={data.notes}
-                                                onChange={(e) => setData('notes', e.target.value)}
-                                                isInvalid={Boolean(errors.notes)}
-                                                placeholder="Infos utiles (invitation, contraintes, etc.)"
+                                                onChange={(e) => setData(‘notes’, e.target.value)}
+                                                placeholder="Infos utiles..."
                                             />
-                                            {errors.notes && (
-                                                <Form.Control.Feedback type="invalid">{errors.notes}</Form.Control.Feedback>
-                                            )}
                                         </Form.Group>
 
                                         <Button
                                             type="submit"
                                             disabled={processing || event.available_tickets <= 0}
                                             className="w-100"
-                                            style={{
-                                                background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
-                                                border: 'none',
-                                                fontWeight: 700,
-                                            }}
+                                            style={{ background: ‘linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)’, border: ‘none’, fontWeight: 700 }}
                                         >
-                                            {processing ? 'Envoi…' : 'Envoyer ma demande'}
+                                            {processing
+                                                ? (event.is_free ? ‘Envoi…’ : ‘Redirection vers le paiement…’)
+                                                : (event.is_free ? ‘S\’inscrire’ : `Payer ${formattedTotal}`)}
                                         </Button>
+
+                                        {!event.is_free && (
+                                            <p className="text-center mt-2 mb-0" style={{ fontSize: ‘0.75rem’, color: ‘#6B7280’ }}>
+                                                <i className="bi bi-shield-lock me-1" />Paiement sécurisé SharePay
+                                            </p>
+                                        )}
                                     </Form>
                                 </Card.Body>
                             </Card>
