@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Donation;
 use App\Models\DonationCampaign;
 use App\Models\SiteSetting;
-use Illuminate\Http\RedirectResponse;
+use App\Services\SharePayService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -66,46 +66,30 @@ class DonationController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $data = $request->validate([
-            'campaign_id'     => 'required|exists:donation_campaigns,id',
-            'amount'          => 'required|numeric|min:1000',
-            'payment_method'  => 'required|in:mtn,orange,bank_transfer,other',
-            'transaction_ref' => 'required|string|max:100',
-            'donor_name'      => 'required|string|max:100',
-            'donor_phone'     => 'required|string|max:20',
-            'donor_email'     => 'nullable|email',
-            'donor_message'   => 'nullable|string|max:500',
-            'is_anonymous'    => 'boolean',
+            'campaign_id'   => 'required|exists:donation_campaigns,id',
+            'amount'        => 'required|numeric|min:1000',
+            'donor_name'    => 'required|string|max:100',
+            'donor_phone'   => 'required|string|max:20',
+            'donor_email'   => 'nullable|email',
+            'donor_message' => 'nullable|string|max:500',
+            'is_anonymous'  => 'boolean',
         ]);
 
-        $campaign = DonationCampaign::findOrFail($data['campaign_id']);
-
+        $campaign       = DonationCampaign::findOrFail($data['campaign_id']);
         $donationNumber = 'DON-' . strtoupper(substr(md5(uniqid()), 0, 8));
 
-        $methodMap = [
-            'mtn'           => 'mobile_money',
-            'orange'        => 'mobile_money',
-            'bank_transfer' => 'bank_transfer',
-            'other'         => 'other',
-        ];
-
-        $providerMap = [
-            'mtn'    => 'MTN Mobile Money',
-            'orange' => 'Orange Money',
-        ];
-
-        Donation::create([
+        $donation = Donation::create([
             'donation_number'  => $donationNumber,
             'campaign_id'      => $campaign->id,
             'donor_id'         => auth()->id() ?? null,
             'amount'           => $data['amount'],
             'currency'         => 'XAF',
-            'payment_method'   => $methodMap[$data['payment_method']],
+            'payment_method'   => 'mobile_money',
             'payment_status'   => 'pending',
-            'payment_reference'=> $data['transaction_ref'],
-            'payment_provider' => $providerMap[$data['payment_method']] ?? null,
+            'payment_provider' => 'SharePay',
             'donor_name'       => $data['donor_name'],
             'donor_phone'      => $data['donor_phone'],
             'donor_email'      => $data['donor_email'] ?? null,
@@ -116,6 +100,24 @@ class DonationController extends Controller
             'ip_address'       => $request->ip(),
         ]);
 
-        return back()->with('success', "Merci {$data['donor_name']} ! Votre don de " . number_format($data['amount'], 0, ',', ' ') . " XAF a été enregistré et sera confirmé après vérification. Référence : {$donationNumber}");
+        try {
+            $sharepay = app(SharePayService::class);
+            $session  = $sharepay->createCheckout([
+                'amount'            => (int) $data['amount'],
+                'currency'          => 'XAF',
+                'merchantReference' => $donationNumber,
+                'description'       => "Don pour : {$campaign->title}",
+                'successUrl'        => route('payment.success'),
+                'cancelUrl'         => route('payment.cancel'),
+            ]);
+
+            $donation->update(['payment_reference' => $session['reference']]);
+
+            return Inertia::location($session['paymentUrl']);
+
+        } catch (\Exception $e) {
+            $donation->delete();
+            return back()->withErrors(['amount' => 'Erreur de paiement : ' . $e->getMessage()]);
+        }
     }
 }

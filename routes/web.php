@@ -109,6 +109,11 @@ Route::post('/projects', [App\Http\Controllers\ProjectController::class, 'store'
 Route::get('/donate', [App\Http\Controllers\DonationController::class, 'index'])->name('donate');
 Route::post('/donate', [App\Http\Controllers\DonationController::class, 'store'])->name('donate.store');
 
+// SharePay payment callbacks & webhook
+Route::get('/payment/success', [App\Http\Controllers\PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment/cancel',  [App\Http\Controllers\PaymentController::class, 'cancel'])->name('payment.cancel');
+Route::post('/webhook/sharepay', [App\Http\Controllers\PaymentController::class, 'webhook'])->name('webhook.sharepay');
+
 // /tickets redirige vers /events (même contenu, évite la duplication)
 Route::get('/tickets', fn() => redirect('/events'))->name('tickets');
 

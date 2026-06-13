@@ -37,14 +37,11 @@ const SUGGESTED = [5000, 10000, 25000, 50000, 100000];
 export default function Donate({ user, campaigns, recentDonations, stats, settings }: DonateProps) {
     const { flash } = usePage<SharedData & { flash?: { success?: string; error?: string } }>().props;
     const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(campaigns[0] ?? null);
-    const [payMethod, setPayMethod] = useState<'mtn' | 'orange' | 'bank_transfer' | 'other'>('mtn');
     const [customAmount, setCustomAmount] = useState(false);
 
-    const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         campaign_id: String(campaigns[0]?.id ?? ''),
         amount: '10000',
-        payment_method: 'mtn',
-        transaction_ref: '',
         donor_name: user?.name ?? '',
         donor_phone: '',
         donor_email: user?.email ?? '',
@@ -62,18 +59,10 @@ export default function Donate({ user, campaigns, recentDonations, stats, settin
         setData('amount', String(a));
     }
 
-    function handlePayMethod(m: typeof payMethod) {
-        setPayMethod(m);
-        setData('payment_method', m);
-    }
-
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        post('/donate', { onSuccess: () => reset('transaction_ref', 'donor_message') });
+        post('/donate');
     }
-
-    const payNumber = payMethod === 'mtn' ? settings.mtn_number : payMethod === 'orange' ? settings.orange_number : null;
-    const amountNum = parseInt(data.amount) || 0;
 
     return (
         <>
@@ -248,67 +237,13 @@ export default function Donate({ user, campaigns, recentDonations, stats, settin
                                             {errors.amount && <div style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: 4 }}>{errors.amount}</div>}
                                         </div>
 
-                                        {/* Payment method */}
-                                        <div>
-                                            <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--titi-sub)', display: 'block', marginBottom: 8 }}>
-                                                Mode de paiement *
-                                            </label>
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                                                {[
-                                                    { key: 'mtn',           label: 'MTN Money',    icon: 'bi-phone', color: '#f59e0b' },
-                                                    { key: 'orange',        label: 'Orange Money', icon: 'bi-phone', color: '#ea580c' },
-                                                    { key: 'bank_transfer', label: 'Virement',     icon: 'bi-bank',  color: '#2563eb' },
-                                                    { key: 'other',         label: 'Autre',         icon: 'bi-three-dots', color: '#6b7280' },
-                                                ].map(m => (
-                                                    <button
-                                                        key={m.key}
-                                                        type="button"
-                                                        onClick={() => handlePayMethod(m.key as typeof payMethod)}
-                                                        style={{
-                                                            padding: '8px 10px', border: `1.5px solid ${payMethod === m.key ? m.color : 'var(--titi-border)'}`,
-                                                            borderRadius: 8, background: payMethod === m.key ? `${m.color}15` : 'var(--titi-white)',
-                                                            cursor: 'pointer', textAlign: 'center', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--titi-text)',
-                                                        }}
-                                                    >
-                                                        <i className={`bi ${m.icon} me-1`} style={{ color: m.color }}></i>{m.label}
-                                                    </button>
-                                                ))}
-                                            </div>
+                                        {/* Payment info */}
+                                        <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+                                            <i className="bi bi-shield-lock-fill" style={{ color: '#16A34A', flexShrink: 0 }} />
+                                            <span style={{ fontSize: '0.8125rem', color: '#166534' }}>
+                                                Paiement sécurisé par <strong>SharePay</strong> — MTN MoMo &amp; Orange Money acceptés
+                                            </span>
                                         </div>
-
-                                        {/* Payment instructions */}
-                                        {payNumber && (
-                                            <div style={{ padding: '12px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8 }}>
-                                                <div style={{ fontSize: '0.8125rem', color: '#15803d', fontWeight: 600, marginBottom: 4 }}>
-                                                    <i className="bi bi-info-circle me-1"></i>Instructions de paiement
-                                                </div>
-                                                <div style={{ fontSize: '0.8125rem', color: '#166534' }}>
-                                                    Envoyez <strong>{amountNum > 0 ? amountNum.toLocaleString('fr-FR') + ' XAF' : 'le montant'}</strong> au :
-                                                </div>
-                                                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#14532d', letterSpacing: '0.05em', margin: '4px 0' }}>{payNumber}</div>
-                                                <div style={{ fontSize: '0.75rem', color: '#166534' }}>Bénéficiaire : <strong>{settings.contact_name}</strong></div>
-                                                <div style={{ fontSize: '0.75rem', color: '#15803d', marginTop: 4 }}>
-                                                    Notez la référence SMS reçue après le paiement
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Transaction ref */}
-                                        {(payMethod === 'mtn' || payMethod === 'orange') && (
-                                            <div>
-                                                <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--titi-sub)', display: 'block', marginBottom: 4 }}>
-                                                    Référence de transaction *
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={data.transaction_ref}
-                                                    onChange={e => setData('transaction_ref', e.target.value)}
-                                                    placeholder="Ex: MP26050001234"
-                                                    style={{ width: '100%', padding: '7px 10px', border: `1.5px solid ${errors.transaction_ref ? '#dc2626' : 'var(--titi-border)'}`, borderRadius: 6, fontSize: '0.875rem', background: 'var(--titi-white)', color: 'var(--titi-text)', outline: 'none' }}
-                                                />
-                                                {errors.transaction_ref && <div style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: 4 }}>{errors.transaction_ref}</div>}
-                                            </div>
-                                        )}
 
                                         {/* Donor info */}
                                         <div>
@@ -384,16 +319,15 @@ export default function Donate({ user, campaigns, recentDonations, stats, settin
                                             }}
                                         >
                                             {processing ? (
-                                                <><i className="bi bi-hourglass-split me-2"></i>Envoi en cours…</>
+                                                <><i className="bi bi-hourglass-split me-2"></i>Redirection vers le paiement…</>
                                             ) : (
-                                                <><i className="bi bi-heart-fill me-2"></i>Enregistrer mon don</>
+                                                <><i className="bi bi-lock-fill me-2"></i>Procéder au paiement</>
                                             )}
                                         </button>
 
                                         <p style={{ fontSize: '0.75rem', color: 'var(--titi-sub)', textAlign: 'center', margin: 0 }}>
                                             <i className="bi bi-shield-check me-1"></i>
-                                            Votre don sera confirmé après vérification du paiement.
-                                            {/* Touchpay API en cours d'intégration */}
+                                            Vous serez redirigé vers la page de paiement sécurisée SharePay.
                                         </p>
                                     </div>
                                 </form>

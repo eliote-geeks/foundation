@@ -39,4 +39,10 @@ return [
         'key' => env('GOOGLE_TRANSLATE_API_KEY'),
     ],
 
+    'sharepay' => [
+        'api_key'        => env('SHAREPAY_API_KEY'),
+        'webhook_secret' => env('SHAREPAY_WEBHOOK_SECRET'),
+        'base_url'       => env('SHAREPAY_BASE_URL', 'https://sharepay-api.te-sea.com'),
+    ],
+
 ];
