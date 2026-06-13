@@ -22,10 +22,10 @@ export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) 
         <>
             <ModernHeader />
             <div className="titi-page">
-                <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 16px', display: 'flex', gap: 32, alignItems: 'flex-start' }}>
+                <div className="legal-layout-container">
 
                     {/* Sidebar */}
-                    <div style={{ width: 200, flexShrink: 0, position: 'sticky', top: 82 }}>
+                    <div className="legal-sidebar">
                         <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
                             Pages légales
                         </p>
@@ -52,7 +52,7 @@ export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) 
 
                     {/* Content */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                        <div className="titi-card" style={{ padding: '32px 36px' }}>
+                        <div className="titi-card legal-content-card" style={{ padding: '32px 36px' }}>
                             <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid #E5E7EB' }}>
                                 <h1 style={{ fontSize: '1.375rem', fontWeight: 700, color: '#111827', margin: '0 0 6px' }}>{title}</h1>
                                 <p style={{ fontSize: '0.75rem', color: '#9CA3AF', margin: 0 }}>
