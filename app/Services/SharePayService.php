@@ -12,8 +12,8 @@ class SharePayService
 
     public function __construct()
     {
-        $this->apiKey  = config('services.sharepay.api_key');
-        $this->baseUrl = rtrim(config('services.sharepay.base_url'), '/');
+        $this->apiKey = (string) config('services.sharepay.api_key', '');
+        $this->baseUrl = rtrim((string) config('services.sharepay.base_url', ''), '/');
     }
 
     public function createCheckout(array $params): array

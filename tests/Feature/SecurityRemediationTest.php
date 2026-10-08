@@ -93,7 +93,11 @@ test('the payment cancel return page does not mutate a pending ticket', function
 });
 
 test('signed payment webhooks are idempotent and cannot downgrade a paid ticket', function () {
-    config(['services.sharepay.webhook_secret' => 'test-webhook-secret']);
+    config([
+        'services.sharepay.api_key' => null,
+        'services.sharepay.base_url' => null,
+        'services.sharepay.webhook_secret' => 'test-webhook-secret',
+    ]);
 
     $user = User::factory()->create();
     $event = remediationEvent($user, ['is_free' => false, 'price' => 1000]);

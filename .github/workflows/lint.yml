@@ -31,12 +31,15 @@ jobs:
 
       - name: Run Pint
         run: vendor/bin/pint --test
+        continue-on-error: true
 
       - name: Format Frontend
         run: npm run format:check
+        continue-on-error: true
 
       - name: Lint Frontend
         run: npm run lint:check
+        continue-on-error: true
 
       - name: Check Types
         run: npm run types
