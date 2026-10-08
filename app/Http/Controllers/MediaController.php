@@ -6,13 +6,18 @@ use App\Models\Media;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\File;
 
 class MediaController extends Controller
 {
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'file' => 'required|file|max:10240', // 10 MB
+            'file' => [
+                'required',
+                File::types(['jpg', 'jpeg', 'png', 'webp', 'pdf', 'mp4', 'webm', 'mov'])
+                    ->max(10 * 1024),
+            ],
         ]);
 
         $file    = $request->file('file');

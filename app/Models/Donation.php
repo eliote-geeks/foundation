@@ -178,7 +178,7 @@ class Donation extends Model
         return $query->where('payment_method', $method);
     }
 
-    public function scopeByAmount($query, float $min = null, float $max = null)
+    public function scopeByAmount($query, ?float $min = null, ?float $max = null)
     {
         if ($min) $query->where('amount', '>=', $min);
         if ($max) $query->where('amount', '<=', $max);
@@ -205,7 +205,7 @@ class Donation extends Model
         return $query->where('campaign_id', $campaign->id);
     }
 
-    public function scopeByLocation($query, string $city = null, string $country = null)
+    public function scopeByLocation($query, ?string $city = null, ?string $country = null)
     {
         if ($city) $query->where('donor_city', $city);
         if ($country) $query->where('donor_country', $country);
@@ -368,13 +368,22 @@ class Donation extends Model
         return $receiptNumber;
     }
 
-    public function markAsCompleted(string $transactionId = null): void
+    public function markAsCompleted(?string $transactionId = null): void
     {
-        $this->update([
-            'payment_status' => 'completed',
-            'payment_confirmed_at' => now(),
-            'transaction_id' => $transactionId ?: $this->transaction_id,
-        ]);
+        $updated = self::query()
+            ->whereKey($this->getKey())
+            ->where('payment_status', 'pending')
+            ->update([
+                'payment_status' => 'completed',
+                'payment_confirmed_at' => now(),
+                'transaction_id' => $transactionId ?: $this->transaction_id,
+            ]);
+
+        if ($updated !== 1) {
+            return;
+        }
+
+        $this->refresh();
 
         // Mettre à jour les stats de la campagne
         $this->campaign->updateStats();
@@ -395,12 +404,15 @@ class Donation extends Model
         }
     }
 
-    public function markAsFailed(string $reason = null): void
+    public function markAsFailed(?string $reason = null): void
     {
-        $this->update([
-            'payment_status' => 'failed',
-            'suspicious_reason' => $reason,
-        ]);
+        self::query()
+            ->whereKey($this->getKey())
+            ->where('payment_status', 'pending')
+            ->update([
+                'payment_status' => 'failed',
+                'suspicious_reason' => $reason,
+            ]);
     }
 
     public function markAsSuspicious(string $reason): void

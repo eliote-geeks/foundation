@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\DB;
 
 class Vote extends Model
 {
@@ -42,6 +43,34 @@ class Vote extends Model
     public function isPaid(): bool
     {
         return $this->payment_status === 'paid';
+    }
+
+    public function markAsPaid(): bool
+    {
+        return DB::transaction(function (): bool {
+            $updated = self::query()
+                ->whereKey($this->getKey())
+                ->where('payment_status', 'pending')
+                ->update([
+                    'payment_status' => 'paid',
+                    'voted_at' => now(),
+                ]);
+
+            if ($updated !== 1) {
+                return false;
+            }
+
+            if ($this->participant_id) {
+                ContestEntry::query()
+                    ->whereKey($this->participant_id)
+                    ->where('contest_id', $this->contest_id)
+                    ->increment('votes_count');
+            }
+
+            $this->refresh();
+
+            return true;
+        });
     }
 
     public function formattedAmount(): string

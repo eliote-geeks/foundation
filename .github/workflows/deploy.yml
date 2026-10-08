@@ -1,9 +1,6 @@
 name: Deploy Fondation
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 env:
@@ -18,10 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install frontend dependencies
@@ -76,18 +73,25 @@ jobs:
           VITE_APP_NAME="${{ secrets.APP_NAME }}"
           EOF
 
-      - name: Install sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Deploy codebase over SSH
         env:
-          SSHPASS: ${{ secrets.SSH_PASSWORD }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
           PORT="${SSH_PORT:-22}"
-          sshpass -p "$SSHPASS" rsync -az --delete \
+          rsync -az --delete \
             --exclude=".git" \
             --exclude=".github" \
             --exclude="node_modules" \
@@ -95,18 +99,17 @@ jobs:
             --exclude="storage/app" \
             --exclude="storage/logs" \
             --exclude="public/storage" \
-            -e "ssh -p ${PORT} -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/id_ed25519 -p ${PORT}" \
             ./ "${SSH_USER}@${SSH_HOST}:$DEPLOY_PATH"
 
       - name: Run post-deployment tasks
         env:
-          SSHPASS: ${{ secrets.SSH_PASSWORD }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
           PORT="${SSH_PORT:-22}"
-          sshpass -p "$SSHPASS" ssh -p ${PORT} -o StrictHostKeyChecking=no "${SSH_USER}@${SSH_HOST}" <<'EOF'
+          ssh -i ~/.ssh/id_ed25519 -p ${PORT} "${SSH_USER}@${SSH_HOST}" <<'EOF'
           set -e
           cd /home/u764120993
           PHP_BIN=/opt/alt/php82/usr/bin/php

@@ -26,6 +26,8 @@ class Ticket extends Model
         'notes',
         'metadata',
         'qr_code',
+        'quantity',
+        'reservation_expires_at',
         'purchased_at',
         'checked_in_at',
         'checked_in_by'
@@ -35,6 +37,8 @@ class Ticket extends Model
         'purchased_at' => 'datetime',
         'checked_in_at' => 'datetime',
         'metadata' => 'array',
+        'quantity' => 'integer',
+        'reservation_expires_at' => 'datetime',
         'price_paid' => 'decimal:2',
     ];
 

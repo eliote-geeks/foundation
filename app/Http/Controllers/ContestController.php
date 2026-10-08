@@ -10,6 +10,7 @@ use App\Models\Vote;
 use App\Services\SharePayService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -87,7 +88,7 @@ class ContestController extends Controller
         ]);
     }
 
-    public function submitEntry(Request $request, Contest $contest): RedirectResponse
+    public function submitEntry(Request $request, Contest $contest)
     {
         if (!auth()->check()) {
             return redirect('/login')->with('error', 'Connectez-vous pour soumettre un projet.');
@@ -150,7 +151,12 @@ class ContestController extends Controller
 
             } catch (\Exception $e) {
                 $entry->delete();
-                return back()->withErrors(['title' => 'Erreur de paiement : ' . $e->getMessage()]);
+                Log::error('Échec de création du paiement d’inscription au concours', [
+                    'contest_id' => $contest->id,
+                    'exception' => $e,
+                ]);
+
+                return back()->withErrors(['title' => 'Le paiement est temporairement indisponible. Réessayez plus tard.']);
             }
         }
 
@@ -167,8 +173,21 @@ class ContestController extends Controller
             return back()->with('error', 'Les votes ne sont pas ouverts pour ce concours.');
         }
 
-        if (Vote::where('contest_id', $contest->id)->where('user_id', auth()->id())->where('payment_status', 'paid')->exists()) {
-            return back()->with('error', 'Vous avez déjà voté pour ce concours.');
+        $maxVotes = max(1, (int) ($contest->max_votes_per_user ?? 1));
+        $paidVotes = Vote::where('contest_id', $contest->id)
+            ->where('user_id', auth()->id())
+            ->where('payment_status', 'paid')
+            ->count();
+
+        if ($paidVotes >= $maxVotes) {
+            return back()->with('error', 'Vous avez atteint le nombre maximal de votes pour ce concours.');
+        }
+
+        if (Vote::where('contest_id', $contest->id)
+            ->where('user_id', auth()->id())
+            ->where('payment_status', 'pending')
+            ->exists()) {
+            return back()->with('error', 'Un paiement de vote est déjà en attente pour ce concours.');
         }
 
         $data = $request->validate([
@@ -176,7 +195,7 @@ class ContestController extends Controller
             'voter_phone'=> 'required|string|max:20',
         ]);
 
-        $entry = ContestEntry::findOrFail($data['entry_id']);
+        $entry = $contest->entries()->approved()->findOrFail($data['entry_id']);
 
         $vote = Vote::create([
             'contest_id'      => $contest->id,
@@ -192,7 +211,7 @@ class ContestController extends Controller
 
         // Votes gratuits : confirmer directement
         if (!$contest->vote_price || $contest->vote_price <= 0) {
-            $vote->update(['payment_status' => 'paid', 'voted_at' => now()]);
+            $vote->markAsPaid();
             return back()->with('success', 'Vote enregistré avec succès !');
         }
 
@@ -213,7 +232,13 @@ class ContestController extends Controller
 
         } catch (\Exception $e) {
             $vote->delete();
-            return back()->withErrors(['entry_id' => 'Erreur de paiement : ' . $e->getMessage()]);
+            Log::error('Échec de création du paiement de vote', [
+                'contest_id' => $contest->id,
+                'vote_id' => $vote->id,
+                'exception' => $e,
+            ]);
+
+            return back()->withErrors(['entry_id' => 'Le paiement est temporairement indisponible. Réessayez plus tard.']);
         }
     }
 }

@@ -23,7 +23,7 @@ const applyTheme = (_appearance: Appearance) => {
     document.documentElement.classList.remove('dark');
 };
 
-const mediaQuery = () => null;
+const mediaQuery = (): MediaQueryList | null => null;
 
 const handleSystemThemeChange = () => {};
 

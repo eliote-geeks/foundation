@@ -7,6 +7,9 @@ use App\Models\EventRegistration;
 use App\Models\Ticket;
 use App\Services\SharePayService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -131,6 +134,12 @@ class PublicEventController extends Controller
             'notes'     => ['nullable', 'string', 'max:2000'],
         ]);
 
+        if ($event->start_date->isPast()) {
+            throw ValidationException::withMessages([
+                'quantity' => 'Les réservations sont closes pour cet événement.',
+            ]);
+        }
+
         // ── Événement payant ────────────────────────────────────────────────
         if (!$event->is_free) {
             if (!auth()->check()) {
@@ -138,34 +147,46 @@ class PublicEventController extends Controller
                     ->with('error', 'Connectez-vous pour acheter vos billets.');
             }
 
-            $quantity   = (int) $validated['quantity'];
-            $unitPrice  = (float) $event->price;
-            $total      = (int) round($unitPrice * $quantity);
+            $ticket = DB::transaction(function () use ($event, $validated): Ticket {
+                $lockedEvent = Event::query()->lockForUpdate()->findOrFail($event->id);
+                $quantity = (int) $validated['quantity'];
 
-            $ticket = Ticket::create([
-                'event_id'        => $event->id,
-                'user_id'         => auth()->id(),
-                'attendee_name'   => $validated['full_name'],
-                'attendee_email'  => $validated['email'],
-                'attendee_phone'  => $validated['phone'] ?? null,
-                'ticket_type'     => 'standard',
-                'price_paid'      => $total,
-                'currency'        => $event->currency ?? 'XAF',
-                'status'          => 'pending',
-                'payment_status'  => 'pending',
-                'payment_method'  => 'mobile_money',
-                'notes'           => $validated['notes'] ?? null,
-                'metadata'        => ['quantity' => $quantity, 'unit_price' => $unitPrice],
-                'purchased_at'    => now(),
-            ]);
+                if ($quantity > $lockedEvent->availableTickets()) {
+                    throw ValidationException::withMessages([
+                        'quantity' => 'Le nombre de places demandé n’est plus disponible.',
+                    ]);
+                }
+
+                $unitPrice = (float) $lockedEvent->price;
+                $total = (int) round($unitPrice * $quantity);
+
+                return Ticket::create([
+                    'event_id' => $lockedEvent->id,
+                    'user_id' => auth()->id(),
+                    'attendee_name' => $validated['full_name'],
+                    'attendee_email' => $validated['email'],
+                    'attendee_phone' => $validated['phone'] ?? null,
+                    'ticket_type' => 'standard',
+                    'quantity' => $quantity,
+                    'price_paid' => $total,
+                    'currency' => $lockedEvent->currency ?? 'XAF',
+                    'status' => 'pending',
+                    'payment_status' => 'pending',
+                    'reservation_expires_at' => now()->addMinutes(20),
+                    'payment_method' => 'mobile_money',
+                    'notes' => $validated['notes'] ?? null,
+                    'metadata' => ['quantity' => $quantity, 'unit_price' => $unitPrice],
+                    'purchased_at' => now(),
+                ]);
+            });
 
             try {
                 $sharepay = app(SharePayService::class);
                 $session  = $sharepay->createCheckout([
-                    'amount'            => $total,
+                    'amount'            => (int) $ticket->price_paid,
                     'currency'          => $ticket->currency,
                     'merchantReference' => $ticket->ticket_number,
-                    'description'       => "Billet{$quantity} × {$event->title}",
+                    'description'       => "Billet {$ticket->quantity} × {$event->title}",
                     'successUrl'        => route('payment.success'),
                     'cancelUrl'         => route('payment.cancel'),
                 ]);
@@ -176,22 +197,39 @@ class PublicEventController extends Controller
 
             } catch (\Exception $e) {
                 $ticket->delete();
-                return back()->withErrors(['full_name' => 'Erreur de paiement : ' . $e->getMessage()]);
+                Log::error('Échec de création du paiement de billet', [
+                    'event_id' => $event->id,
+                    'ticket_id' => $ticket->id,
+                    'exception' => $e,
+                ]);
+
+                return back()->withErrors(['full_name' => 'Le paiement est temporairement indisponible. Réessayez plus tard.']);
             }
         }
 
         // ── Événement gratuit ────────────────────────────────────────────────
         $status = $event->requires_approval ? 'pending' : 'confirmed';
 
-        $registration = EventRegistration::create([
-            'event_id'  => $event->id,
-            'full_name' => $validated['full_name'],
-            'email'     => $validated['email'],
-            'phone'     => $validated['phone'] ?? null,
-            'quantity'  => $validated['quantity'],
-            'notes'     => $validated['notes'] ?? null,
-            'status'    => $status,
-        ]);
+        $registration = DB::transaction(function () use ($event, $validated, $status): EventRegistration {
+            $lockedEvent = Event::query()->lockForUpdate()->findOrFail($event->id);
+            $quantity = (int) $validated['quantity'];
+
+            if ($quantity > $lockedEvent->availableTickets()) {
+                throw ValidationException::withMessages([
+                    'quantity' => 'Le nombre de places demandé n’est plus disponible.',
+                ]);
+            }
+
+            return EventRegistration::create([
+                'event_id' => $lockedEvent->id,
+                'full_name' => $validated['full_name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'] ?? null,
+                'quantity' => $quantity,
+                'notes' => $validated['notes'] ?? null,
+                'status' => $status,
+            ]);
+        });
 
         return Inertia::render('events-confirmation', [
             'user'  => auth()->user(),

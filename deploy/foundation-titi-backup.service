@@ -1,0 +1,12 @@
+[Unit]
+Description=Sauvegarde du volume Fondation Titi
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/docker/foundation-titi/app
+ExecStart=/root/docker/foundation-titi/app/deploy/backup.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

@@ -1,31 +1,26 @@
 import { Head } from '@inertiajs/react';
-import { useState } from 'react';
-import { Container, Row, Col, Card, Button, Badge, Table, Modal, Form, Alert, Dropdown, ProgressBar } from 'react-bootstrap';
+import { router } from '@inertiajs/react';
+import { useRef, useState } from 'react';
+import { Alert, Badge, Button, Col, Form, Modal, Row, Table } from 'react-bootstrap';
 import DashboardLayout from '../../layouts/dashboard-layout';
 
 interface Partner {
     id: number;
     name: string;
+    logo_url: string | null;
     category: string;
     partnership_type: string;
     status: string;
     status_badge: string;
     contribution: string;
     contact_person: string;
+    website: string | null;
+    email: string | null;
+    phone: string | null;
+    description: string | null;
+    is_featured: boolean;
     since: string;
     last_contact: string;
-}
-
-interface PartnerRequest {
-    id: number;
-    company_name: string;
-    contact_name: string;
-    category: string;
-    status: string;
-    status_badge: string;
-    status_text: string;
-    submitted_at: string;
-    reviewer?: string;
 }
 
 interface Stat {
@@ -37,832 +32,375 @@ interface Stat {
     icon: string;
 }
 
-interface DashboardPartnersProps {
-    user?: {
-        name: string;
-        email: string;
-    };
+interface Props {
     stats: Stat[];
     partners: Partner[];
-    recentRequests: PartnerRequest[];
+    recentRequests: { id: number; company_name: string; contact_name: string; category: string; status: string; submitted_at: string }[];
+    flash?: { success?: string; error?: string };
 }
 
-export default function DashboardPartners({ user, stats, partners, recentRequests }: DashboardPartnersProps) {
-    const [activeTab, setActiveTab] = useState('overview');
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showRequestModal, setShowRequestModal] = useState(false);
-    const [selectedRequest, setSelectedRequest] = useState<PartnerRequest | null>(null);
-    const [alertMessage, setAlertMessage] = useState('');
-    const [alertType, setAlertType] = useState<'success' | 'danger'>('success');
+const BLANK_FORM = {
+    name: '', description: '', email: '', website: '', phone: '',
+    contact_person: '', contact_position: '', category: '', partnership_type: '',
+    contribution_amount: '', is_featured: false, priority: 50, status: 'active',
+};
 
-    const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        email: '',
-        website: '',
-        phone: '',
-        contact_person: '',
-        contact_position: '',
-        category: '',
-        partnership_type: '',
-        contribution_amount: '',
-        partnership_details: '',
-        is_featured: false,
-        priority: 50
-    });
+const CATEGORIES = ['Technologie', 'Finance', 'Education', 'Télécommunications', 'Energie', 'Agroalimentaire', 'Cosmétique', 'Transport', 'Médias', 'Autre'];
+const TYPES = ['Financier', 'Technique', 'Académique', 'Environnemental', 'Social', 'Innovation', 'Médias'];
 
-    const categories = ['Technologie', 'Finance', 'Éducation', 'Télécommunications', 'Énergie', 'Agroalimentaire', 'Transport', 'Autre'];
-    const partnershipTypes = ['Financier', 'Technique', 'Académique', 'Environnemental', 'Social', 'Innovation'];
+const statusColors: Record<string, string> = {
+    active: '#5FA145', pending: '#C69438', suspended: '#DC2626', inactive: '#6B7280',
+};
+const statusLabels: Record<string, string> = {
+    active: 'Actif', pending: 'En attente', suspended: 'Suspendu', inactive: 'Inactif',
+};
 
-    const getStatusBadgeStyle = (status: string) => {
-        const styles = {
-            active: { bg: '#5FA145', color: '#FFF' },
-            pending: { bg: '#C69438', color: '#FFF' },
-            suspended: { bg: '#C69438', color: '#FFF' },
-            inactive: { bg: '#6B7280', color: '#FFF' }
-        };
-        return styles[status as keyof typeof styles] || styles.inactive;
+export default function DashboardPartners({ stats, partners, flash }: Props) {
+    const [tab, setTab] = useState<'partners' | 'requests'>('partners');
+    const [showCreate, setShowCreate] = useState(false);
+    const [editPartner, setEditPartner] = useState<Partner | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<Partner | null>(null);
+    const [form, setForm] = useState({ ...BLANK_FORM });
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const fileRef = useRef<HTMLInputElement>(null);
+    const [submitting, setSubmitting] = useState(false);
+
+    const openCreate = () => {
+        setForm({ ...BLANK_FORM });
+        setLogoFile(null);
+        setLogoPreview(null);
+        setShowCreate(true);
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-        }));
+    const openEdit = (p: Partner) => {
+        setForm({
+            name: p.name, description: p.description ?? '', email: p.email ?? '',
+            website: p.website ?? '', phone: p.phone ?? '', contact_person: p.contact_person ?? '',
+            contact_position: '', category: p.category ?? '', partnership_type: p.partnership_type ?? '',
+            contribution_amount: '', is_featured: p.is_featured, priority: 50, status: p.status,
+        });
+        setLogoFile(null);
+        setLogoPreview(p.logo_url);
+        setEditPartner(p);
     };
 
-    const handleCreatePartner = async (e: React.FormEvent) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] ?? null;
+        setLogoFile(file);
+        if (file) setLogoPreview(URL.createObjectURL(file));
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Logic for creating partner will be here
-        setShowCreateModal(false);
-        setAlertMessage('Partenaire créé avec succès !');
-        setAlertType('success');
-        setTimeout(() => setAlertMessage(''), 3000);
+        setSubmitting(true);
+
+        const data = new FormData();
+        Object.entries(form).forEach(([k, v]) => data.append(k, String(v)));
+        if (logoFile) data.append('logo', logoFile);
+
+        if (editPartner) {
+            data.append('_method', 'POST');
+            router.post(`/dashboard/partners/${editPartner.id}`, data, {
+                forceFormData: true,
+                onFinish: () => { setSubmitting(false); setEditPartner(null); },
+            });
+        } else {
+            router.post('/dashboard/partners', data, {
+                forceFormData: true,
+                onFinish: () => { setSubmitting(false); setShowCreate(false); },
+            });
+        }
     };
 
-    const handleProcessRequest = async (requestId: number, action: 'approve' | 'reject' | 'review', notes?: string) => {
-        // Logic for processing partner requests will be here
-        setShowRequestModal(false);
-        setSelectedRequest(null);
-        setAlertMessage(`Demande ${action === 'approve' ? 'approuvée' : action === 'reject' ? 'rejetée' : 'mise en examen'} !`);
-        setAlertType('success');
-        setTimeout(() => setAlertMessage(''), 3000);
+    const handleDelete = () => {
+        if (!deleteTarget) return;
+        router.delete(`/dashboard/partners/${deleteTarget.id}`, {
+            onFinish: () => setDeleteTarget(null),
+        });
     };
+
+    const handleToggleFeatured = (p: Partner) => {
+        router.post(`/dashboard/partners/${p.id}/featured`, {});
+    };
+
+    const LogoAvatar = ({ p, size = 40 }: { p: Partner; size?: number }) => (
+        p.logo_url
+            ? <img src={p.logo_url} alt={p.name} style={{ width: size, height: size, objectFit: 'contain', borderRadius: 6, border: '1px solid #E5E7EB', background: '#fff', padding: 2 }} />
+            : <div style={{ width: size, height: size, borderRadius: 6, background: '#F3F4F6', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.35, fontWeight: 700, color: '#9CA3AF' }}>
+                {p.name.slice(0, 2).toUpperCase()}
+              </div>
+    );
+
+    const PartnerForm = () => (
+        <Form onSubmit={handleSubmit}>
+            {/* Logo upload */}
+            <div className="text-center mb-4">
+                <div
+                    onClick={() => fileRef.current?.click()}
+                    style={{
+                        width: 100, height: 100, margin: '0 auto 10px', borderRadius: 12, cursor: 'pointer',
+                        border: '2px dashed #D1D5DB', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+                    }}
+                >
+                    {logoPreview
+                        ? <img src={logoPreview} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 8 }} />
+                        : <div style={{ textAlign: 'center', color: '#9CA3AF' }}>
+                            <i className="bi bi-image" style={{ fontSize: '1.8rem' }} /><br />
+                            <small>Logo</small>
+                          </div>}
+                </div>
+                <input ref={fileRef} type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
+                <small className="text-muted">Cliquez pour ajouter un logo (PNG, JPG — max 2 Mo)</small>
+            </div>
+
+            <Row className="g-3">
+                <Col md={6}>
+                    <Form.Group>
+                        <Form.Label className="fw-semibold small">Nom du partenaire *</Form.Label>
+                        <Form.Control size="sm" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
+                    </Form.Group>
+                </Col>
+                <Col md={6}>
+                    <Form.Group>
+                        <Form.Label className="fw-semibold small">Email</Form.Label>
+                        <Form.Control size="sm" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+                    </Form.Group>
+                </Col>
+                <Col md={6}>
+                    <Form.Group>
+                        <Form.Label className="fw-semibold small">Site web</Form.Label>
+                        <Form.Control size="sm" type="url" placeholder="https://" value={form.website} onChange={e => setForm(f => ({ ...f, website: e.target.value }))} />
+                    </Form.Group>
+                </Col>
+                <Col md={6}>
+                    <Form.Group>
+                        <Form.Label className="fw-semibold small">Téléphone</Form.Label>
+                        <Form.Control size="sm" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                    </Form.Group>
+                </Col>
+                <Col md={6}>
+                    <Form.Group>
+                        <Form.Label className="fw-semibold small">Personne de contact</Form.Label>
+                        <Form.Control size="sm" value={form.contact_person} onChange={e => setForm(f => ({ ...f, contact_person: e.target.value }))} />
+                    </Form.Group>
+                </Col>
+                <Col md={6}>
+                    <Form.Group>
+                        <Form.Label className="fw-semibold small">Catégorie</Form.Label>
+                        <Form.Select size="sm" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
+                            <option value="">— Choisir —</option>
+                            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                        </Form.Select>
+                    </Form.Group>
+                </Col>
+                <Col md={6}>
+                    <Form.Group>
+                        <Form.Label className="fw-semibold small">Type de partenariat</Form.Label>
+                        <Form.Select size="sm" value={form.partnership_type} onChange={e => setForm(f => ({ ...f, partnership_type: e.target.value }))}>
+                            <option value="">— Choisir —</option>
+                            {TYPES.map(t => <option key={t}>{t}</option>)}
+                        </Form.Select>
+                    </Form.Group>
+                </Col>
+                {editPartner && (
+                    <Col md={6}>
+                        <Form.Group>
+                            <Form.Label className="fw-semibold small">Statut</Form.Label>
+                            <Form.Select size="sm" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+                                <option value="active">Actif</option>
+                                <option value="pending">En attente</option>
+                                <option value="suspended">Suspendu</option>
+                                <option value="inactive">Inactif</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
+                )}
+                <Col xs={12}>
+                    <Form.Group>
+                        <Form.Label className="fw-semibold small">Description</Form.Label>
+                        <Form.Control as="textarea" rows={2} size="sm" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+                    </Form.Group>
+                </Col>
+                <Col xs={12}>
+                    <Form.Check
+                        type="switch"
+                        id="is_featured"
+                        label="Mettre en avant sur la page d'accueil"
+                        checked={form.is_featured}
+                        onChange={e => setForm(f => ({ ...f, is_featured: e.target.checked }))}
+                    />
+                </Col>
+            </Row>
+
+            <div className="d-flex justify-content-end gap-2 mt-4">
+                <Button size="sm" variant="outline-secondary" type="button" onClick={() => { setShowCreate(false); setEditPartner(null); }}>
+                    Annuler
+                </Button>
+                <Button size="sm" type="submit" disabled={submitting} style={{ background: '#5FA145', border: 'none' }}>
+                    {submitting ? 'Enregistrement...' : editPartner ? 'Mettre à jour' : 'Créer le partenaire'}
+                </Button>
+            </div>
+        </Form>
+    );
 
     return (
-        <DashboardLayout title="Gestion des Partenaires" user={user}>
-            <Head title="Dashboard - Partenaires" />
+        <DashboardLayout title="Partenaires">
+            <Head title="Dashboard — Partenaires" />
 
-            {/* Alert Messages */}
-            {alertMessage && (
-                <Alert variant={alertType} className="mb-4" dismissible onClose={() => setAlertMessage('')}>
-                    {alertMessage}
+            {flash?.success && (
+                <Alert variant="success" className="mb-4" dismissible>
+                    <i className="bi bi-check-circle me-2" />{flash.success}
                 </Alert>
             )}
 
             {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 className="fw-bold mb-2" style={{ color: '#1F2937' }}>
-                        <i className="bi bi-handshake-fill me-2" style={{ color: '#334E15' }}></i>
-                        Gestion des Partenaires
-                    </h2>
-                    <p className="text-muted mb-0">
-                        Gérez vos partenariats, analysez les collaborations et traitez les nouvelles demandes.
-                    </p>
+                    <h4 className="fw-bold mb-1" style={{ color: '#1F2937' }}>
+                        <i className="bi bi-handshake-fill me-2" style={{ color: '#5FA145' }} />
+                        Partenaires & Sponsors
+                    </h4>
+                    <p className="text-muted mb-0 small">Gérez les logos et informations des partenaires affichés sur le site.</p>
                 </div>
                 <div className="d-flex gap-2">
-                    <Button
-                        variant="outline-primary"
-                        onClick={() => window.open('/partners/export?format=csv', '_blank')}
-                        style={{
-                            borderColor: '#5FA145',
-                            color: '#5FA145',
-                            borderRadius: '10px'
-                        }}
-                    >
-                        <i className="bi bi-download me-2"></i>
-                        Export CSV
+                    <Button size="sm" variant="outline-secondary" onClick={() => window.open('/dashboard/partners/export?format=csv', '_blank')}>
+                        <i className="bi bi-download me-1" />Export
                     </Button>
-                    <Button
-                        onClick={() => setShowCreateModal(true)}
-                        style={{
-                            background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
-                            border: 'none',
-                            borderRadius: '10px'
-                        }}
-                    >
-                        <i className="bi bi-plus-circle me-2"></i>
-                        Nouveau Partenaire
+                    <Button size="sm" onClick={openCreate} style={{ background: '#5FA145', border: 'none' }}>
+                        <i className="bi bi-plus-lg me-1" />Ajouter un partenaire
                     </Button>
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <Row className="g-4 mb-5">
-                {stats.map((stat, index) => (
-                    <Col lg={3} md={6} key={index}>
-                        <Card 
-                            className="border-0 h-100"
-                            style={{
-                                borderRadius: '15px',
-                                boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                                background: `linear-gradient(135deg, ${stat.color} 0%, ${stat.color}90 100%)`
-                            }}
-                        >
-                            <Card.Body className="p-4 text-white">
-                                <div className="d-flex justify-content-between align-items-start mb-3">
-                                    <div>
-                                        <p className="mb-1 opacity-90" style={{ fontSize: '0.9rem' }}>
-                                            {stat.title}
-                                        </p>
-                                        <h3 className="fw-bold mb-0">
-                                            {stat.value}
-                                        </h3>
-                                    </div>
-                                    <div 
-                                        className="d-flex align-items-center justify-content-center rounded-circle"
-                                        style={{
-                                            width: '45px',
-                                            height: '45px',
-                                            background: 'rgba(255,255,255,0.2)',
-                                        }}
-                                    >
-                                        <i className={stat.icon} style={{ fontSize: '1.3rem' }}></i>
-                                    </div>
+            {/* Stats */}
+            <Row className="g-3 mb-4">
+                {stats.map((s, i) => (
+                    <Col key={i} xs={6} lg={3}>
+                        <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px' }}>
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div className="text-muted small mb-1">{s.title}</div>
+                                    <div className="fw-bold" style={{ fontSize: '1.4rem', color: '#1F2937' }}>{s.value}</div>
                                 </div>
-                                <div className="d-flex align-items-center">
-                                    <i className={`bi bi-arrow-${stat.positive ? 'up' : 'down'} me-2`}></i>
-                                    <span className="fw-semibold">
-                                        {stat.change}
-                                    </span>
-                                    <span className="ms-2 opacity-75">ce mois</span>
+                                <div style={{ width: 40, height: 40, borderRadius: 8, background: s.color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <i className={`bi ${s.icon}`} style={{ color: s.color, fontSize: '1.1rem' }} />
                                 </div>
-                            </Card.Body>
-                        </Card>
+                            </div>
+                        </div>
                     </Col>
                 ))}
             </Row>
 
-            {/* Navigation Tabs */}
-            <div className="mb-4">
-                <div className="nav nav-pills justify-content-center" style={{ background: '#F8F9FA', borderRadius: '15px', padding: '8px' }}>
-                    {[
-                        { key: 'overview', label: 'Vue d\'ensemble', icon: 'bi-house' },
-                        { key: 'partners', label: 'Partenaires', icon: 'bi-building' },
-                        { key: 'requests', label: 'Demandes', icon: 'bi-inbox', count: recentRequests.filter(r => r.status === 'pending').length },
-                        { key: 'analytics', label: 'Analytics', icon: 'bi-graph-up' }
-                    ].map(tab => (
-                        <button
-                            key={tab.key}
-                            className={`nav-link ${activeTab === tab.key ? 'active' : ''}`}
-                            onClick={() => setActiveTab(tab.key)}
-                            style={{
-                                background: activeTab === tab.key 
-                                    ? 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)'
-                                    : 'transparent',
-                                color: activeTab === tab.key ? '#FFF' : '#6B7280',
-                                border: 'none',
-                                borderRadius: '10px',
-                                fontWeight: '500',
-                                padding: '10px 20px',
-                                position: 'relative'
-                            }}
-                        >
-                            <i className={`${tab.icon} me-2`}></i>
-                            {tab.label}
-                            {tab.count && tab.count > 0 && (
-                                <Badge 
-                                    bg="danger" 
-                                    className="ms-2"
-                                    style={{ fontSize: '0.7rem' }}
-                                >
-                                    {tab.count}
-                                </Badge>
-                            )}
-                        </button>
-                    ))}
+            {/* Partners table */}
+            <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className="fw-semibold" style={{ color: '#1F2937' }}>
+                        <i className="bi bi-building me-2" style={{ color: '#5FA145' }} />
+                        {partners.length} partenaire{partners.length !== 1 ? 's' : ''}
+                    </span>
                 </div>
+
+                {partners.length === 0 ? (
+                    <div className="text-center py-5" style={{ color: '#9CA3AF' }}>
+                        <i className="bi bi-building-add mb-3" style={{ fontSize: '2.5rem', display: 'block' }} />
+                        Aucun partenaire. Cliquez sur "Ajouter un partenaire" pour commencer.
+                    </div>
+                ) : (
+                    <div className="table-responsive">
+                        <Table hover className="mb-0" style={{ fontSize: '0.875rem' }}>
+                            <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+                                <tr>
+                                    <th className="border-0 fw-semibold text-muted ps-4" style={{ width: 56 }}>Logo</th>
+                                    <th className="border-0 fw-semibold text-muted">Partenaire</th>
+                                    <th className="border-0 fw-semibold text-muted">Catégorie</th>
+                                    <th className="border-0 fw-semibold text-muted">Statut</th>
+                                    <th className="border-0 fw-semibold text-muted">Vitrine</th>
+                                    <th className="border-0 fw-semibold text-muted">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {partners.map(p => (
+                                    <tr key={p.id}>
+                                        <td className="border-0 ps-4 align-middle">
+                                            <LogoAvatar p={p} size={40} />
+                                        </td>
+                                        <td className="border-0 align-middle">
+                                            <div className="fw-semibold" style={{ color: '#1F2937' }}>{p.name}</div>
+                                            {p.email && <div className="text-muted small">{p.email}</div>}
+                                            {p.website && (
+                                                <a href={p.website} target="_blank" rel="noreferrer" className="small text-decoration-none" style={{ color: '#5FA145' }}>
+                                                    <i className="bi bi-link-45deg me-1" />{p.website.replace(/^https?:\/\//, '')}
+                                                </a>
+                                            )}
+                                        </td>
+                                        <td className="border-0 align-middle text-muted">
+                                            {p.category || '—'}
+                                            {p.partnership_type && <div className="small">{p.partnership_type}</div>}
+                                        </td>
+                                        <td className="border-0 align-middle">
+                                            <Badge style={{ background: statusColors[p.status] ?? '#6B7280', fontSize: '0.7rem' }}>
+                                                {statusLabels[p.status] ?? p.status}
+                                            </Badge>
+                                        </td>
+                                        <td className="border-0 align-middle">
+                                            <button
+                                                onClick={() => handleToggleFeatured(p)}
+                                                title={p.is_featured ? 'Retirer de la vitrine' : 'Mettre en avant'}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+                                            >
+                                                <i className={`bi bi-star${p.is_featured ? '-fill' : ''}`} style={{ fontSize: '1.1rem', color: p.is_featured ? '#F59E0B' : '#D1D5DB' }} />
+                                            </button>
+                                        </td>
+                                        <td className="border-0 align-middle">
+                                            <div className="d-flex gap-1">
+                                                <Button size="sm" variant="outline-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem' }} onClick={() => openEdit(p)}>
+                                                    <i className="bi bi-pencil" />
+                                                </Button>
+                                                <Button size="sm" variant="outline-danger" style={{ padding: '3px 8px', fontSize: '0.75rem' }} onClick={() => setDeleteTarget(p)}>
+                                                    <i className="bi bi-trash" />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </div>
+                )}
             </div>
 
-            {/* Tab Content */}
-            {activeTab === 'overview' && (
-                <Row className="g-4">
-                    <Col lg={8}>
-                        <Card className="border-0" style={{ borderRadius: '15px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)' }}>
-                            <Card.Body className="p-4">
-                                <h5 className="fw-bold mb-4" style={{ color: '#334E15' }}>
-                                    <i className="bi bi-building-check me-2"></i>
-                                    Partenaires Récents
-                                </h5>
-                                <div className="table-responsive">
-                                    <Table hover className="mb-0">
-                                        <thead style={{ background: '#F8F9FA' }}>
-                                            <tr>
-                                                <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Partenaire</th>
-                                                <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Catégorie</th>
-                                                <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Statut</th>
-                                                <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Contribution</th>
-                                                <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {partners.slice(0, 5).map(partner => {
-                                                const statusStyle = getStatusBadgeStyle(partner.status);
-                                                return (
-                                                    <tr key={partner.id}>
-                                                        <td className="border-0">
-                                                            <div>
-                                                                <div className="fw-semibold" style={{ color: '#1F2937' }}>
-                                                                    {partner.name}
-                                                                </div>
-                                                                <small style={{ color: '#6B7280' }}>
-                                                                    Contact: {partner.contact_person}
-                                                                </small>
-                                                            </div>
-                                                        </td>
-                                                        <td className="border-0">
-                                                            <span style={{ color: '#6B7280' }}>
-                                                                {partner.category}
-                                                            </span>
-                                                        </td>
-                                                        <td className="border-0">
-                                                            <Badge 
-                                                                style={{ 
-                                                                    background: statusStyle.bg, 
-                                                                    color: statusStyle.color,
-                                                                    fontSize: '0.75rem'
-                                                                }}
-                                                            >
-                                                                {partner.status_badge}
-                                                            </Badge>
-                                                        </td>
-                                                        <td className="border-0" style={{ color: '#5FA145', fontWeight: '600' }}>
-                                                            {partner.contribution}
-                                                        </td>
-                                                        <td className="border-0">
-                                                            <Dropdown>
-                                                                <Dropdown.Toggle 
-                                                                    variant="outline-secondary" 
-                                                                    size="sm"
-                                                                    style={{ border: 'none', background: 'none' }}
-                                                                >
-                                                                    <i className="bi bi-three-dots"></i>
-                                                                </Dropdown.Toggle>
-                                                                <Dropdown.Menu>
-                                                                    <Dropdown.Item href="#" style={{ fontSize: '0.9rem' }}>
-                                                                        <i className="bi bi-eye me-2"></i>Voir détails
-                                                                    </Dropdown.Item>
-                                                                    <Dropdown.Item href="#" style={{ fontSize: '0.9rem' }}>
-                                                                        <i className="bi bi-pencil me-2"></i>Modifier
-                                                                    </Dropdown.Item>
-                                                                    <Dropdown.Item href="#" style={{ fontSize: '0.9rem', color: '#C69438' }}>
-                                                                        <i className="bi bi-pause me-2"></i>Suspendre
-                                                                    </Dropdown.Item>
-                                                                </Dropdown.Menu>
-                                                            </Dropdown>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </Table>
-                                </div>
-                                <div className="text-center mt-3">
-                                    <Button
-                                        variant="outline-primary"
-                                        onClick={() => setActiveTab('partners')}
-                                        style={{ borderColor: '#5FA145', color: '#5FA145', borderRadius: '10px' }}
-                                    >
-                                        Voir tous les partenaires
-                                    </Button>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-
-                    <Col lg={4}>
-                        <Card className="border-0" style={{ borderRadius: '15px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)' }}>
-                            <Card.Body className="p-4">
-                                <h6 className="fw-bold mb-4" style={{ color: '#334E15' }}>
-                                    <i className="bi bi-inbox me-2"></i>
-                                    Demandes Récentes
-                                </h6>
-                                <div className="requests-list">
-                                    {recentRequests.map(request => {
-                                        const statusStyle = getStatusBadgeStyle(request.status);
-                                        return (
-                                            <div 
-                                                key={request.id} 
-                                                className="d-flex align-items-start p-3 rounded-3 mb-3"
-                                                style={{ 
-                                                    background: '#F8F9FA',
-                                                    cursor: 'pointer',
-                                                    transition: 'background 0.2s ease'
-                                                }}
-                                                onMouseEnter={(e) => e.currentTarget.style.background = '#E8F5E8'}
-                                                onMouseLeave={(e) => e.currentTarget.style.background = '#F8F9FA'}
-                                                onClick={() => {
-                                                    setSelectedRequest(request);
-                                                    setShowRequestModal(true);
-                                                }}
-                                            >
-                                                <div 
-                                                    className="d-flex align-items-center justify-content-center rounded-circle me-3"
-                                                    style={{
-                                                        width: '35px',
-                                                        height: '35px',
-                                                        background: statusStyle.bg,
-                                                        color: statusStyle.color,
-                                                        fontSize: '0.9rem'
-                                                    }}
-                                                >
-                                                    <i className="bi bi-building"></i>
-                                                </div>
-                                                <div className="flex-grow-1">
-                                                    <div className="fw-semibold mb-1" style={{ fontSize: '0.9rem', color: '#1F2937' }}>
-                                                        {request.company_name}
-                                                    </div>
-                                                    <div style={{ fontSize: '0.8rem', color: '#6B7280' }}>
-                                                        {request.contact_name} • {request.category}
-                                                    </div>
-                                                    <div style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>
-                                                        {request.submitted_at}
-                                                    </div>
-                                                </div>
-                                                <Badge 
-                                                    style={{ 
-                                                        background: statusStyle.bg,
-                                                        fontSize: '0.65rem'
-                                                    }}
-                                                >
-                                                    {request.status_badge}
-                                                </Badge>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                                <Button
-                                    variant="outline-primary"
-                                    size="sm"
-                                    className="w-100 mt-2"
-                                    onClick={() => setActiveTab('requests')}
-                                    style={{ borderColor: '#5FA145', color: '#5FA145', borderRadius: '10px' }}
-                                >
-                                    Gérer les demandes
-                                </Button>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-            )}
-
-            {activeTab === 'partners' && (
-                <Card className="border-0" style={{ borderRadius: '15px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)' }}>
-                    <Card.Body className="p-4">
-                        <h5 className="fw-bold mb-4" style={{ color: '#334E15' }}>
-                            <i className="bi bi-building me-2"></i>
-                            Tous les Partenaires
-                        </h5>
-                        <div className="table-responsive">
-                            <Table hover className="mb-0">
-                                <thead style={{ background: '#F8F9FA' }}>
-                                    <tr>
-                                        <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Partenaire</th>
-                                        <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Type</th>
-                                        <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Statut</th>
-                                        <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Depuis</th>
-                                        <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Dernière contact</th>
-                                        <th className="border-0 fw-semibold" style={{ color: '#6B7280' }}>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {partners.map(partner => {
-                                        const statusStyle = getStatusBadgeStyle(partner.status);
-                                        return (
-                                            <tr key={partner.id}>
-                                                <td className="border-0">
-                                                    <div>
-                                                        <div className="fw-semibold" style={{ color: '#1F2937' }}>
-                                                            {partner.name}
-                                                        </div>
-                                                        <small style={{ color: '#6B7280' }}>
-                                                            {partner.category} • {partner.contact_person}
-                                                        </small>
-                                                    </div>
-                                                </td>
-                                                <td className="border-0" style={{ color: '#6B7280' }}>
-                                                    {partner.partnership_type}
-                                                </td>
-                                                <td className="border-0">
-                                                    <Badge 
-                                                        style={{ 
-                                                            background: statusStyle.bg, 
-                                                            fontSize: '0.75rem'
-                                                        }}
-                                                    >
-                                                        {partner.status_badge}
-                                                    </Badge>
-                                                </td>
-                                                <td className="border-0" style={{ color: '#6B7280', fontSize: '0.9rem' }}>
-                                                    {partner.since}
-                                                </td>
-                                                <td className="border-0" style={{ color: '#6B7280', fontSize: '0.9rem' }}>
-                                                    {partner.last_contact}
-                                                </td>
-                                                <td className="border-0">
-                                                    <div className="d-flex gap-1">
-                                                        <Button
-                                                            variant="outline-primary"
-                                                            size="sm"
-                                                            style={{ 
-                                                                border: 'none', 
-                                                                background: '#E8F5E8', 
-                                                                color: '#5FA145' 
-                                                            }}
-                                                        >
-                                                            <i className="bi bi-eye"></i>
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline-secondary"
-                                                            size="sm"
-                                                            style={{ 
-                                                                border: 'none', 
-                                                                background: '#F3F4F6', 
-                                                                color: '#6B7280' 
-                                                            }}
-                                                        >
-                                                            <i className="bi bi-pencil"></i>
-                                                        </Button>
-                                                        <Dropdown>
-                                                            <Dropdown.Toggle 
-                                                                variant="outline-secondary" 
-                                                                size="sm"
-                                                                style={{ 
-                                                                    border: 'none', 
-                                                                    background: '#F3F4F6', 
-                                                                    color: '#6B7280' 
-                                                                }}
-                                                            >
-                                                                <i className="bi bi-three-dots"></i>
-                                                            </Dropdown.Toggle>
-                                                            <Dropdown.Menu>
-                                                                <Dropdown.Item href="#" style={{ fontSize: '0.9rem' }}>
-                                                                    <i className="bi bi-telephone me-2"></i>Marquer contact
-                                                                </Dropdown.Item>
-                                                                <Dropdown.Divider />
-                                                                <Dropdown.Item href="#" style={{ fontSize: '0.9rem', color: '#C69438' }}>
-                                                                    <i className="bi bi-pause me-2"></i>Suspendre
-                                                                </Dropdown.Item>
-                                                                <Dropdown.Item href="#" style={{ fontSize: '0.9rem', color: '#DC2626' }}>
-                                                                    <i className="bi bi-trash me-2"></i>Supprimer
-                                                                </Dropdown.Item>
-                                                            </Dropdown.Menu>
-                                                        </Dropdown>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </Table>
-                        </div>
-                    </Card.Body>
-                </Card>
-            )}
-
-            {activeTab === 'requests' && (
-                <Card className="border-0" style={{ borderRadius: '15px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)' }}>
-                    <Card.Body className="p-4">
-                        <h5 className="fw-bold mb-4" style={{ color: '#334E15' }}>
-                            <i className="bi bi-inbox me-2"></i>
-                            Demandes de Partenariat
-                        </h5>
-                        <Row className="g-3">
-                            {recentRequests.map(request => {
-                                const statusStyle = getStatusBadgeStyle(request.status);
-                                return (
-                                    <Col lg={6} key={request.id}>
-                                        <Card 
-                                            className="h-100"
-                                            style={{ 
-                                                borderRadius: '12px',
-                                                border: `2px solid ${statusStyle.bg}20`,
-                                                background: `${statusStyle.bg}05`
-                                            }}
-                                        >
-                                            <Card.Body className="p-4">
-                                                <div className="d-flex justify-content-between align-items-start mb-3">
-                                                    <div>
-                                                        <h6 className="fw-bold mb-1" style={{ color: '#1F2937' }}>
-                                                            {request.company_name}
-                                                        </h6>
-                                                        <p className="mb-0" style={{ color: '#6B7280', fontSize: '0.9rem' }}>
-                                                            Contact: {request.contact_name}
-                                                        </p>
-                                                    </div>
-                                                    <Badge 
-                                                        style={{ 
-                                                            background: statusStyle.bg,
-                                                            fontSize: '0.7rem'
-                                                        }}
-                                                    >
-                                                        {request.status_badge}
-                                                    </Badge>
-                                                </div>
-                                                
-                                                <div className="mb-3">
-                                                    <small style={{ color: '#6B7280' }}>
-                                                        <i className="bi bi-tag me-1"></i>
-                                                        {request.category}
-                                                        <span className="mx-2">•</span>
-                                                        <i className="bi bi-clock me-1"></i>
-                                                        {request.submitted_at}
-                                                    </small>
-                                                </div>
-
-                                                {request.status === 'pending' && (
-                                                    <div className="d-flex gap-2">
-                                                        <Button
-                                                            variant="success"
-                                                            size="sm"
-                                                            onClick={() => handleProcessRequest(request.id, 'approve')}
-                                                            style={{ borderRadius: '8px' }}
-                                                        >
-                                                            <i className="bi bi-check-circle me-1"></i>
-                                                            Approuver
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline-primary"
-                                                            size="sm"
-                                                            onClick={() => {
-                                                                setSelectedRequest(request);
-                                                                setShowRequestModal(true);
-                                                            }}
-                                                            style={{ borderRadius: '8px', borderColor: '#5FA145', color: '#5FA145' }}
-                                                        >
-                                                            <i className="bi bi-eye me-1"></i>
-                                                            Examiner
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline-danger"
-                                                            size="sm"
-                                                            onClick={() => handleProcessRequest(request.id, 'reject')}
-                                                            style={{ borderRadius: '8px' }}
-                                                        >
-                                                            <i className="bi bi-x-circle me-1"></i>
-                                                            Rejeter
-                                                        </Button>
-                                                    </div>
-                                                )}
-
-                                                {request.reviewer && (
-                                                    <small style={{ color: '#6B7280' }}>
-                                                        <i className="bi bi-person me-1"></i>
-                                                        Examiné par: {request.reviewer}
-                                                    </small>
-                                                )}
-                                            </Card.Body>
-                                        </Card>
-                                    </Col>
-                                );
-                            })}
-                        </Row>
-                    </Card.Body>
-                </Card>
-            )}
-
-            {activeTab === 'analytics' && (
-                <Card className="border-0 text-center" style={{ borderRadius: '15px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)', minHeight: '400px' }}>
-                    <Card.Body className="d-flex align-items-center justify-content-center">
-                        <div>
-                            <i 
-                                className="bi bi-graph-up-arrow mb-4"
-                                style={{ fontSize: '4rem', color: '#5FA145', opacity: 0.7 }}
-                            />
-                            <h4 className="fw-bold mb-3" style={{ color: '#334E15' }}>
-                                Analytics des Partenariats
-                            </h4>
-                            <p className="text-muted mb-4">
-                                Graphiques détaillés sur la performance des partenariats, 
-                                évolution des contributions et analyse des secteurs.
-                            </p>
-                            <Button
-                                style={{
-                                    background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
-                                    border: 'none',
-                                    borderRadius: '50px',
-                                    padding: '12px 30px'
-                                }}
-                            >
-                                <i className="bi bi-bar-chart me-2"></i>
-                                Voir les rapports détaillés
-                            </Button>
-                        </div>
-                    </Card.Body>
-                </Card>
-            )}
-
-            {/* Create Partner Modal */}
-            <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} size="lg" centered>
-                <Modal.Header closeButton style={{ borderBottom: '1px solid #E5E7EB' }}>
-                    <Modal.Title style={{ color: '#334E15' }}>
-                        <i className="bi bi-plus-circle me-2"></i>
-                        Nouveau Partenaire
+            {/* Create Modal */}
+            <Modal show={showCreate} onHide={() => setShowCreate(false)} size="lg" centered>
+                <Modal.Header closeButton>
+                    <Modal.Title className="fw-bold" style={{ fontSize: '1rem', color: '#1F2937' }}>
+                        <i className="bi bi-plus-circle me-2" style={{ color: '#5FA145' }} />Nouveau partenaire
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body className="p-4">
-                    <Form onSubmit={handleCreatePartner}>
-                        <Row className="g-3">
-                            <Col md={6}>
-                                <Form.Group>
-                                    <Form.Label className="fw-semibold">Nom de l'organisation *</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{ borderRadius: '8px' }}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group>
-                                    <Form.Label className="fw-semibold">Email *</Form.Label>
-                                    <Form.Control
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{ borderRadius: '8px' }}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group>
-                                    <Form.Label className="fw-semibold">Personne de contact *</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="contact_person"
-                                        value={formData.contact_person}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{ borderRadius: '8px' }}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group>
-                                    <Form.Label className="fw-semibold">Téléphone</Form.Label>
-                                    <Form.Control
-                                        type="tel"
-                                        name="phone"
-                                        value={formData.phone}
-                                        onChange={handleInputChange}
-                                        style={{ borderRadius: '8px' }}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group>
-                                    <Form.Label className="fw-semibold">Catégorie *</Form.Label>
-                                    <Form.Select
-                                        name="category"
-                                        value={formData.category}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{ borderRadius: '8px' }}
-                                    >
-                                        <option value="">Sélectionnez...</option>
-                                        {categories.map(cat => (
-                                            <option key={cat} value={cat}>{cat}</option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group>
-                                    <Form.Label className="fw-semibold">Type de partenariat *</Form.Label>
-                                    <Form.Select
-                                        name="partnership_type"
-                                        value={formData.partnership_type}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{ borderRadius: '8px' }}
-                                    >
-                                        <option value="">Sélectionnez...</option>
-                                        {partnershipTypes.map(type => (
-                                            <option key={type} value={type}>{type}</option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col xs={12}>
-                                <Form.Group>
-                                    <Form.Label className="fw-semibold">Description *</Form.Label>
-                                    <Form.Control
-                                        as="textarea"
-                                        rows={3}
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{ borderRadius: '8px' }}
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <div className="d-flex justify-content-end gap-2 mt-4">
-                            <Button
-                                variant="outline-secondary"
-                                onClick={() => setShowCreateModal(false)}
-                                style={{ borderRadius: '8px' }}
-                            >
-                                Annuler
-                            </Button>
-                            <Button
-                                type="submit"
-                                style={{
-                                    background: 'linear-gradient(135deg, #5FA145 0%, #4D8A3C 100%)',
-                                    border: 'none',
-                                    borderRadius: '8px'
-                                }}
-                            >
-                                Créer le partenaire
-                            </Button>
-                        </div>
-                    </Form>
-                </Modal.Body>
+                <Modal.Body className="p-4"><PartnerForm /></Modal.Body>
             </Modal>
 
-            {/* Request Details Modal */}
-            <Modal show={showRequestModal} onHide={() => setShowRequestModal(false)} size="lg" centered>
-                {selectedRequest && (
-                    <>
-                        <Modal.Header closeButton style={{ borderBottom: '1px solid #E5E7EB' }}>
-                            <Modal.Title style={{ color: '#334E15' }}>
-                                <i className="bi bi-building me-2"></i>
-                                Demande de {selectedRequest.company_name}
-                            </Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body className="p-4">
-                            <div className="mb-4">
-                                <h6 className="fw-bold mb-3">Informations de l'entreprise</h6>
-                                <Row className="g-3">
-                                    <Col md={6}>
-                                        <small className="text-muted">Nom de l'entreprise</small>
-                                        <div className="fw-semibold">{selectedRequest.company_name}</div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <small className="text-muted">Contact</small>
-                                        <div className="fw-semibold">{selectedRequest.contact_name}</div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <small className="text-muted">Secteur</small>
-                                        <div className="fw-semibold">{selectedRequest.category}</div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <small className="text-muted">Statut actuel</small>
-                                        <div>
-                                            <Badge style={{ background: getStatusBadgeStyle(selectedRequest.status).bg }}>
-                                                {selectedRequest.status_badge}
-                                            </Badge>
-                                        </div>
-                                    </Col>
-                                </Row>
-                            </div>
+            {/* Edit Modal */}
+            <Modal show={!!editPartner} onHide={() => setEditPartner(null)} size="lg" centered>
+                <Modal.Header closeButton>
+                    <Modal.Title className="fw-bold" style={{ fontSize: '1rem', color: '#1F2937' }}>
+                        <i className="bi bi-pencil me-2" style={{ color: '#5FA145' }} />Modifier — {editPartner?.name}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="p-4"><PartnerForm /></Modal.Body>
+            </Modal>
 
-                            <div className="d-flex justify-content-end gap-2">
-                                <Button
-                                    variant="outline-secondary"
-                                    onClick={() => setShowRequestModal(false)}
-                                    style={{ borderRadius: '8px' }}
-                                >
-                                    Fermer
-                                </Button>
-                                <Button
-                                    variant="outline-primary"
-                                    onClick={() => handleProcessRequest(selectedRequest.id, 'review')}
-                                    style={{ borderRadius: '8px', borderColor: '#5FA145', color: '#5FA145' }}
-                                >
-                                    <i className="bi bi-search me-2"></i>
-                                    Mettre en examen
-                                </Button>
-                                <Button
-                                    variant="success"
-                                    onClick={() => handleProcessRequest(selectedRequest.id, 'approve')}
-                                    style={{ borderRadius: '8px' }}
-                                >
-                                    <i className="bi bi-check-circle me-2"></i>
-                                    Approuver
-                                </Button>
-                            </div>
-                        </Modal.Body>
-                    </>
-                )}
+            {/* Delete Confirm */}
+            <Modal show={!!deleteTarget} onHide={() => setDeleteTarget(null)} centered size="sm">
+                <Modal.Body className="p-4 text-center">
+                    <i className="bi bi-exclamation-triangle-fill mb-3" style={{ fontSize: '2.5rem', color: '#DC2626', display: 'block' }} />
+                    <h6 className="fw-bold mb-2">Supprimer ce partenaire ?</h6>
+                    <p className="text-muted small mb-4">"{deleteTarget?.name}" sera définitivement supprimé, y compris son logo.</p>
+                    <div className="d-flex gap-2 justify-content-center">
+                        <Button size="sm" variant="outline-secondary" onClick={() => setDeleteTarget(null)}>Annuler</Button>
+                        <Button size="sm" variant="danger" onClick={handleDelete}>Supprimer</Button>
+                    </div>
+                </Modal.Body>
             </Modal>
         </DashboardLayout>
     );

@@ -72,7 +72,8 @@ const STATUS_COLORS: Record<string, { label: string; bg: string; color: string }
 };
 
 export default function ContestShow({ user, contest, entries, userEntry, userHasVoted, settings }: ShowProps) {
-    const [showSubmitModal, setShowSubmitModal] = useState(false);
+    const params = new URLSearchParams(window.location.search);
+    const [showSubmitModal, setShowSubmitModal] = useState(params.get('participate') === '1');
     const [showVoteModal, setShowVoteModal] = useState(false);
     const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
     const [flash, setFlash] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);

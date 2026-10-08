@@ -24,7 +24,7 @@ class SharePayService
             'Accept'       => 'application/json',
         ])->post("{$this->baseUrl}/api/v1/pay-in/checkout", $params);
 
-        Log::info('SharePay checkout', ['status' => $response->status(), 'body' => $response->json()]);
+        Log::info('SharePay checkout', ['status' => $response->status()]);
 
         if (!$response->successful() || !($response->json('success'))) {
             throw new \RuntimeException($response->json('message', 'Erreur SharePay lors de la création du paiement.'));
@@ -35,8 +35,14 @@ class SharePayService
 
     public function verifyWebhookSignature(string $rawPayload, string $signature): bool
     {
-        $secret   = config('services.sharepay.webhook_secret');
+        $secret = (string) config('services.sharepay.webhook_secret', '');
+
+        if ($secret === '' || $signature === '') {
+            return false;
+        }
+
         $expected = hash_hmac('sha256', $rawPayload, $secret);
+
         return hash_equals($expected, $signature);
     }
 }

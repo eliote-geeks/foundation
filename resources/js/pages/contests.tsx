@@ -167,7 +167,7 @@ export default function Contests({ user, contests: dbContests = [] }: ContestsPr
                                                 </Link>
                                                 {contest.status === 'active' && (
                                                     <Link
-                                                        href={`/contests/${contest.id}`}
+                                                        href={`/contests/${contest.id}?participate=1`}
                                                         style={{
                                                             flex: 2, height: 34, lineHeight: '34px', textAlign: 'center', borderRadius: 6,
                                                             fontSize: '0.8125rem', fontWeight: 500, textDecoration: 'none',

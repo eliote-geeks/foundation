@@ -35,7 +35,7 @@ class PaymentController extends Controller
                 $ticket = Ticket::where('transaction_id', $reference)->with('event')->first();
                 if ($ticket) {
                     $type = 'ticket';
-                    $qty  = $ticket->metadata['quantity'] ?? 1;
+                    $qty  = $ticket->quantity;
                     $item = [
                         'amount'        => $ticket->formattedPrice(),
                         'label'         => $ticket->event?->title ?? 'Événement',
@@ -81,20 +81,6 @@ class PaymentController extends Controller
     {
         $reference = $request->query('reference');
 
-        if ($reference) {
-            Donation::where('payment_reference', $reference)
-                ->where('payment_status', 'pending')
-                ->update(['payment_status' => 'cancelled']);
-
-            Ticket::where('transaction_id', $reference)
-                ->where('payment_status', 'pending')
-                ->update(['payment_status' => 'failed', 'status' => 'cancelled']);
-
-            ContestEntry::where('transaction_id', $reference)
-                ->where('payment_status', 'pending')
-                ->update(['payment_status' => 'cancelled', 'status' => 'rejected']);
-        }
-
         return Inertia::render('payment/cancel', [
             'reference' => $reference,
         ]);
@@ -113,6 +99,11 @@ class PaymentController extends Controller
         }
 
         $payload = json_decode($rawPayload, true);
+
+        if (!is_array($payload)) {
+            return response()->json(['error' => 'Payload invalide'], 400);
+        }
+
         $event   = $payload['event'] ?? null;
         $data    = $payload['data'] ?? [];
         $ref     = $data['reference'] ?? null;
@@ -129,7 +120,10 @@ class PaymentController extends Controller
             match ($event) {
                 'payment.success'   => $donation->markAsCompleted($ref),
                 'payment.failed'    => $donation->markAsFailed('Échec SharePay'),
-                'payment.cancelled' => $donation->update(['payment_status' => 'cancelled']),
+                'payment.cancelled' => Donation::query()
+                    ->whereKey($donation->id)
+                    ->where('payment_status', 'pending')
+                    ->update(['payment_status' => 'cancelled']),
                 default             => null,
             };
             return response()->json(['ok' => true]);
@@ -139,9 +133,23 @@ class PaymentController extends Controller
         $ticket = Ticket::where('transaction_id', $ref)->first();
         if ($ticket) {
             match ($event) {
-                'payment.success'   => $ticket->update(['payment_status' => 'paid', 'status' => 'confirmed']),
+                'payment.success'   => Ticket::query()
+                    ->whereKey($ticket->id)
+                    ->where('payment_status', 'pending')
+                    ->update([
+                    'payment_status' => 'paid',
+                    'status' => 'confirmed',
+                    'reservation_expires_at' => null,
+                ]),
                 'payment.failed',
-                'payment.cancelled' => $ticket->update(['payment_status' => 'failed', 'status' => 'cancelled']),
+                'payment.cancelled' => Ticket::query()
+                    ->whereKey($ticket->id)
+                    ->where('payment_status', 'pending')
+                    ->update([
+                    'payment_status' => 'failed',
+                    'status' => 'cancelled',
+                    'reservation_expires_at' => null,
+                ]),
                 default             => null,
             };
             return response()->json(['ok' => true]);
@@ -151,9 +159,12 @@ class PaymentController extends Controller
         $vote = Vote::where('transaction_id', $ref)->first();
         if ($vote) {
             match ($event) {
-                'payment.success'   => $vote->update(['payment_status' => 'paid', 'voted_at' => now()]),
+                'payment.success'   => $vote->markAsPaid(),
                 'payment.failed',
-                'payment.cancelled' => $vote->update(['payment_status' => 'failed']),
+                'payment.cancelled' => Vote::query()
+                    ->whereKey($vote->id)
+                    ->where('payment_status', 'pending')
+                    ->update(['payment_status' => 'failed']),
                 default             => null,
             };
             return response()->json(['ok' => true]);
@@ -163,9 +174,15 @@ class PaymentController extends Controller
         $entry = ContestEntry::where('transaction_id', $ref)->first();
         if ($entry) {
             match ($event) {
-                'payment.success'   => $entry->update(['payment_status' => 'paid']),
+                'payment.success'   => ContestEntry::query()
+                    ->whereKey($entry->id)
+                    ->where('payment_status', 'pending')
+                    ->update(['payment_status' => 'paid']),
                 'payment.failed',
-                'payment.cancelled' => $entry->update(['payment_status' => 'failed', 'status' => 'rejected']),
+                'payment.cancelled' => ContestEntry::query()
+                    ->whereKey($entry->id)
+                    ->where('payment_status', 'pending')
+                    ->update(['payment_status' => 'failed', 'status' => 'rejected']),
                 default             => null,
             };
             return response()->json(['ok' => true]);

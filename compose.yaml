@@ -1,0 +1,78 @@
+name: foundation-titi
+
+services:
+  app:
+    build:
+      context: .
+      target: app
+    container_name: foundation-titi-app
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - foundation_titi_storage:/var/www/html/storage
+    networks:
+      - foundation_titi_net
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  web:
+    build:
+      context: .
+      target: nginx
+    container_name: foundation-titi-web
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    volumes:
+      - foundation_titi_storage:/var/www/html/storage:ro
+    networks:
+      - foundation_titi_net
+      - traefik-public
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.http.routers.foundation-http.rule=Host(`${DOMAIN:-titi-events.com}`) || Host(`${WWW_DOMAIN:-www.titi-events.com}`)"
+      - "traefik.http.routers.foundation-http.entrypoints=web"
+      - "traefik.http.routers.foundation-http.middlewares=foundation-https-redirect"
+      - "traefik.http.middlewares.foundation-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.foundation-titi.rule=Host(`${DOMAIN:-titi-events.com}`) || Host(`${WWW_DOMAIN:-www.titi-events.com}`)"
+      - "traefik.http.routers.foundation-titi.entrypoints=websecure"
+      - "traefik.http.routers.foundation-titi.tls=true"
+      - "traefik.http.routers.foundation-titi.tls.certresolver=letsencrypt"
+      - "traefik.http.services.foundation-titi.loadbalancer.server.port=80"
+
+volumes:
+  foundation_titi_storage:
+
+networks:
+  foundation_titi_net:
+    name: foundation_titi_net
+  traefik-public:
+    external: true

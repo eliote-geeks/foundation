@@ -22,12 +22,14 @@ Route::get('/', function () {
                 : number_format($totalRaised / 1_000, 0) . 'K',
         ],
         'partners' => \App\Models\Partner::active()
+            ->orderByDesc('is_featured')
+            ->orderBy('priority', 'desc')
             ->limit(8)
             ->get(['id', 'name', 'logo', 'website', 'is_featured'])
             ->map(fn($p) => [
-                'id' => $p->id,
-                'name' => $p->name,
-                'logo' => $p->logo,
+                'id'          => $p->id,
+                'name'        => $p->name,
+                'logo'        => $p->logo ? \Illuminate\Support\Facades\Storage::url($p->logo) : null,
                 'website_url' => $p->website,
             ])->values(),
         'upcomingEvents' => Event::query()
@@ -95,19 +97,19 @@ Route::get('/contests', function () {
 })->name('contests');
 
 Route::get('/contests/{contest}', [App\Http\Controllers\ContestController::class, 'show'])->name('contests.show');
-Route::post('/contests/{contest}/entries', [App\Http\Controllers\ContestController::class, 'submitEntry'])->name('contests.entries.store')->middleware('auth');
-Route::post('/contests/{contest}/vote', [App\Http\Controllers\ContestController::class, 'submitVote'])->name('contests.vote')->middleware('auth');
+Route::post('/contests/{contest}/entries', [App\Http\Controllers\ContestController::class, 'submitEntry'])->name('contests.entries.store')->middleware(['auth', 'throttle:5,1']);
+Route::post('/contests/{contest}/vote', [App\Http\Controllers\ContestController::class, 'submitVote'])->name('contests.vote')->middleware(['auth', 'throttle:5,1']);
 
 // Media upload (auth required, returns JSON)
-Route::post('/media/upload', [App\Http\Controllers\MediaController::class, 'store'])->name('media.upload')->middleware('auth');
+Route::post('/media/upload', [App\Http\Controllers\MediaController::class, 'store'])->name('media.upload')->middleware(['auth', 'throttle:20,1']);
 Route::delete('/media/{media}', [App\Http\Controllers\MediaController::class, 'destroy'])->name('media.destroy')->middleware('auth');
 
 // Public projects
 Route::get('/projects', [App\Http\Controllers\ProjectController::class, 'index'])->name('projects');
-Route::post('/projects', [App\Http\Controllers\ProjectController::class, 'store'])->name('projects.store')->middleware('auth');
+Route::post('/projects', [App\Http\Controllers\ProjectController::class, 'store'])->name('projects.store')->middleware(['auth', 'throttle:5,1']);
 
 Route::get('/donate', [App\Http\Controllers\DonationController::class, 'index'])->name('donate');
-Route::post('/donate', [App\Http\Controllers\DonationController::class, 'store'])->name('donate.store');
+Route::post('/donate', [App\Http\Controllers\DonationController::class, 'store'])->name('donate.store')->middleware('throttle:5,1');
 
 // SharePay payment callbacks & webhook
 Route::get('/payment/success', [App\Http\Controllers\PaymentController::class, 'success'])->name('payment.success');
@@ -121,13 +123,13 @@ Route::get('/tickets', fn() => redirect('/events'))->name('tickets');
 Route::controller(App\Http\Controllers\PublicEventController::class)->group(function () {
     Route::get('/events', 'index')->name('events.index');
     Route::get('/events/{event}', 'show')->name('events.show');
-    Route::post('/events/{event}/reserve', 'reserve')->name('events.reserve');
+    Route::post('/events/{event}/reserve', 'reserve')->name('events.reserve')->middleware('throttle:5,1');
 });
 
 // Routes partenaires
 Route::controller(App\Http\Controllers\PartnerController::class)->group(function () {
     Route::get('/partners', 'index')->name('partners');
-    Route::post('/partners/request', 'submitRequest')->name('partners.request');
+    Route::post('/partners/request', 'submitRequest')->name('partners.request')->middleware('throttle:3,60');
     Route::get('/api/partners', 'apiIndex')->name('api.partners.index');
     Route::get('/api/partners/stats', 'stats')->name('api.partners.stats');
     Route::get('/api/partners/{partner}', 'show')->name('api.partners.show');
@@ -219,12 +221,9 @@ Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->g
     Route::controller(App\Http\Controllers\Dashboard\PartnerController::class)->prefix('partners')->name('partners.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
-        Route::put('/{partner}', 'update')->name('update');
+        Route::post('/{partner}', 'update')->name('update');
         Route::delete('/{partner}', 'destroy')->name('destroy');
-        Route::post('/{partner}/activate', 'activate')->name('activate');
-        Route::post('/{partner}/suspend', 'suspend')->name('suspend');
-        Route::post('/{partner}/contact', 'updateContact')->name('contact.update');
-        Route::post('/requests/{partnerRequest}/process', 'processRequest')->name('requests.process');
+        Route::post('/{partner}/featured', 'toggleFeatured')->name('featured');
         Route::get('/export', 'export')->name('export');
     });
 
@@ -293,12 +292,12 @@ Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->g
     })->name('pending-payments');
 
     Route::post('/pending-payments/votes/{vote}/confirm', function (\App\Models\Vote $vote) {
-        $vote->update(['payment_status' => 'paid', 'voted_at' => now()]);
-        // Increment entry votes_count
-        if ($vote->participant_id) {
-            \App\Models\ContestEntry::where('id', $vote->participant_id)->increment('votes_count');
-        }
-        return back()->with('success', 'Vote confirmé.');
+        $confirmed = $vote->markAsPaid();
+
+        return back()->with(
+            $confirmed ? 'success' : 'error',
+            $confirmed ? 'Vote confirmé.' : 'Ce vote a déjà été traité.'
+        );
     })->name('pending-payments.votes.confirm');
 
     Route::post('/pending-payments/votes/{vote}/reject', function (\App\Models\Vote $vote) {

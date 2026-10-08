@@ -92,12 +92,18 @@ class PartnerController extends Controller
      */
     public function apiIndex(Request $request): JsonResponse
     {
-        $query = Partner::query();
-
-        // Filtres
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+        $query = Partner::active()->select([
+            'id',
+            'name',
+            'logo',
+            'description',
+            'website',
+            'category',
+            'partnership_type',
+            'partnership_start_date',
+            'is_featured',
+            'priority',
+        ]);
 
         if ($request->filled('category')) {
             $query->byCategory($request->category);
@@ -112,17 +118,19 @@ class PartnerController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%")
-                  ->orWhere('contact_person', 'LIKE', "%{$search}%");
+                  ->orWhere('description', 'LIKE', "%{$search}%");
             });
         }
 
-        // Tri
-        $sortBy = $request->get('sort_by', 'name');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $allowedSorts = ['name', 'category', 'partnership_type', 'partnership_start_date', 'priority'];
+        $sortBy = in_array($request->get('sort_by'), $allowedSorts, true)
+            ? $request->get('sort_by')
+            : 'name';
+        $sortOrder = $request->get('sort_order') === 'desc' ? 'desc' : 'asc';
         $query->orderBy($sortBy, $sortOrder);
 
-        $partners = $query->paginate($request->get('per_page', 15));
+        $perPage = min(max($request->integer('per_page', 15), 1), 50);
+        $partners = $query->paginate($perPage);
 
         return response()->json($partners);
     }
@@ -132,11 +140,21 @@ class PartnerController extends Controller
      */
     public function show(Partner $partner): JsonResponse
     {
+        abort_unless($partner->status === 'active', 404);
+
         return response()->json([
-            'partner' => $partner,
-            'formatted_contribution' => $partner->formatted_contribution,
+            'partner' => $partner->only([
+                'id',
+                'name',
+                'logo',
+                'description',
+                'website',
+                'category',
+                'partnership_type',
+                'partnership_start_date',
+                'is_featured',
+            ]),
             'partnership_duration' => $partner->partnership_duration,
-            'status_badge' => $partner->status_badge,
             'category_color' => $partner->category_color
         ]);
     }
@@ -147,27 +165,24 @@ class PartnerController extends Controller
     public function stats(): JsonResponse
     {
         $stats = [
-            'total' => Partner::count(),
+            'total' => Partner::active()->count(),
             'active' => Partner::where('status', 'active')->count(),
-            'pending' => Partner::where('status', 'pending')->count(),
-            'suspended' => Partner::where('status', 'suspended')->count(),
-            'by_category' => Partner::selectRaw('category, COUNT(*) as count')
+            'by_category' => Partner::active()->selectRaw('category, COUNT(*) as count')
                 ->groupBy('category')
                 ->pluck('count', 'category'),
-            'by_partnership_type' => Partner::selectRaw('partnership_type, COUNT(*) as count')
+            'by_partnership_type' => Partner::active()->selectRaw('partnership_type, COUNT(*) as count')
                 ->groupBy('partnership_type')
                 ->pluck('count', 'partnership_type'),
-            'total_contribution' => Partner::sum('contribution_amount'),
-            'average_partnership_duration' => Partner::whereNotNull('partnership_start_date')
+            'average_partnership_duration' => Partner::active()->whereNotNull('partnership_start_date')
                 ->get()
                 ->avg(function ($partner) {
                     return $partner->partnership_start_date->diffInMonths(
                         $partner->partnership_end_date ?? now()
                     );
                 }),
-            'recent_partners' => Partner::latest()
+            'recent_partners' => Partner::active()->latest()
                 ->limit(5)
-                ->get(['id', 'name', 'status', 'created_at'])
+                ->get(['id', 'name', 'created_at'])
         ];
 
         return response()->json($stats);

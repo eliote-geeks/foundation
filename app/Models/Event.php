@@ -67,6 +67,11 @@ class Event extends Model
         return $this->hasMany(Ticket::class);
     }
 
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'published' && 
@@ -89,7 +94,28 @@ class Event extends Model
     public function availableTickets(): int
     {
         if (!$this->capacity) return PHP_INT_MAX;
-        return max(0, $this->capacity - $this->tickets_sold);
+
+        return max(0, $this->capacity - $this->reservedPlaces());
+    }
+
+    public function reservedPlaces(): int
+    {
+        $ticketPlaces = (int) $this->tickets()
+            ->where(function ($query) {
+                $query->whereIn('status', ['confirmed', 'used'])
+                    ->orWhere(function ($pending) {
+                        $pending->where('status', 'pending')
+                            ->where('payment_status', 'pending')
+                            ->where('reservation_expires_at', '>', now());
+                    });
+            })
+            ->sum('quantity');
+
+        $registrationPlaces = (int) $this->registrations()
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->sum('quantity');
+
+        return $ticketPlaces + $registrationPlaces;
     }
 
     public function formattedPrice(): string
